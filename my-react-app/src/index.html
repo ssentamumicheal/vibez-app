@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibez - Find Your Vibe in Uganda</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-purple-pink {
+            background-image: linear-gradient(to right, #a855f7, #ec4899);
+        }
+        .gradient-teal-blue {
+            background-image: linear-gradient(to right, #2dd4bf, #3b82f6);
+        }
+        .gradient-orange-yellow {
+            background-image: linear-gradient(to right, #fb923c, #facc15);
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 1s ease-out;
+        }
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out;
+        }
+        .hidden {
+            display: none;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-900 text-white">
+    <div id="app-container">
+
+        <!-- Header for the logged-in view -->
+        <header id="main-header" class="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 hidden">
+            <h1 class="text-4xl font-extrabold tracking-widest text-gradient gradient-purple-pink">VIBEZ</h1>
+            <div class="flex items-center">
+                <span id="user-info" class="text-lg text-white font-semibold mr-4"></span>
+                <button
+                    id="logout-button"
+                    class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main App Content (Dashboard) -->
+        <div id="main-app-content" class="min-h-screen hidden">
+            <!-- Hero Section -->
+            <section class="relative min-h-screen flex items-center justify-center text-center p-4">
+                <div 
+                  class="absolute inset-0 bg-cover bg-center opacity-30" 
+                  style="background-image: url('https://placehold.co/1920x1080/0d1117/FFFFFF?text=Party+in+Uganda');">
+                </div>
+                <div class="relative z-10 p-8 rounded-2xl bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg border border-gray-700">
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight text-gradient gradient-purple-pink mb-4 animate-fade-in-down">
+                        Find Your Vibe in Uganda
+                    </h1>
+                    <p class="text-xl md:text-2xl text-gray-200 mb-8 animate-fade-in-up">
+                        Discover the hottest parties, events, and chill spots happening right now.
+                    </p>
+                    <a
+                        href="#features"
+                        class="px-8 py-4 text-lg font-bold text-white bg-purple-600 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
+                        Explore Vibez Now
+                    </a>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="py-20 px-8 md:px-20 text-center">
+                <h2 class="text-4xl font-bold text-gradient gradient-teal-blue mb-8">
+                    About Vibez
+                </h2>
+                <div class="max-w-4xl mx-auto text-gray-300 text-lg">
+                    <p class="mb-4">
+                        Vibez is the ultimate platform for discovering the best social events and party locations in Uganda. Our mission is to connect you with the most vibrant spots, whether you're looking for a high-energy party or a laid-back chill session.
+                    </p>
+                    <p>
+                        With real-time user updates, video posts, and crowd-sourced rankings, you'll always know where to go to have a great time.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="py-20 px-8 md:px-20 bg-gray-800 border-t border-b border-gray-700">
+                <h2 class="text-4xl font-bold text-center text-gradient gradient-orange-yellow mb-12">
+                    Key Features
+                </h2>
+                <div class="flex flex-col md:flex-row justify-center items-center gap-6 max-w-6xl mx-auto">
+                    <!-- Interactive Map Button -->
+                    <a href="dashboard.html?tab=map" class="w-full md:w-auto px-8 py-4 text-center font-bold text-white bg-purple-600 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
+                        Interactive Map
+                    </a>
+                    <!-- Live Videos Button -->
+                    <a href="dashboard.html?tab=videos" class="w-full md:w-auto px-8 py-4 text-center font-bold text-white bg-purple-600 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
+                        Live Videos
+                    </a>
+                    <!-- Real-Time Chat Button -->
+                    <a href="dashboard.html?tab=chat" class="w-full md:w-auto px-8 py-4 text-center font-bold text-white bg-purple-600 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
+                        Real-Time Chat
+                    </a>
+                </div>
+            </section>
+            
+            <!-- Footer -->
+            <footer class="py-8 text-center text-gray-400 border-t border-gray-700">
+                <p>&copy; 2025 Vibez. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- Authentication Forms -->
+        <div id="auth-container" class="min-h-screen flex flex-col items-center justify-center p-4">
+            <div id="form-card" class="w-full max-w-lg p-8 bg-gray-800 rounded-2xl shadow-2xl backdrop-filter backdrop-blur-lg bg-opacity-70 border border-gray-700 transition-all duration-500 ease-in-out transform scale-100">
+                <h2 id="form-title" class="text-3xl font-bold text-center text-white mb-6">Welcome Back!</h2>
+                <p id="form-subtitle" class="text-center text-gray-400 mb-8">Log in to find the hottest parties in Uganda.</p>
+
+                <div id="error-message" class="bg-red-500 text-white px-4 py-3 rounded-lg mb-6 text-sm text-center hidden"></div>
+
+                <form id="login-form" class="space-y-6">
+                    <input
+                        type="email"
+                        id="login-email"
+                        placeholder="Email Address"
+                        class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300"
+                        required>
+                    <input
+                        type="password"
+                        id="login-password"
+                        placeholder="Password"
+                        class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300"
+                        required>
+                    <button
+                        type="submit"
+                        id="login-submit"
+                        class="w-full px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-pink-700 transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Login
+                    </button>
+                </form>
+
+                <form id="register-form" class="space-y-6 hidden">
+                    <input
+                        type="text"
+                        id="register-username"
+                        placeholder="Username"
+                        class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300"
+                        required>
+                    <input
+                        type="email"
+                        id="register-email"
+                        placeholder="Email Address"
+                        class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300"
+                        required>
+                    <input
+                        type="password"
+                        id="register-password"
+                        placeholder="Password"
+                        class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300"
+                        required>
+                    <button
+                        type="submit"
+                        id="register-submit"
+                        class="w-full px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-pink-700 transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Register
+                    </button>
+                </form>
+
+                <div id="toggle-auth" class="text-center mt-8 text-gray-400">
+                    Don't have an account? 
+                    <button id="toggle-button" class="text-purple-400 hover:text-purple-300 font-semibold ml-2 transition duration-300">
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+
+        const appContainer = document.getElementById('app-container');
+        const authContainer = document.getElementById('auth-container');
+        const mainAppContent = document.getElementById('main-app-content');
+        const mainHeader = document.getElementById('main-header');
+        const logoutButton = document.getElementById('logout-button');
+        const userInfo = document.getElementById('user-info');
+
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const toggleButton = document.getElementById('toggle-button');
+        const formTitle = document.getElementById('form-title');
+        const formSubtitle = document.getElementById('form-subtitle');
+        const errorMessage = document.getElementById('error-message');
+
+        let isLogin = true;
+
+        // Function to show the authenticated view
+        const showMainApp = (username) => {
+            authContainer.classList.add('hidden');
+            mainAppContent.classList.remove('hidden');
+            mainHeader.classList.remove('hidden');
+            userInfo.textContent = `Hello, ${username}`;
+        };
+
+        // Function to show the authentication form
+        const showAuthForm = () => {
+            authContainer.classList.remove('hidden');
+            mainAppContent.classList.add('hidden');
+            mainHeader.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+        };
+
+        // Check for existing token on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // You would typically fetch user data here to get the username
+                // For now, we'll use a placeholder.
+                showMainApp("User");
+            } else {
+                showAuthForm();
+            }
+        });
+
+        // Toggle between login and registration forms
+        toggleButton.addEventListener('click', () => {
+            isLogin = !isLogin;
+            errorMessage.classList.add('hidden');
+            if (isLogin) {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                formTitle.textContent = "Welcome Back!";
+                formSubtitle.textContent = "Log in to find the hottest parties in Uganda.";
+                toggleButton.textContent = "Sign Up";
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                formTitle.textContent = "Join Vibez";
+                formSubtitle.textContent = "Create an account to start exploring.";
+                toggleButton.textContent = "Log In";
+            }
+        });
+
+        // Handle login form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    showMainApp(data.username);
+                } else {
+                    errorMessage.textContent = data.non_field_errors[0] || 'Login failed.';
+                    errorMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorMessage.textContent = 'A network error occurred. Please try again.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        // Handle registration form submission
+        registerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('authToken', data.token);
+                    showMainApp(data.username);
+                } else {
+                    const errorMsg = Object.values(data).flat().join(' ');
+                    errorMessage.textContent = errorMsg || 'Registration failed.';
+                    errorMessage.classList.remove('hidden');
+                }
+            } catch (error) {
+                errorMessage.textContent = 'A network error occurred. Please try again.';
+                errorMessage.classList.remove('hidden');
+            }
+        });
+
+        // Handle logout
+        logoutButton.addEventListener('click', async () => {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                try {
+                    await fetch(`${API_BASE_URL}/logout/`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Token ${token}` }
+                    });
+                } finally {
+                    localStorage.removeItem('authToken');
+                    showAuthForm();
+                }
+            }
+        });
+
+        // No JavaScript is needed for the feature buttons as they are now direct links
+    </script>
+</body>
+</html>
+

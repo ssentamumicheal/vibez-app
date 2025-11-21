@@ -1,0 +1,3056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibez - Complete Party & Events Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet Marker Cluster -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+        }
+        
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-purple-pink {
+            background-image: linear-gradient(to right, #a855f7, #ec4899);
+        }
+        
+        .gradient-teal-blue {
+            background-image: linear-gradient(to right, #2dd4bf, #3b82f6);
+        }
+        
+        .gradient-orange-yellow {
+            background-image: linear-gradient(to right, #fb923c, #facc15);
+        }
+        
+        .animate-fade-in-down {
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .tab-button.active {
+            border-bottom: 3px solid #a855f7;
+            color: #ec4899;
+        }
+        
+        #map-container {
+            width: 100%;
+            height: 600px;
+            border-radius: 0.5rem;
+            z-index: 1;
+        }
+        
+        .video-thumbnail {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+        }
+        
+        .skeleton-video {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #a855f7;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Real-time indicators */
+        .live-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .online-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #10b981;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        /* Rating stars */
+        .rating-stars {
+            display: inline-flex;
+            direction: row;
+        }
+        
+        .rating-star {
+            color: #d1d5db;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: color 0.2s;
+        }
+        
+        .rating-star:hover,
+        .rating-star.active {
+            color: #fbbf24;
+        }
+        
+        /* Modal styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: #1f2937;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        /* Profile styles */
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #a855f7;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 768px) {
+            .tab-button {
+                padding: 12px 16px;
+                font-size: 14px;
+                flex: 1;
+                text-align: center;
+            }
+            
+            #map-container {
+                height: 400px;
+            }
+            
+            #filters-sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                width: 100%;
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+            
+            #filters-sidebar.open {
+                transform: translateY(0);
+            }
+            
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #1f2937;
+                padding: 12px;
+                display: flex;
+                justify-content: space-around;
+                z-index: 40;
+            }
+        }
+        
+        /* Touch-friendly buttons */
+        .tab-button, .auth-button {
+            min-height: 44px;
+        }
+        
+        /* Prevent zoom on input focus */
+        @media (max-width: 768px) {
+            input, select, textarea {
+                font-size: 16px;
+            }
+        }
+        
+        /* Leaflet map customizations */
+        .leaflet-container {
+            background: #1f2937;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            background: #374151;
+            color: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .leaflet-popup-tip {
+            background: #374151;
+        }
+        
+        .leaflet-control-zoom a {
+            background: #374151;
+            color: #f9fafb;
+            border: none;
+        }
+        
+        .leaflet-control-zoom a:hover {
+            background: #4b5563;
+        }
+        
+        .party-marker {
+            background: #ec4899;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.7);
+        }
+        
+        .party-marker.high-rated {
+            background: #facc15;
+            box-shadow: 0 0 10px rgba(250, 204, 21, 0.7);
+        }
+        
+        .party-marker.top-rated {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+        }
+        
+        .party-marker.user-generated {
+            background: #3b82f6;
+            box-shadow: 0 0 10px rgba(59, 130, 246, 0.7);
+            border: 3px dashed white;
+        }
+        
+        .party-marker.filtered-out {
+            opacity: 0.3;
+            transform: scale(0.8);
+        }
+        
+        .event-marker {
+            background: #8b5cf6;
+            border: 3px solid white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .event-marker i {
+            color: white;
+            font-size: 12px;
+        }
+        
+        /* Map and filters layout */
+        .map-filters-container {
+            display: flex;
+            gap: 1rem;
+            position: relative;
+        }
+        
+        #filters-sidebar {
+            background: #1f2937;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            width: 280px;
+            flex-shrink: 0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+        }
+        
+        #map-content-container {
+            flex: 1;
+            position: relative;
+        }
+        
+        @media (max-width: 1024px) {
+            .map-filters-container {
+                flex-direction: column;
+            }
+            
+            #filters-sidebar {
+                width: 100%;
+            }
+        }
+        
+        /* Real-time updates */
+        .new-content-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ec4899;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Chat styles */
+        .chat-message {
+            max-width: 70%;
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 18px;
+            position: relative;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        .chat-message.own {
+            background: #a855f7;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .chat-message.other {
+            background: #374151;
+            color: white;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .chat-message-time {
+            font-size: 10px;
+            opacity: 0.7;
+            margin-top: 4px;
+            text-align: right;
+        }
+        
+        /* Live video styles */
+        .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #ef4444;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            z-index: 10;
+        }
+        
+        .live-badge::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background-color: white;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        /* User contribution stats */
+        .contribution-stats {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+        }
+        
+        /* Events styles */
+        .event-card {
+            background: #1f2937;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .event-date {
+            background: #4f46e5;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            width: 70px;
+        }
+        
+        .event-date .month {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .event-date .day {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        
+        .event-date .weekday {
+            font-size: 12px;
+        }
+        
+        .event-category {
+            display: inline-block;
+            background: #ec4899;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .event-popular {
+            background: #f59e0b;
+        }
+        
+        .event-trending {
+            background: #ef4444;
+        }
+        
+        .events-search-bar {
+            background: #1f2937;
+            border-radius: 50px;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+        }
+        
+        .events-tabs {
+            display: flex;
+            border-bottom: 1px solid #374151;
+            margin-bottom: 20px;
+        }
+        
+        .events-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .events-tab.active {
+            border-bottom-color: #a855f7;
+            color: #a855f7;
+        }
+        
+        .events-filter {
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .events-results-count {
+            color: #9ca3af;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        /* Profile page styles */
+        .profile-section {
+            background: #1f2937;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .badge-item {
+            display: inline-flex;
+            align-items: center;
+            background: #374151;
+            border-radius: 1rem;
+            padding: 0.5rem 1rem;
+            margin: 0.25rem;
+        }
+        
+        /* Video management styles */
+        .video-management-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #374151;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .video-thumbnail-small {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white">
+    <!-- Loading Overlay and Notifications -->
+    <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-white text-lg">Loading...</p>
+        </div>
+    </div>
+
+    <div id="notification-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Location Permission Modal -->
+    <div id="location-permission-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 p-6 rounded-lg max-w-md mx-4">
+            <h3 class="text-xl font-bold mb-4 text-white">Share Your Location</h3>
+            <p class="text-gray-300 mb-4">
+                Help improve party discovery by sharing your location. This helps us find the hottest spots in real-time and makes the app better for everyone!
+            </p>
+            <div class="flex space-x-4">
+                <button id="allow-location" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
+                    Allow Location
+                </button>
+                <button id="deny-location" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
+                    Not Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="rating-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4 text-white">Rate This Location</h3>
+            <div id="rating-location-name" class="text-lg font-semibold mb-4 text-purple-300"></div>
+            <div class="rating-stars mb-4" id="rating-stars">
+                <span class="rating-star" data-rating="1">★</span>
+                <span class="rating-star" data-rating="2">★</span>
+                <span class="rating-star" data-rating="3">★</span>
+                <span class="rating-star" data-rating="4">★</span>
+                <span class="rating-star" data-rating="5">★</span>
+            </div>
+            <div class="flex space-x-4">
+                <button id="submit-rating" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
+                    Submit Rating
+                </button>
+                <button id="cancel-rating" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Location Modal -->
+    <div id="create-location-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 class="text-xl font-bold mb-4 text-white">Add New Party Location</h3>
+            <form id="create-location-form" class="space-y-4">
+                <div>
+                    <label for="location-name" class="block text-sm font-medium text-gray-300 mb-2">Location Name</label>
+                    <input type="text" id="location-name" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" required>
+                </div>
+                <div>
+                    <label for="location-description" class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                    <textarea id="location-description" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" rows="3"></textarea>
+                </div>
+                <div>
+                    <label for="location-type" class="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                    <select id="location-type" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="club">Club</option>
+                        <option value="bar">Bar</option>
+                        <option value="lounge">Lounge</option>
+                        <option value="concert">Concert Venue</option>
+                        <option value="beach">Beach Party</option>
+                    </select>
+                </div>
+                <div class="flex space-x-4">
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
+                        Create Location
+                    </button>
+                    <button type="button" id="cancel-create-location" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-white">Your Profile</h3>
+                <button id="close-profile" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="space-y-6">
+                <div class="text-center">
+                    <img id="profile-avatar" src="https://via.placeholder.com/120" alt="Profile Avatar" class="profile-avatar mx-auto mb-4">
+                    <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                    <button id="change-avatar" class="text-purple-400 hover:text-purple-300 text-sm">Change Avatar</button>
+                </div>
+                <div>
+                    <label for="profile-username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
+                    <input type="text" id="profile-username" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" readonly>
+                </div>
+                <div>
+                    <label for="profile-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <input type="email" id="profile-email" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" readonly>
+                </div>
+                <div>
+                    <label for="profile-bio" class="block text-sm font-medium text-gray-300 mb-2">Bio</label>
+                    <textarea id="profile-bio" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" rows="3"></textarea>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="save-profile" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
+                        Save Changes
+                    </button>
+                    <button id="close-profile-modal" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Feed Container -->
+    <div id="video-feed-container" class="hidden fixed inset-0 z-50 bg-black">
+        <button id="close-video-feed" class="absolute top-4 left-4 text-white z-50 p-3 rounded-full bg-gray-900/50 hover:bg-gray-700">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div id="video-feed-list" class="h-full overflow-y-scroll snap-y snap-mandatory"></div>
+    </div>
+
+    <div id="app-container">
+        <!-- Header for the logged-in view - FIXED POSITIONING -->
+        <header id="main-header" class="fixed top-0 left-0 right-0 p-4 flex justify-between items-center z-40 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg border-b border-gray-700 hidden">
+            <h1 class="text-2xl font-extrabold tracking-widest text-gradient gradient-purple-pink">VIBEZ</h1>
+            <div class="flex items-center space-x-4">
+                <button id="profile-button" class="text-white hover:text-purple-300 transition-colors">
+                    <i class="fas fa-user-circle text-xl"></i>
+                </button>
+                <span id="user-info" class="text-white font-semibold"></span>
+                <div class="flex items-center text-green-500 text-sm">
+                    <span class="online-indicator"></span>
+                    <span>Online</span>
+                </div>
+                <button id="logout-button" class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-sm">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main App Content (Dashboard) -->
+        <div id="main-app-content" class="min-h-screen hidden">
+            <!-- Tab Navigation - ADJUSTED MARGIN TOP -->
+            <div class="flex justify-center space-x-8 mb-8 border-b border-gray-700 pt-20">
+                <button id="map-tab" class="tab-button active px-4 py-2 font-semibold text-lg transition duration-300">
+                    <span class="live-indicator"></span>Live Map
+                </button>
+                <button id="events-tab" class="tab-button px-4 py-2 font-semibold text-lg transition duration-300">
+                    <i class="fas fa-calendar-alt mr-2"></i>Events
+                </button>
+                <button id="videos-tab" class="tab-button px-4 py-2 font-semibold text-lg transition duration-300">
+                    <span class="live-indicator"></span>Live Videos
+                </button>
+                <button id="chat-tab" class="tab-button px-4 py-2 font-semibold text-lg transition duration-300">
+                    <span class="live-indicator"></span>Real-Time Chat
+                </button>
+                <button id="profile-tab" class="tab-button px-4 py-2 font-semibold text-lg transition duration-300">
+                    <i class="fas fa-user mr-2"></i>Profile
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tab-content" class="pb-8 px-4 md:px-8">
+                <!-- Interactive Map Section -->
+                <div id="map-content" class="tab-pane">
+                    <div class="max-w-7xl mx-auto">
+                        <!-- Location Action Buttons -->
+                        <div class="absolute top-4 right-4 z-10 space-y-2">
+                            <button id="share-location-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center">
+                                <i class="fas fa-share-location mr-2"></i>
+                                Share My Location
+                            </button>
+                            <button id="check-in-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-700 transition-colors flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                Check In
+                            </button>
+                            <button id="create-location-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-purple-700 transition-colors flex items-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Location
+                            </button>
+                        </div>
+
+                        <div class="map-filters-container">
+                            <!-- Filters Sidebar -->
+                            <div id="filters-sidebar" class="bg-gray-800 rounded-lg shadow-xl">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-bold text-white text-lg">Live Filters</h3>
+                                    <button id="toggle-filters" class="lg:hidden text-purple-400">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Party Type</label>
+                                        <select id="party-type-filter" class="w-full bg-gray-700 text-white rounded-md p-2">
+                                            <option value="all">All Types</option>
+                                            <option value="club">Club</option>
+                                            <option value="beach">Beach Party</option>
+                                            <option value="concert">Concert</option>
+                                            <option value="lounge">Lounge</option>
+                                            <option value="bar">Bar</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Rating</label>
+                                        <select id="rating-filter" class="w-full bg-gray-700 text-white rounded-md p-2">
+                                            <option value="any">Any Rating</option>
+                                            <option value="4.5">4.5+ Stars</option>
+                                            <option value="4.0">4.0+ Stars</option>
+                                            <option value="3.5">3.5+ Stars</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">Vibe Level</label>
+                                        <select id="vibe-filter" class="w-full bg-gray-700 text-white rounded-md p-2">
+                                            <option value="any">Any Vibe</option>
+                                            <option value="high">High Energy</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="chill">Chill</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="live-updates" class="rounded bg-gray-700 border-gray-600 text-purple-500 focus:ring-purple-500" checked>
+                                        <label for="live-updates" class="ml-2 text-sm text-gray-300">Live Updates</label>
+                                    </div>
+                                    <button id="apply-filters" class="w-full py-3 px-4 rounded-md text-white font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-colors shadow-lg">
+                                        Apply Filters
+                                    </button>
+                                    <button id="reset-filters" class="w-full py-2 px-4 rounded-md text-white font-semibold bg-gray-600 hover:bg-gray-700 transition-colors">
+                                        Reset Filters
+                                    </button>
+                                    
+                                    <!-- User Contribution Stats -->
+                                    <div class="contribution-stats">
+                                        <h4 class="font-semibold text-white mb-2">Your Contributions</h4>
+                                        <div class="grid grid-cols-2 gap-2 text-sm">
+                                            <div class="text-white">
+                                                <div class="font-bold" id="user-checkins-count">0</div>
+                                                <div class="text-blue-200">Check-ins</div>
+                                            </div>
+                                            <div class="text-white">
+                                                <div class="font-bold" id="user-locations-added">0</div>
+                                                <div class="text-blue-200">Locations Added</div>
+                                            </div>
+                                            <div class="text-white">
+                                                <div class="font-bold" id="user-ratings-count">0</div>
+                                                <div class="text-blue-200">Ratings</div>
+                                            </div>
+                                            <div class="text-white">
+                                                <div class="font-bold" id="user-videos-count">0</div>
+                                                <div class="text-blue-200">Videos</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Map Container -->
+                            <div id="map-content-container">
+                                <div id="map-container" class="w-full rounded-lg shadow-lg"></div>
+                                <div class="mt-4 flex justify-between items-center">
+                                    <div class="text-sm text-gray-400">
+                                        <span id="filtered-count">0</span> of <span id="total-count">0</span> live locations
+                                        <br>
+                                        <span id="user-locations-count">0</span> user-discovered spots
+                                    </div>
+                                    <div class="flex items-center text-green-500 text-sm">
+                                        <span class="online-indicator"></span>
+                                        <span>Live Updates Active</span>
+                                    </div>
+                                    <button id="toggle-filters-button" class="lg:hidden bg-purple-600 text-white px-4 py-2 rounded-md">
+                                        <i class="fas fa-filter mr-2"></i>Filters
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Events Section -->
+                <div id="events-content" class="tab-pane hidden">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gradient gradient-teal-blue">
+                                <i class="fas fa-calendar-alt mr-2"></i>Events Near You
+                            </h2>
+                            <div class="flex items-center text-green-500 text-sm">
+                                <span class="online-indicator"></span>
+                                <span>Live Updates</span>
+                            </div>
+                        </div>
+
+                        <!-- Events Search and Filters -->
+                        <div class="events-search-bar flex items-center">
+                            <i class="fas fa-search text-gray-400 mr-3"></i>
+                            <input type="text" id="events-search" placeholder="Search events, artists, venues..." class="flex-1 bg-transparent text-white focus:outline-none">
+                            <button id="events-search-btn" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors ml-2">
+                                Search
+                            </button>
+                        </div>
+
+                        <div class="events-filter flex flex-wrap gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Time Frame</label>
+                                <select id="events-timeframe" class="bg-gray-700 text-white rounded-md p-2">
+                                    <option value="all">All Upcoming</option>
+                                    <option value="today">Today</option>
+                                    <option value="weekend">This Weekend</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Category</label>
+                                <select id="events-category" class="bg-gray-700 text-white rounded-md p-2">
+                                    <option value="all">All Categories</option>
+                                    <option value="music">Music</option>
+                                    <option value="festival">Festival</option>
+                                    <option value="club">Club Night</option>
+                                    <option value="cultural">Cultural</option>
+                                    <option value="sports">Sports</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">Sort By</label>
+                                <select id="events-sort" class="bg-gray-700 text-white rounded-md p-2">
+                                    <option value="popularity">Popularity</option>
+                                    <option value="date">Date</option>
+                                    <option value="distance">Distance</option>
+                                    <option value="rating">Rating</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="events-results-count">
+                            About <span id="events-count">0</span> results near you
+                        </div>
+
+                        <!-- Events Grid -->
+                        <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <!-- Events will be dynamically loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Videos Section -->
+                <div id="videos-content" class="tab-pane hidden">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gradient gradient-orange-yellow">
+                                <span class="live-indicator"></span>Live Videos
+                            </h2>
+                            <div class="flex items-center text-green-500 text-sm">
+                                <span class="online-indicator"></span>
+                                <span>Streaming Live</span>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Upload and manage videos -->
+                            <div class="lg:col-span-1">
+                                <div class="bg-gray-800 rounded-lg p-6 shadow-md mb-8">
+                                    <h3 class="text-xl font-semibold mb-4">Upload a Video</h3>
+                                    <form id="upload-form" class="space-y-4">
+                                        <div>
+                                            <label for="video-file" class="block text-sm font-medium text-gray-300">Video File (30s max)</label>
+                                            <input type="file" id="video-file" accept="video/mp4,video/avi,video/mov,video/wmv" class="mt-1 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-white hover:file:bg-purple-600"/>
+                                        </div>
+                                        <div>
+                                            <label for="video-caption" class="block text-sm font-medium text-gray-300">Caption</label>
+                                            <input type="text" id="video-caption" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-purple-500 focus:ring-purple-500"/>
+                                        </div>
+                                        <div>
+                                            <label for="video-location" class="block text-sm font-medium text-gray-300">Location</label>
+                                            <select id="video-location" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-purple-500 focus:ring-purple-500">
+                                                <option value="">Select a location</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="w-full py-2 px-4 rounded-md text-white font-semibold bg-pink-500 hover:bg-pink-600">
+                                            Upload & Share Live
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="bg-gray-800 rounded-lg p-6 shadow-md">
+                                    <h3 class="text-xl font-semibold mb-4">Your Uploads</h3>
+                                    <div id="my-videos" class="space-y-4">
+                                        <!-- User's videos will be dynamically loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- All videos feed -->
+                            <div class="lg:col-span-2 relative">
+                                <div id="all-videos" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                    <!-- All videos will be dynamically loaded here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time Chat Section -->
+                <div id="chat-content" class="tab-pane hidden">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gradient gradient-teal-blue">
+                                <span class="live-indicator"></span>Real-Time Chat
+                            </h2>
+                            <div class="flex items-center text-green-500 text-sm">
+                                <span class="online-indicator"></span>
+                                <span id="online-users-count">1 user online</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col lg:flex-row gap-8 h-[600px]">
+                            <!-- Active Users Sidebar -->
+                            <div class="bg-gray-800 rounded-lg shadow-lg p-4 w-full lg:w-1/4 h-full">
+                                <h3 class="text-xl font-semibold mb-4">Active Users</h3>
+                                <ul id="active-users-list" class="space-y-2 text-gray-300">
+                                    <!-- Active users will be dynamically added here -->
+                                </ul>
+                            </div>
+                            <!-- Chat Box -->
+                            <div class="bg-gray-800 rounded-lg shadow-lg w-full lg:w-3/4 h-full flex flex-col relative">
+                                <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+                                    <!-- Chat messages will be dynamically added here -->
+                                </div>
+                                <div class="p-4 border-t border-gray-700">
+                                    <div class="flex space-x-2">
+                                        <input type="text" id="chat-input" placeholder="Type a message..." class="flex-1 px-4 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                        <button id="send-chat" class="px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Section -->
+                <div id="profile-content" class="tab-pane hidden">
+                    <div class="max-w-4xl mx-auto">
+                        <div class="flex justify-between items-center mb-8">
+                            <h2 class="text-3xl font-bold text-gradient gradient-purple-pink">
+                                <i class="fas fa-user mr-2"></i>Your Profile
+                            </h2>
+                            <button id="edit-profile" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                                <i class="fas fa-edit mr-2"></i>Edit Profile
+                            </button>
+                        </div>
+
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <!-- Profile Info -->
+                            <div class="lg:col-span-2">
+                                <div class="profile-section">
+                                    <div class="flex items-center mb-6">
+                                        <img id="profile-display-avatar" src="https://via.placeholder.com/120" alt="Profile Avatar" class="profile-avatar mr-6">
+                                        <div>
+                                            <h3 id="profile-display-username" class="text-2xl font-bold text-white mb-2">Username</h3>
+                                            <p id="profile-display-email" class="text-gray-400 mb-2">user@example.com</p>
+                                            <div class="flex items-center text-yellow-400">
+                                                <span class="mr-1">★</span>
+                                                <span id="profile-reputation" class="font-semibold">0</span>
+                                                <span class="text-gray-400 ml-2">Reputation Points</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-white mb-2">Bio</h4>
+                                        <p id="profile-display-bio" class="text-gray-300">No bio yet.</p>
+                                    </div>
+                                </div>
+
+                                <!-- User Stats -->
+                                <div class="profile-section">
+                                    <h3 class="text-xl font-semibold text-white mb-4">Your Activity</h3>
+                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                            <div class="text-2xl font-bold text-purple-400" id="profile-checkins">0</div>
+                                            <div class="text-gray-400 text-sm">Check-ins</div>
+                                        </div>
+                                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                            <div class="text-2xl font-bold text-blue-400" id="profile-locations">0</div>
+                                            <div class="text-gray-400 text-sm">Locations Added</div>
+                                        </div>
+                                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                            <div class="text-2xl font-bold text-yellow-400" id="profile-ratings">0</div>
+                                            <div class="text-gray-400 text-sm">Ratings Given</div>
+                                        </div>
+                                        <div class="text-center p-4 bg-gray-800 rounded-lg">
+                                            <div class="text-2xl font-bold text-pink-400" id="profile-videos">0</div>
+                                            <div class="text-gray-400 text-sm">Videos Uploaded</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Badges and Achievements -->
+                            <div class="lg:col-span-1">
+                                <div class="profile-section">
+                                    <h3 class="text-xl font-semibold text-white mb-4">Your Badges</h3>
+                                    <div id="profile-badges" class="space-y-2">
+                                        <div class="badge-item">
+                                            <i class="fas fa-map-marker-alt text-purple-400 mr-2"></i>
+                                            <span>First Check-in</span>
+                                        </div>
+                                        <div class="badge-item">
+                                            <i class="fas fa-star text-yellow-400 mr-2"></i>
+                                            <span>Rated 10 Locations</span>
+                                        </div>
+                                        <!-- More badges will be dynamically loaded -->
+                                    </div>
+                                </div>
+
+                                <!-- Video Management -->
+                                <div class="profile-section">
+                                    <h3 class="text-xl font-semibold text-white mb-4">Manage Your Videos</h3>
+                                    <div id="profile-video-management" class="space-y-3">
+                                        <!-- User's videos for management will be loaded here -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Marketing/Landing Page Content -->
+        <div id="landing-page" class="min-h-screen">
+            <!-- App Title at the very top -->
+            <header class="fixed top-0 left-0 right-0 p-6 z-50 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg">
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-widest text-gradient gradient-purple-pink">VIBEZ</h1>
+            </header>
+
+            <!-- Hero Section -->
+            <section class="relative min-h-screen flex items-center justify-center text-center p-4 pt-24">
+                <div class="absolute inset-0 bg-cover bg-center opacity-30" style="background-image: url('https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80');"></div>
+                <div class="relative z-10 p-8 rounded-2xl bg-gray-800 bg-opacity-80 backdrop-filter backdrop-blur-lg border border-gray-700">
+                    <h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight text-gradient gradient-purple-pink mb-2 animate-fade-in-down">
+                        Find Your Vibe
+                    </h1>
+                    <p class="text-2xl md:text-3xl text-gray-200 mb-8 animate-fade-in-up">
+                        Real-Time Party & Events Finder
+                    </p>
+                    <p class="text-xl md:text-2xl text-gray-300 mb-8 animate-fade-in-up">
+                        Discover the hottest parties, events, and chill spots happening right now with live updates.
+                    </p>
+                    <button id="get-started-button" class="px-8 py-4 text-lg font-bold text-white bg-purple-600 rounded-full shadow-lg hover:bg-purple-700 transition duration-300 ease-in-out transform hover:scale-105">
+                        Get Started
+                    </button>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="about" class="py-20 px-8 md:px-20 text-center">
+                <h2 class="text-4xl font-bold text-gradient gradient-teal-blue mb-8">
+                    About Vibez
+                </h2>
+                <div class="max-w-4xl mx-auto text-gray-300 text-lg">
+                    <p class="mb-4">
+                        Vibez is the ultimate real-time platform for discovering the best social events and party locations. Our mission is to connect you with the most vibrant spots as they happen.
+                    </p>
+                    <p>
+                        With live user updates, real-time video posts, and instant chat, you'll always know where the action is right now.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Features Section -->
+            <section id="features" class="py-20 px-8 md:px-20 bg-gray-800 border-t border-b border-gray-700">
+                <h2 class="text-4xl font-bold text-center text-gradient gradient-orange-yellow mb-12">
+                    Real-Time Features
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+                    <div class="bg-gray-900 rounded-xl p-8 text-center shadow-lg transform transition duration-500 hover:scale-105 hover:bg-gray-700">
+                        <div class="text-4xl text-yellow-500 mb-4">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-4 text-white">Live Interactive Map</h3>
+                        <p class="text-gray-400">
+                            See parties and events on a real-time map with live location updates and crowd levels.
+                        </p>
+                    </div>
+                    <div class="bg-gray-900 rounded-xl p-8 text-center shadow-lg transform transition duration-500 hover:scale-105 hover:bg-gray-700">
+                        <div class="text-4xl text-red-500 mb-4">
+                            <i class="fas fa-video"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-4 text-white">Live Video Streams</h3>
+                        <p class="text-gray-400">
+                            Watch and share 30-second videos of party experiences in real-time.
+                        </p>
+                    </div>
+                    <div class="bg-gray-900 rounded-xl p-8 text-center shadow-lg transform transition duration-500 hover:scale-105 hover:bg-gray-700">
+                        <div class="text-4xl text-blue-500 mb-4">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <h3 class="text-2xl font-semibold mb-4 text-white">Instant Chat</h3>
+                        <p class="text-gray-400">
+                            Connect with people at the same party location via real-time text chat.
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Call to Action -->
+            <section class="py-20 px-8 md:px-20 text-center">
+                <h2 class="text-3xl font-bold text-white mb-8">Ready to Find Your Vibe in Real-Time?</h2>
+                <button id="join-now-button" class="px-8 py-4 text-lg font-bold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-full shadow-lg hover:from-purple-700 hover:to-pink-700 transition duration-300 ease-in-out transform hover:scale-105">
+                    Join Now
+                </button>
+            </section>
+
+            <!-- Footer -->
+            <footer class="py-8 text-center text-gray-400 border-t border-gray-700">
+                <p>&copy; 2025 Vibez. All rights reserved.</p>
+            </footer>
+        </div>
+
+        <!-- Authentication Forms -->
+        <div id="auth-container" class="min-h-screen flex flex-col items-center justify-center p-4 hidden">
+            <div id="form-card" class="w-full max-w-lg p-8 bg-gray-800 rounded-2xl shadow-2xl backdrop-filter backdrop-blur-lg bg-opacity-70 border border-gray-700 transition-all duration-500 ease-in-out transform scale-100">
+                <h2 id="form-title" class="text-3xl font-bold text-center text-white mb-6">Welcome Back!</h2>
+                <p id="form-subtitle" class="text-center text-gray-400 mb-8">Log in to find the hottest parties in real-time.</p>
+
+                <div id="error-message" class="bg-red-500 text-white px-4 py-3 rounded-lg mb-6 text-sm text-center hidden"></div>
+
+                <form id="login-form" class="space-y-6">
+                    <input type="email" id="login-email" placeholder="Email Address" class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300" required>
+                    <input type="password" id="login-password" placeholder="Password" class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300" required>
+                    <button type="submit" id="login-submit" class="w-full px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-pink-700 transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Login
+                    </button>
+                </form>
+
+                <form id="register-form" class="space-y-6 hidden">
+                    <input type="text" id="register-username" placeholder="Username" class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300" required>
+                    <input type="email" id="register-email" placeholder="Email Address" class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300" required>
+                    <input type="password" id="register-password" placeholder="Password" class="w-full px-5 py-3 bg-gray-700 text-white rounded-xl border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 placeholder-gray-400 transition duration-300" required>
+                    <button type="submit" id="register-submit" class="w-full px-5 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold rounded-xl shadow-lg hover:from-purple-700 hover:to-pink-700 transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Register
+                    </button>
+                </form>
+
+                <div id="toggle-auth" class="text-center mt-8 text-gray-400">
+                    Don't have an account? 
+                    <button id="toggle-button" class="text-purple-400 hover:text-purple-300 font-semibold ml-2 transition duration-300">
+                        Sign Up
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Leaflet Marker Cluster -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    
+    <script>
+        // API Configuration
+        const API_CONFIG = {
+            TICKETMASTER_API_KEY: '7IxmuowYQAzGbY84Qwj0lCGjGHbxVQxv',
+            OPENSTREETMAP_NOMINATIM_URL: 'https://nominatim.openstreetmap.org/search',
+            TICKETMASTER_BASE_URL: 'https://app.ticketmaster.com/discovery/v2/events.json',
+            OVERPASS_API_URL: 'https://overpass-api.de/api/interpreter'
+        };
+
+        // Real-time configuration
+        const REAL_TIME_CONFIG = {
+            MAP_UPDATE_INTERVAL: 30000, // 30 seconds
+            VIDEO_UPDATE_INTERVAL: 20000, // 20 seconds
+            CHAT_UPDATE_INTERVAL: 8000, // 8 seconds
+            USER_PRESENCE_INTERVAL: 30000, // 30 seconds
+            LOCATION_TRACKING_INTERVAL: 60000, // 1 minute
+            EVENTS_UPDATE_INTERVAL: 60000, // 1 minute
+        };
+
+        // DOM Elements
+        const appContainer = document.getElementById('app-container');
+        const landingPage = document.getElementById('landing-page');
+        const authContainer = document.getElementById('auth-container');
+        const mainAppContent = document.getElementById('main-app-content');
+        const mainHeader = document.getElementById('main-header');
+        const logoutButton = document.getElementById('logout-button');
+        const userInfo = document.getElementById('user-info');
+        const getStartedButton = document.getElementById('get-started-button');
+        const joinNowButton = document.getElementById('join-now-button');
+
+        // Authentication elements
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const toggleButton = document.getElementById('toggle-button');
+        const formTitle = document.getElementById('form-title');
+        const formSubtitle = document.getElementById('form-subtitle');
+        const errorMessage = document.getElementById('error-message');
+
+        // Dashboard elements
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const mapTab = document.getElementById('map-tab');
+        const eventsTab = document.getElementById('events-tab');
+        const videosTab = document.getElementById('videos-tab');
+        const chatTab = document.getElementById('chat-tab');
+        const profileTab = document.getElementById('profile-tab');
+
+        // Map and filter elements
+        const mapContainer = document.getElementById('map-container');
+        const filtersSidebar = document.getElementById('filters-sidebar');
+        const applyFiltersButton = document.getElementById('apply-filters');
+        const resetFiltersButton = document.getElementById('reset-filters');
+        const toggleFiltersButton = document.getElementById('toggle-filters-button');
+        const toggleFilters = document.getElementById('toggle-filters');
+        const filteredCount = document.getElementById('filtered-count');
+        const totalCount = document.getElementById('total-count');
+        const userLocationsCount = document.getElementById('user-locations-count');
+        const liveUpdatesCheckbox = document.getElementById('live-updates');
+        const shareLocationBtn = document.getElementById('share-location-btn');
+        const checkInBtn = document.getElementById('check-in-btn');
+        const createLocationBtn = document.getElementById('create-location-btn');
+        const locationPermissionModal = document.getElementById('location-permission-modal');
+        const allowLocationBtn = document.getElementById('allow-location');
+        const denyLocationBtn = document.getElementById('deny-location');
+        const userCheckinsCount = document.getElementById('user-checkins-count');
+        const userLocationsAdded = document.getElementById('user-locations-added');
+        const userRatingsCount = document.getElementById('user-ratings-count');
+        const userVideosCount = document.getElementById('user-videos-count');
+
+        // Rating elements
+        const ratingModal = document.getElementById('rating-modal');
+        const ratingLocationName = document.getElementById('rating-location-name');
+        const ratingStars = document.getElementById('rating-stars');
+        const submitRatingButton = document.getElementById('submit-rating');
+        const cancelRatingButton = document.getElementById('cancel-rating');
+
+        // Create location elements
+        const createLocationModal = document.getElementById('create-location-modal');
+        const createLocationForm = document.getElementById('create-location-form');
+        const cancelCreateLocationButton = document.getElementById('cancel-create-location');
+
+        // Profile elements
+        const profileModal = document.getElementById('profile-modal');
+        const profileButton = document.getElementById('profile-button');
+        const editProfileButton = document.getElementById('edit-profile');
+        const closeProfileButton = document.getElementById('close-profile');
+        const closeProfileModalButton = document.getElementById('close-profile-modal');
+        const saveProfileButton = document.getElementById('save-profile');
+        const profileAvatar = document.getElementById('profile-avatar');
+        const profileUsername = document.getElementById('profile-username');
+        const profileEmail = document.getElementById('profile-email');
+        const profileBio = document.getElementById('profile-bio');
+        const changeAvatarButton = document.getElementById('change-avatar');
+        const avatarUpload = document.getElementById('avatar-upload');
+
+        // Display profile elements
+        const profileDisplayAvatar = document.getElementById('profile-display-avatar');
+        const profileDisplayUsername = document.getElementById('profile-display-username');
+        const profileDisplayEmail = document.getElementById('profile-display-email');
+        const profileDisplayBio = document.getElementById('profile-display-bio');
+        const profileReputation = document.getElementById('profile-reputation');
+        const profileCheckins = document.getElementById('profile-checkins');
+        const profileLocations = document.getElementById('profile-locations');
+        const profileRatings = document.getElementById('profile-ratings');
+        const profileVideos = document.getElementById('profile-videos');
+        const profileBadges = document.getElementById('profile-badges');
+        const profileVideoManagement = document.getElementById('profile-video-management');
+
+        // Video elements
+        const uploadForm = document.getElementById('upload-form');
+        const videoFile = document.getElementById('video-file');
+        const videoCaption = document.getElementById('video-caption');
+        const videoLocationSelect = document.getElementById('video-location');
+        const myVideosContainer = document.getElementById('my-videos');
+        const allVideosContainer = document.getElementById('all-videos');
+
+        // Chat elements
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const activeUsersList = document.getElementById('active-users-list');
+        const sendChatButton = document.getElementById('send-chat');
+        const onlineUsersCount = document.getElementById('online-users-count');
+
+        // Events elements
+        const eventsSearch = document.getElementById('events-search');
+        const eventsSearchBtn = document.getElementById('events-search-btn');
+        const eventsTimeframe = document.getElementById('events-timeframe');
+        const eventsCategory = document.getElementById('events-category');
+        const eventsSort = document.getElementById('events-sort');
+        const eventsCount = document.getElementById('events-count');
+        const eventsGrid = document.getElementById('events-grid');
+
+        // Video Feed elements
+        const videoFeedContainer = document.getElementById('video-feed-container');
+        const videoFeedList = document.getElementById('video-feed-list');
+        const closeFeedButton = document.getElementById('close-video-feed');
+
+        // State variables
+        let isLogin = true;
+        let map = null;
+        let markers = [];
+        let eventMarkers = [];
+        let allLocations = [];
+        let filteredLocations = [];
+        let allEvents = [];
+        let filteredEvents = [];
+        let allVideos = [];
+        let myVideos = [];
+        let videoData = [];
+        let activeUsers = [];
+        let currentUser = null;
+        let userLocation = null;
+        let selectedLocationForRating = null;
+        let selectedRating = 0;
+        let markerCluster = null;
+        let updateIntervals = {
+            map: null,
+            events: null,
+            videos: null,
+            chat: null,
+            users: null,
+            location: null
+        };
+
+        // Utility functions
+        const showLoading = (show = true) => {
+            const loader = document.getElementById('loading-overlay');
+            if (show) {
+                loader.classList.remove('hidden');
+            } else {
+                loader.classList.add('hidden');
+            }
+        };
+
+        const showNotification = (message, type = 'info') => {
+            const container = document.getElementById('notification-container');
+            const notification = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 
+                           type === 'error' ? 'bg-red-500' : 
+                           type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+            
+            notification.className = `${bgColor} text-white p-4 rounded-lg shadow-lg transform translate-x-full transition-transform duration-300`;
+            notification.textContent = message;
+            container.appendChild(notification);
+            
+            setTimeout(() => notification.classList.remove('translate-x-full'), 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        };
+
+        // API Functions
+        const fetchVenuesFromOpenStreetMap = async (lat, lon, radius = 5000) => {
+            try {
+                // Overpass API query to find entertainment venues
+                const query = `
+                    [out:json][timeout:25];
+                    (
+                      node["amenity"="bar"](around:${radius},${lat},${lon});
+                      node["amenity"="pub"](around:${radius},${lat},${lon});
+                      node["amenity"="nightclub"](around:${radius},${lat},${lon});
+                      node["amenity"="restaurant"](around:${radius},${lat},${lon});
+                      node["leisure"="dance"](around:${radius},${lat},${lon});
+                      node["tourism"="hotel"](around:${radius},${lat},${lon});
+                    );
+                    out body;
+                `;
+
+                const response = await fetch(API_CONFIG.OVERPASS_API_URL, {
+                    method: 'POST',
+                    body: `data=${encodeURIComponent(query)}`
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch venues from OpenStreetMap');
+                }
+
+                const data = await response.json();
+                
+                // Transform the data to our format
+                return data.elements.map(element => {
+                    const tags = element.tags || {};
+                    return {
+                        id: element.id,
+                        name: tags.name || 'Unnamed Venue',
+                        type: getVenueType(tags),
+                        lat: element.lat,
+                        lng: element.lon,
+                        address: tags['addr:street'] || '',
+                        city: tags['addr:city'] || '',
+                        rating: Math.random() * 2 + 3, // Random rating between 3-5
+                        vibe: getRandomVibe(),
+                        crowd: Math.floor(Math.random() * 100),
+                        checkIns: Math.floor(Math.random() * 50),
+                        description: tags.description || `A ${getVenueType(tags)} in the area`,
+                        userGenerated: false
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching venues:', error);
+                showNotification('Failed to load venues. Using sample data.', 'error');
+                return getSampleVenues(lat, lon);
+            }
+        };
+
+        const getVenueType = (tags) => {
+            if (tags.amenity === 'bar') return 'bar';
+            if (tags.amenity === 'pub') return 'bar';
+            if (tags.amenity === 'nightclub') return 'club';
+            if (tags.amenity === 'restaurant') return 'lounge';
+            if (tags.leisure === 'dance') return 'club';
+            return 'lounge';
+        };
+
+        const getRandomVibe = () => {
+            const vibes = ['high', 'medium', 'chill'];
+            return vibes[Math.floor(Math.random() * vibes.length)];
+        };
+
+        const getSampleVenues = (lat, lon) => {
+            // Generate sample venues around the user's location
+            const venues = [];
+            for (let i = 0; i < 15; i++) {
+                const offsetLat = (Math.random() - 0.5) * 0.05;
+                const offsetLon = (Math.random() - 0.5) * 0.05;
+                
+                venues.push({
+                    id: i + 1000,
+                    name: `Venue ${i + 1}`,
+                    type: ['club', 'bar', 'lounge', 'concert'][Math.floor(Math.random() * 4)],
+                    lat: lat + offsetLat,
+                    lng: lon + offsetLon,
+                    address: 'Sample Address',
+                    city: 'Sample City',
+                    rating: Math.random() * 2 + 3,
+                    vibe: getRandomVibe(),
+                    crowd: Math.floor(Math.random() * 100),
+                    checkIns: Math.floor(Math.random() * 50),
+                    description: 'A popular venue in the area',
+                    userGenerated: false
+                });
+            }
+            return venues;
+        };
+
+        const fetchEventsFromTicketmaster = async (lat, lon, radius = 50) => {
+            try {
+                console.log("Fetching events with YOUR API key...");
+                
+                const params = new URLSearchParams({
+                    apikey: API_CONFIG.TICKETMASTER_API_KEY, // This should be YOUR key
+                    latlong: `${lat},${lon}`,
+                    radius: radius,
+                    unit: 'miles',
+                    size: '20',
+                    sort: 'date,asc',
+                    classificationName: 'music'
+                });
+
+                const response = await fetch(`${API_CONFIG.TICKETMASTER_BASE_URL}?${params}`);
+                console.log("API Response status:", response.status);
+
+                if (!response.ok) {
+                    throw new Error(`API returned ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log("Ticketmaster data:", data);
+                
+                if (data._embedded && data._embedded.events) {
+                    return data._embedded.events.map(event => {
+                        const venue = event._embedded.venues[0];
+                        return {
+                            id: event.id,
+                            name: event.name,
+                            description: event.info || 'Live event',
+                            startDate: new Date(event.dates.start.dateTime),
+                            location: venue.name,
+                            price: event.priceRanges ? `$${event.priceRanges[0].min}` : 'Varies',
+                            // ... other properties
+                        };
+                    });
+                } else {
+                    console.log("No events in response, using samples");
+                    return getSampleEvents(lat, lon);
+                }
+            } catch (error) {
+                console.error("Ticketmaster error:", error);
+                return getSampleEvents(lat, lon);
+            }
+        };
+
+        const getSampleEvents = (lat, lon) => {
+            const events = [];
+            const categories = ['music', 'festival', 'club', 'cultural', 'sports'];
+            
+            for (let i = 0; i < 10; i++) {
+                const offsetLat = (Math.random() - 0.5) * 0.05;
+                const offsetLon = (Math.random() - 0.5) * 0.05;
+                const startDate = new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000);
+                
+                events.push({
+                    id: i + 2000,
+                    name: `Sample Event ${i + 1}`,
+                    description: 'An exciting event happening soon',
+                    category: categories[Math.floor(Math.random() * categories.length)],
+                    startDate: startDate,
+                    endDate: new Date(startDate.getTime() + 3 * 60 * 60 * 1000),
+                    time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    location: 'Sample Venue',
+                    address: 'Sample City',
+                    lat: lat + offsetLat,
+                    lng: lon + offsetLon,
+                    price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
+                    attendees: Math.floor(Math.random() * 1000) + 100,
+                    isPopular: Math.random() > 0.7,
+                    isTrending: Math.random() > 0.8
+                });
+            }
+            return events;
+        };
+
+        // VIEW MANAGEMENT
+        const showMainApp = (username, userId) => {
+            landingPage.classList.add('hidden');
+            authContainer.classList.add('hidden');
+            mainAppContent.classList.remove('hidden');
+            mainHeader.classList.remove('hidden');
+            userInfo.textContent = `Hello, ${username}`;
+            
+            currentUser = {
+                username,
+                userId,
+                lastActive: new Date()
+            };
+            
+            // Add current user to active users
+            activeUsers = [currentUser];
+            updateActiveUsersList();
+            
+            localStorage.setItem('username', username);
+            localStorage.setItem('userId', userId);
+            localStorage.setItem('authToken', 'demo-token-' + Date.now());
+            
+            // Start real-time updates
+            startRealTimeUpdates();
+            
+            // Show location permission modal after a short delay
+            setTimeout(() => {
+                locationPermissionModal.classList.remove('hidden');
+            }, 1000);
+            
+            showTab('map');
+        };
+
+        const showAuthForm = () => {
+            landingPage.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+            mainAppContent.classList.add('hidden');
+            mainHeader.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+            
+            // Stop real-time updates when showing auth form
+            stopRealTimeUpdates();
+        };
+
+        const showLandingPage = () => {
+            landingPage.classList.remove('hidden');
+            authContainer.classList.add('hidden');
+            mainAppContent.classList.add('hidden');
+            mainHeader.classList.add('hidden');
+            
+            // Stop real-time updates when showing landing page
+            stopRealTimeUpdates();
+        };
+
+        // TAB MANAGEMENT
+        const showTab = (tabId) => {
+            tabPanes.forEach(pane => pane.classList.add('hidden'));
+            tabButtons.forEach(button => button.classList.remove('active'));
+            document.getElementById(`${tabId}-content`).classList.remove('hidden');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            
+            if (tabId === 'map') {
+                if (!map) {
+                    initMap();
+                }
+                updateLocationSelect();
+            } else if (tabId === 'events') {
+                fetchEvents();
+            } else if (tabId === 'videos') {
+                fetchVideos();
+                updateLocationSelect();
+            } else if (tabId === 'chat') {
+                connectChat();
+            } else if (tabId === 'profile') {
+                loadProfileData();
+            }
+        };
+
+        // AUTHENTICATION FUNCTIONS
+        const handleLogin = async (email, password) => {
+            showLoading(true);
+            try {
+                // For demo purposes - in production, use actual API
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                if (email && password) {
+                    const username = email.split('@')[0] || 'User';
+                    showMainApp(username, 'user123');
+                    showNotification('Login successful! Real-time updates activated', 'success');
+                } else {
+                    throw new Error('Please enter email and password');
+                }
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        const handleRegister = async (username, email, password) => {
+            showLoading(true);
+            try {
+                // For demo purposes - in production, use actual API
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                if (username && email && password) {
+                    showMainApp(username, 'user123');
+                    showNotification('Registration successful! Real-time updates activated', 'success');
+                } else {
+                    throw new Error('Please fill all fields');
+                }
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        const showError = (message) => {
+            errorMessage.textContent = message;
+            errorMessage.classList.remove('hidden');
+        };
+
+        const toggleAuthForm = () => {
+            isLogin = !isLogin;
+            
+            if (isLogin) {
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+                formTitle.textContent = 'Welcome Back!';
+                formSubtitle.textContent = 'Log in to find the hottest parties in real-time.';
+                toggleButton.textContent = 'Sign Up';
+            } else {
+                loginForm.classList.add('hidden');
+                registerForm.classList.remove('hidden');
+                formTitle.textContent = 'Join Vibez!';
+                formSubtitle.textContent = 'Create an account to start exploring parties in real-time.';
+                toggleButton.textContent = 'Login';
+            }
+            errorMessage.classList.add('hidden');
+        };
+
+        const logout = () => {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
+            stopRealTimeUpdates();
+            showLandingPage();
+            showNotification('Logged out successfully', 'success');
+        };
+
+        // MAP FUNCTIONS - USING LEAFLET.JS
+        const initMap = () => {
+            // Default to a central location if user location not available
+            const defaultLocation = [0.3476, 32.5825]; // Default to Kampala
+            
+            // Initialize the map
+            map = L.map('map-container').setView(defaultLocation, 12);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Initialize marker cluster group
+            markerCluster = L.markerClusterGroup();
+            map.addLayer(markerCluster);
+            
+            // Add context menu for creating locations
+            map.on('contextmenu', function(e) {
+                showCreateLocationModal(e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Load real venues and events
+            loadRealData(defaultLocation[0], defaultLocation[1]);
+            
+            // Initialize filter counts
+            updateFilterCounts();
+            updateUserStats();
+        };
+
+        const loadRealData = async (lat, lon) => {
+            showLoading(true);
+            try {
+                // Fetch venues from OpenStreetMap
+                const venues = await fetchVenuesFromOpenStreetMap(lat, lon);
+                allLocations = venues;
+                filteredLocations = [...allLocations];
+                
+                // Fetch events from Ticketmaster
+                const events = await fetchEventsFromTicketmaster(lat, lon);
+                allEvents = events;
+                filteredEvents = [...allEvents];
+                
+                // Add markers to map
+                addVenuesToMap();
+                addEventsToMap();
+                
+                // Update UI
+                updateFilterCounts();
+                renderEvents();
+                
+                showNotification('Real-time data loaded successfully!', 'success');
+            } catch (error) {
+                console.error('Error loading real data:', error);
+                showNotification('Error loading real-time data', 'error');
+            } finally {
+                showLoading(false);
+            }
+        };
+
+        const addVenuesToMap = () => {
+            // Clear existing markers
+            markerCluster.clearLayers();
+            markers = [];
+
+            // Add new markers
+            allLocations.forEach(location => {
+                addMarkerToMap(location);
+            });
+        };
+
+        const addEventsToMap = () => {
+            // Clear existing event markers
+            eventMarkers.forEach(marker => map.removeLayer(marker));
+            eventMarkers = [];
+
+            // Add new event markers
+            allEvents.forEach(event => {
+                addEventMarkerToMap(event);
+            });
+        };
+
+        const addMarkerToMap = (location) => {
+            // Determine marker class based on rating
+            let markerClass = 'party-marker';
+            if (location.rating >= 4.5) {
+                markerClass += ' top-rated';
+            } else if (location.rating >= 4.0) {
+                markerClass += ' high-rated';
+            }
+            
+            if (location.userGenerated) {
+                markerClass += ' user-generated';
+            }
+
+            // Create custom icon
+            const customIcon = L.divIcon({
+                className: markerClass,
+                iconSize: [20, 20],
+                html: ''
+            });
+
+            // Create marker with custom icon
+            const marker = L.marker([location.lat, location.lng], { icon: customIcon })
+                .bindPopup(`
+                    <div class="text-white">
+                        <h3 class="font-bold text-lg">${location.name}</h3>
+                        <p class="text-sm">Rating: ${location.rating ? location.rating.toFixed(1) + '/5' : 'Not rated yet'}</p>
+                        <p class="text-sm">Type: ${location.type}</p>
+                        <p class="text-sm">Vibe: ${location.vibe}</p>
+                        <p class="text-sm">Crowd: ${location.crowd}% full</p>
+                        <p class="text-sm">Check-ins: ${location.checkIns || 0}</p>
+                        <div class="mt-2 flex space-x-2">
+                            <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                                View Details
+                            </button>
+                            <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                                Check In
+                            </button>
+                            <button onclick="rateLocation(${location.lat}, ${location.lng})" class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors">
+                                Rate
+                            </button>
+                            <button onclick="joinLocationChat(${location.lat}, ${location.lng})" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                                Join Chat
+                            </button>
+                        </div>
+                    </div>
+                `);
+            
+            markerCluster.addLayer(marker);
+            markers.push({ marker, location });
+        };
+
+        const addEventMarkerToMap = (event) => {
+            const eventIcon = L.divIcon({
+                className: 'event-marker',
+                iconSize: [24, 24],
+                html: '<i class="fas fa-calendar-alt"></i>'
+            });
+
+            const marker = L.marker([event.lat, event.lng], { icon: eventIcon })
+                .addTo(map)
+                .bindPopup(`
+                    <div class="text-white">
+                        <h3 class="font-bold text-lg">${event.name}</h3>
+                        <p class="text-sm">📅 ${formatEventDate(event.startDate)} at ${event.time}</p>
+                        <p class="text-sm">📍 ${event.location}</p>
+                        <p class="text-sm">🎵 ${event.category.toUpperCase()}</p>
+                        <p class="text-sm">👥 ${event.attendees.toLocaleString()} attendees</p>
+                        <p class="text-sm">💰 ${event.price}</p>
+                        <div class="mt-2 flex space-x-2">
+                            <button onclick="viewEventDetails('${event.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                                View Details
+                            </button>
+                            <button onclick="rsvpToEvent('${event.id}')" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                                RSVP
+                            </button>
+                        </div>
+                    </div>
+                `);
+            
+            eventMarkers.push(marker);
+        };
+
+        const formatEventDate = (date) => {
+            const options = { month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        };
+
+        const formatEventDateFull = (date) => {
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            return date.toLocaleDateString('en-US', options).toUpperCase();
+        };
+
+        const applyMapFilters = () => {
+            const partyType = document.getElementById('party-type-filter').value;
+            const rating = document.getElementById('rating-filter').value;
+            const vibe = document.getElementById('vibe-filter').value;
+            
+            // Filter locations based on selected criteria
+            filteredLocations = allLocations.filter(location => {
+                // Filter by party type
+                if (partyType !== 'all' && location.type !== partyType) {
+                    return false;
+                }
+                
+                // Filter by rating
+                if (rating !== 'any' && location.rating < parseFloat(rating)) {
+                    return false;
+                }
+                
+                // Filter by vibe
+                if (vibe !== 'any' && location.vibe !== vibe) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // Update markers visibility
+            markerCluster.clearLayers();
+            markers.forEach(({ marker, location }) => {
+                const isVisible = filteredLocations.some(loc => loc.id === location.id);
+                
+                if (isVisible) {
+                    markerCluster.addLayer(marker);
+                }
+            });
+            
+            // Update filter counts
+            updateFilterCounts();
+            
+            // Show notification
+            showNotification(`Filters applied! Showing ${filteredLocations.length} locations`, 'success');
+        };
+
+        const resetMapFilters = () => {
+            // Reset filter dropdowns to default values
+            document.getElementById('party-type-filter').value = 'all';
+            document.getElementById('rating-filter').value = 'any';
+            document.getElementById('vibe-filter').value = 'any';
+            
+            // Reset to show all locations
+            filteredLocations = [...allLocations];
+            
+            // Show all markers
+            markerCluster.clearLayers();
+            markers.forEach(({ marker }) => {
+                markerCluster.addLayer(marker);
+            });
+            
+            // Update filter counts
+            updateFilterCounts();
+            
+            // Show notification
+            showNotification('Filters reset', 'info');
+        };
+
+        const updateFilterCounts = () => {
+            filteredCount.textContent = filteredLocations.length;
+            totalCount.textContent = allLocations.length;
+        };
+
+        const toggleFiltersVisibility = () => {
+            filtersSidebar.classList.toggle('open');
+        };
+
+        const updateLocationSelect = () => {
+            // Update the location select dropdown for video uploads
+            videoLocationSelect.innerHTML = '<option value="">Select a location</option>';
+            allLocations.forEach(location => {
+                const option = document.createElement('option');
+                option.value = location.name;
+                option.textContent = location.name;
+                videoLocationSelect.appendChild(option);
+            });
+        };
+
+        // Rating functions
+        function rateLocation(lat, lng) {
+            const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
+            if (location) {
+                selectedLocationForRating = location;
+                ratingLocationName.textContent = location.name;
+                ratingModal.classList.remove('hidden');
+                
+                // Reset stars
+                const stars = ratingStars.querySelectorAll('.rating-star');
+                stars.forEach(star => star.classList.remove('active'));
+                selectedRating = 0;
+            }
+        }
+
+        function submitRating() {
+            if (selectedRating === 0) {
+                showNotification('Please select a rating', 'error');
+                return;
+            }
+            
+            if (selectedLocationForRating) {
+                // Update location rating
+                if (!selectedLocationForRating.rating) {
+                    selectedLocationForRating.rating = selectedRating;
+                } else {
+                    // Simple average calculation for demo
+                    selectedLocationForRating.rating = (selectedLocationForRating.rating + selectedRating) / 2;
+                }
+                
+                // Update marker popup
+                updateMarkerPopup(selectedLocationForRating);
+                
+                // Update user stats
+                updateUserStats();
+                
+                showNotification(`✅ Rated ${selectedLocationForRating.name} ${selectedRating} stars!`, 'success');
+                ratingModal.classList.add('hidden');
+            }
+        }
+
+        // Location functions
+        function checkInToLocation(lat, lng) {
+            const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
+            if (location) {
+                const locationName = location.name;
+                // Update location stats
+                location.checkIns = (location.checkIns || 0) + 1;
+                location.crowd = Math.min(100, (location.crowd || 0) + 5);
+                
+                // Update marker popup
+                updateMarkerPopup(location);
+                
+                // Update user stats
+                updateUserStats();
+                
+                showNotification(`✅ Checked in at ${locationName}!`, 'success');
+            } else {
+                showCreateLocationModal(lat, lng);
+            }
+            
+            updateLocationSelect();
+            updateFilterCounts();
+        }
+
+        function updateMarkerPopup(location) {
+            markers.forEach(markerObj => {
+                if (markerObj.location.id === location.id) {
+                    const popupContent = `
+                        <div class="text-white">
+                            <h3 class="font-bold text-lg">${location.name}</h3>
+                            <p class="text-sm">⭐ ${location.rating ? location.rating.toFixed(1) + '/5' : 'Not rated yet'}</p>
+                            <p class="text-sm">👥 ${location.checkIns} check-ins</p>
+                            <p class="text-sm">🎯 ${location.crowd}% crowd level</p>
+                            <p class="text-sm">💫 Vibe: ${location.vibe}</p>
+                            <div class="mt-2 flex space-x-2">
+                                <button onclick="checkInToLocation(${location.lat}, ${location.lng})" 
+                                        class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                                    Check In
+                                </button>
+                                <button onclick="rateLocation(${location.lat}, ${location.lng})" 
+                                        class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors">
+                                    Rate
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    markerObj.marker.setPopupContent(popupContent);
+                }
+            });
+        }
+
+        function viewLocationDetails(lat, lng) {
+            const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
+            if (location) {
+                alert(`Location: ${location.name}\nRating: ${location.rating ? location.rating.toFixed(1) + '/5' : 'Not rated yet'}\nCrowd: ${location.crowd}%\nCheck-ins: ${location.checkIns || 0}\nVibe: ${location.vibe}\nDescription: ${location.description || 'No description available'}`);
+            }
+        }
+
+        function joinLocationChat(lat, lng) {
+            const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
+            if (location) {
+                showTab('chat');
+                showNotification(`Joined chat for ${location.name}`, 'success');
+            }
+        }
+
+        function updateUserStats() {
+            const userCheckins = allLocations.reduce((total, loc) => total + (loc.checkIns || 0), 0);
+            const userLocations = allLocations.filter(loc => loc.userGenerated).length;
+            const userRatings = allLocations.filter(loc => loc.rating && loc.rating > 0).length;
+            const userVideos = myVideos.length;
+            
+            userCheckinsCount.textContent = userCheckins;
+            userLocationsAdded.textContent = userLocations;
+            userRatingsCount.textContent = userRatings;
+            userVideosCount.textContent = userVideos;
+            userLocationsCount.textContent = userLocations;
+            
+            // Update profile stats if on profile tab
+            if (!document.getElementById('profile-content').classList.contains('hidden')) {
+                profileCheckins.textContent = userCheckins;
+                profileLocations.textContent = userLocations;
+                profileRatings.textContent = userRatings;
+                profileVideos.textContent = userVideos;
+            }
+        }
+
+        // Create location functions
+        function showCreateLocationModal(lat, lng) {
+            createLocationModal.classList.remove('hidden');
+            // Store the coordinates for creating the location
+            createLocationForm.dataset.lat = lat;
+            createLocationForm.dataset.lng = lng;
+        }
+
+        function createNewLocation(name, description, type, lat, lng) {
+            const newLocation = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                type: type,
+                lat: lat,
+                lng: lng,
+                address: 'User-added location',
+                city: 'Unknown',
+                rating: null,
+                vibe: getRandomVibe(),
+                crowd: 10,
+                checkIns: 1,
+                userGenerated: true,
+                lastUpdated: new Date()
+            };
+            
+            allLocations.push(newLocation);
+            addMarkerToMap(newLocation);
+            
+            showNotification(`🎊 New location added: ${name}`, 'info');
+            
+            // Update user stats
+            updateUserStats();
+            updateLocationSelect();
+            updateFilterCounts();
+            
+            createLocationModal.classList.add('hidden');
+            createLocationForm.reset();
+        }
+
+        // Profile functions
+        function loadProfileData() {
+            // Set profile data
+            profileDisplayUsername.textContent = currentUser.username;
+            profileDisplayEmail.textContent = `${currentUser.username}@example.com`;
+            profileDisplayBio.textContent = 'No bio yet. Click "Edit Profile" to add one.';
+            profileReputation.textContent = '0';
+            
+            // Update stats
+            updateUserStats();
+            
+            // Load user videos for management
+            loadUserVideosForManagement();
+        }
+
+        function loadUserVideosForManagement() {
+            profileVideoManagement.innerHTML = '';
+            
+            if (myVideos.length === 0) {
+                profileVideoManagement.innerHTML = '<p class="text-gray-400 text-center">You haven\'t uploaded any videos yet.</p>';
+                return;
+            }
+            
+            myVideos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-management-item';
+                videoItem.innerHTML = `
+                    <div class="flex items-center">
+                        <video src="${video.video_file}" class="video-thumbnail-small mr-4"></video>
+                        <div>
+                            <p class="text-white font-semibold">${video.caption || 'No caption'}</p>
+                            <p class="text-gray-400 text-sm">${video.location} • ${video.timestamp}</p>
+                        </div>
+                    </div>
+                    <button onclick="deleteVideo(${video.id})" class="text-red-400 hover:text-red-300">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                profileVideoManagement.appendChild(videoItem);
+            });
+        }
+
+        function deleteVideo(videoId) {
+            if (confirm('Are you sure you want to delete this video?')) {
+                myVideos = myVideos.filter(video => video.id !== videoId);
+                allVideos = allVideos.filter(video => video.id !== videoId);
+                renderVideos();
+                loadUserVideosForManagement();
+                showNotification('Video deleted successfully', 'success');
+            }
+        }
+
+        function openProfileModal() {
+            profileUsername.value = currentUser.username;
+            profileEmail.value = `${currentUser.username}@example.com`;
+            profileBio.value = 'No bio yet. Click "Edit Profile" to add one.';
+            profileModal.classList.remove('hidden');
+        }
+
+        function saveProfile() {
+            const newBio = profileBio.value;
+            profileDisplayBio.textContent = newBio || 'No bio yet. Click "Edit Profile" to add one.';
+            showNotification('Profile updated successfully', 'success');
+            profileModal.classList.add('hidden');
+        }
+
+        // EVENTS FUNCTIONS
+        const fetchEvents = async () => {
+            showLoading(true);
+            try {
+                // If we have user location, use it to fetch events
+                if (userLocation) {
+                    const events = await fetchEventsFromTicketmaster(userLocation.lat, userLocation.lng);
+                    allEvents = events;
+                    filteredEvents = [...allEvents];
+                }
+                
+                renderEvents();
+                showLoading(false);
+            } catch (error) {
+                console.error('Failed to fetch events:', error);
+                showLoading(false);
+            }
+        };
+
+        const renderEvents = () => {
+            // Apply filters
+            applyEventFilters();
+            
+            // Render events grid
+            eventsGrid.innerHTML = filteredEvents.map(event => `
+                <div class="event-card">
+                    <div class="flex">
+                        <div class="event-date">
+                            <div class="month">${event.startDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</div>
+                            <div class="day">${event.startDate.getDate()}</div>
+                            <div class="weekday">${event.startDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</div>
+                        </div>
+                        <div class="p-4 flex-1">
+                            <div class="flex justify-between items-start mb-2">
+                                <h3 class="font-bold text-white text-lg">${event.name}</h3>
+                                <div class="flex space-x-1">
+                                    ${event.isPopular ? '<span class="event-category event-popular">POPULAR</span>' : ''}
+                                    ${event.isTrending ? '<span class="event-category event-trending">TRENDING</span>' : ''}
+                                </div>
+                            </div>
+                            <p class="text-gray-400 text-sm mb-2">${event.category.toUpperCase()}</p>
+                            <p class="text-gray-300 mb-2">${event.location} • ${event.time}</p>
+                            <p class="text-gray-400 text-sm mb-3">${event.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-300 text-sm">👥 ${event.attendees.toLocaleString()} attendees</span>
+                                <span class="text-gray-300 text-sm">💰 ${event.price}</span>
+                            </div>
+                            <div class="mt-3 flex space-x-2">
+                                <button onclick="viewEventDetails('${event.id}')" class="flex-1 px-3 py-2 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                                    View Details
+                                </button>
+                                <button onclick="rsvpToEvent('${event.id}')" class="flex-1 px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                                    RSVP
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Update events count
+            eventsCount.textContent = filteredEvents.length;
+        };
+
+        const applyEventFilters = () => {
+            const timeframe = eventsTimeframe.value;
+            const category = eventsCategory.value;
+            const sort = eventsSort.value;
+            const search = eventsSearch.value.toLowerCase();
+            
+            // Filter events based on selected criteria
+            filteredEvents = allEvents.filter(event => {
+                // Filter by search
+                if (search && !event.name.toLowerCase().includes(search) && 
+                    !event.location.toLowerCase().includes(search) && 
+                    !event.description.toLowerCase().includes(search)) {
+                    return false;
+                }
+                
+                // Filter by category
+                if (category !== 'all' && event.category !== category) {
+                    return false;
+                }
+                
+                // Filter by timeframe
+                const now = new Date();
+                const eventDate = event.startDate;
+                
+                if (timeframe === 'today') {
+                    return eventDate.toDateString() === now.toDateString();
+                } else if (timeframe === 'weekend') {
+                    const dayOfWeek = eventDate.getDay();
+                    const daysUntilWeekend = (6 - now.getDay() + 7) % 7; // Days until Saturday
+                    const weekendStart = new Date(now);
+                    weekendStart.setDate(now.getDate() + daysUntilWeekend);
+                    const weekendEnd = new Date(weekendStart);
+                    weekendEnd.setDate(weekendStart.getDate() + 1); // Sunday
+                    
+                    return eventDate >= weekendStart && eventDate <= weekendEnd;
+                } else if (timeframe === 'week') {
+                    const weekEnd = new Date(now);
+                    weekEnd.setDate(now.getDate() + 7);
+                    return eventDate >= now && eventDate <= weekEnd;
+                } else if (timeframe === 'month') {
+                    const monthEnd = new Date(now);
+                    monthEnd.setMonth(now.getMonth() + 1);
+                    return eventDate >= now && eventDate <= monthEnd;
+                }
+                
+                // Default: all upcoming events
+                return eventDate >= now;
+            });
+            
+            // Sort events
+            if (sort === 'date') {
+                filteredEvents.sort((a, b) => a.startDate - b.startDate);
+            } else if (sort === 'distance') {
+                // For demo, use random distance
+                filteredEvents.sort((a, b) => Math.random() - 0.5);
+            } else if (sort === 'rating') {
+                // For demo, use popularity as rating
+                filteredEvents.sort((a, b) => {
+                    const aScore = a.isPopular ? 2 : a.isTrending ? 1 : 0;
+                    const bScore = b.isPopular ? 2 : b.isTrending ? 1 : 0;
+                    return bScore - aScore;
+                });
+            } else {
+                // Default: popularity
+                filteredEvents.sort((a, b) => {
+                    const aScore = a.isPopular ? 2 : a.isTrending ? 1 : 0;
+                    const bScore = b.isPopular ? 2 : b.isTrending ? 1 : 0;
+                    return bScore - aScore;
+                });
+            }
+        };
+
+        function viewEventDetails(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (event) {
+                alert(`Event: ${event.name}\nDate: ${event.startDate.toLocaleDateString()}\nTime: ${event.time}\nLocation: ${event.location}\nDescription: ${event.description}\nAttendees: ${event.attendees.toLocaleString()}\nPrice: ${event.price}`);
+            }
+        }
+
+        function rsvpToEvent(eventId) {
+            const event = allEvents.find(e => e.id === eventId);
+            if (event) {
+                showNotification(`✅ RSVP'd to ${event.name}!`, 'success');
+            }
+        }
+
+        // VIDEO FUNCTIONS
+        const fetchVideos = async () => {
+            const authToken = localStorage.getItem('authToken');
+            const userId = localStorage.getItem('userId');
+            
+            showLoading(true);
+            try {
+                // For now, we'll use sample videos
+                setTimeout(() => {
+                    // Sample videos for demo
+                    allVideos = [
+                        { id: 1, username: 'PartyLover', caption: 'Amazing vibes at Club XYZ!', timestamp: '2 hours ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Club XYZ', isLive: true },
+                        { id: 2, username: 'DanceKing', caption: 'The music is fire tonight!', timestamp: '4 hours ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Beach Party', isLive: false }
+                    ];
+                    
+                    myVideos = [
+                        { id: 3, username: 'You', caption: 'My first video upload!', timestamp: '1 day ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Rooftop Lounge', isLive: false }
+                    ];
+                    
+                    renderVideos();
+                    showLoading(false);
+                }, 1000);
+            } catch (error) {
+                console.error('Failed to fetch videos:', error);
+                showLoading(false);
+            }
+        };
+
+        const renderVideos = () => {
+            // Render all videos
+            allVideosContainer.innerHTML = allVideos.map(video => `
+                <div class="bg-gray-800 rounded-lg p-4 shadow-lg cursor-pointer relative" onclick="openVideoFeed(${video.id - 1})">
+                    ${video.isLive ? '<div class="live-badge">LIVE</div>' : ''}
+                    <div class="bg-gray-700 rounded-lg video-thumbnail flex items-center justify-center">
+                        <video src="${video.video_file}" class="w-full h-full object-cover rounded-lg"></video>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-semibold text-white">${video.username}</h4>
+                        <p class="text-gray-300 text-sm mt-1">${video.caption}</p>
+                        <p class="text-gray-500 text-xs mt-2">${video.timestamp} • ${video.location}</p>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render user's videos
+            myVideosContainer.innerHTML = myVideos.map(video => `
+                <div class="bg-gray-700 rounded-lg p-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-white text-sm">${video.caption}</span>
+                        <button class="text-red-400 hover:text-red-300" onclick="removeVideo(${video.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <p class="text-gray-400 text-xs mt-1">${video.timestamp} • ${video.location}</p>
+                </div>
+            `).join('');
+        };
+
+        const handleVideoUpload = async (e) => {
+            e.preventDefault();
+            const authToken = localStorage.getItem('authToken');
+            const file = videoFile.files[0];
+            const caption = videoCaption.value;
+            const location = videoLocationSelect.value;
+            
+            if (!file) {
+                showNotification("Please select a video file", "error");
+                return;
+            }
+            
+            if (!authToken) {
+                showNotification("Please log in to upload videos", "error");
+                showAuthForm();
+                return;
+            }
+            
+            if (!location) {
+                showNotification("Please select a location", "error");
+                return;
+            }
+            
+            if (file.size > 50 * 1024 * 1024) {
+                showNotification("Video file too large (max 50MB)", "error");
+                return;
+            }
+            
+            const allowedTypes = ["video/mp4", "video/avi", "video/mov", "video/wmv"];
+            if (!allowedTypes.includes(file.type)) {
+                showNotification("Please select a video file (MP4, AVI, MOV, WMV)", "error");
+                return;
+            }
+            
+            showLoading(true);
+            
+            try {
+                // For demo purposes, simulate upload
+                setTimeout(() => {
+                    const newVideo = {
+                        id: Date.now(),
+                        username: 'You',
+                        caption: caption || 'No caption',
+                        timestamp: 'Just now',
+                        video_file: URL.createObjectURL(file),
+                        location: location,
+                        isLive: false
+                    };
+                    
+                    myVideos.unshift(newVideo);
+                    allVideos.unshift(newVideo);
+                    renderVideos();
+                    
+                    videoFile.value = '';
+                    videoCaption.value = '';
+                    videoLocationSelect.value = '';
+                    showLoading(false);
+                    showNotification("Video uploaded successfully!", "success");
+                    
+                    // Update user stats
+                    updateUserStats();
+                }, 2000);
+            } catch (error) {
+                console.error("Error uploading video:", error);
+                showNotification("Network error during upload", "error");
+                showLoading(false);
+            }
+        };
+
+        const removeVideo = async (videoId) => {
+            if (confirm('Are you sure you want to delete this video?')) {
+                myVideos = myVideos.filter(video => video.id !== videoId);
+                allVideos = allVideos.filter(video => video.id !== videoId);
+                renderVideos();
+                showNotification('Video deleted successfully', 'success');
+                
+                // Update user stats
+                updateUserStats();
+            }
+        };
+
+        // CHAT FUNCTIONS
+        const connectChat = () => {
+            // Add sample messages for demo
+            chatMessages.innerHTML = `
+                <div class="chat-message other">
+                    <p class="text-white">Welcome to Vibez Chat! Start a conversation about parties and events.</p>
+                    <p class="chat-message-time">System • Just now</p>
+                </div>
+            `;
+            
+            // Update active users list
+            updateActiveUsersList();
+        };
+
+        const updateActiveUsersList = () => {
+            activeUsersList.innerHTML = activeUsers.map(user => `
+                <li class="flex items-center justify-between p-2 rounded ${user.username === currentUser?.username ? 'bg-gray-700' : ''}">
+                    <div class="flex items-center">
+                        <span class="online-indicator"></span>
+                        <span class="${user.username === currentUser?.username ? 'text-purple-300' : 'text-gray-300'}">${user.username}</span>
+                    </div>
+                    ${user.username === currentUser?.username ? '<span class="text-xs text-purple-300">You</span>' : ''}
+                </li>
+            `).join('');
+            
+            onlineUsersCount.textContent = `${activeUsers.length} user${activeUsers.length !== 1 ? 's' : ''} online`;
+        };
+
+        const addChatMessage = (user, message, isOwn = false) => {
+            const messageElement = document.createElement('div');
+            messageElement.className = `chat-message ${isOwn ? 'own' : 'other'}`;
+            
+            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            messageElement.innerHTML = `
+                <p class="text-white">${message}</p>
+                <p class="chat-message-time">${user.username} • ${timestamp}</p>
+            `;
+            
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        const sendChatMessage = () => {
+            if (chatInput.value.trim()) {
+                const message = chatInput.value.trim();
+                addChatMessage(currentUser, message, true);
+                chatInput.value = '';
+            }
+        };
+
+        // VIDEO FEED FUNCTIONS
+        closeFeedButton.addEventListener('click', () => {
+            videoFeedContainer.classList.add('hidden');
+            // Stop the currently playing video when closing
+            const activeVideo = videoFeedList.querySelector('.snap-center video:not([muted])');
+            if (activeVideo) activeVideo.pause();
+        });
+        
+        function createVideoCard(video, index) {
+            const card = document.createElement('div');
+            card.className = 'w-full h-screen snap-center relative flex justify-center items-center bg-black';
+            
+            const videoElement = document.createElement('video');
+            videoElement.src = video.video_file; 
+            videoElement.className = 'w-full h-full object-cover';
+            videoElement.setAttribute('loop', '');
+            videoElement.setAttribute('autoplay', '');
+            videoElement.setAttribute('playsinline', '');
+            videoElement.setAttribute('muted', ''); // Start muted, unmuted when scrolled into view
+
+            // Overlay for information and interaction
+            const overlay = `
+                <div class="absolute inset-x-0 bottom-0 p-4 text-white bg-gradient-to-t from-black/80 to-transparent">
+                    <p class="font-bold text-lg">${video.caption || 'No caption'}</p>
+                    <p class="text-sm text-purple-300">${video.username || 'Anonymous'}</p>
+                    <p class="text-sm mt-1">@${video.location || 'Check-In Location'}</p>
+                </div>
+                <div class="absolute right-4 bottom-1/4 flex flex-col space-y-6 text-white text-center">
+                    <button class="flex flex-col items-center">
+                        <span class="text-2xl">❤️</span> <span class="text-xs">Like</span>
+                    </button>
+                    <button class="flex flex-col items-center">
+                        <span class="text-2xl">💬</span> <span class="text-xs">Comment</span>
+                    </button>
+                </div>
+            `;
+
+            card.appendChild(videoElement);
+            card.insertAdjacentHTML('beforeend', overlay);
+            return card;
+        }
+
+        function renderVideoFeed(startIndex = 0) {
+            videoFeedList.innerHTML = '';
+            videoData.forEach((video, index) => {
+                videoFeedList.appendChild(createVideoCard(video, index));
+            });
+
+            videoFeedList.removeEventListener('scroll', handleScroll); // Avoid duplicates
+            videoFeedList.addEventListener('scroll', handleScroll);
+            
+            // Initial scroll and play
+            const startCard = videoFeedList.querySelector(`.snap-center:nth-child(${startIndex + 1})`);
+            if (startCard) {
+                 startCard.scrollIntoView({ behavior: 'instant' });
+                 const startVideo = startCard.querySelector('video');
+                 startVideo.muted = false; // Unmute the starting video
+                 startVideo.play().catch(e => console.log('Autoplay failed:', e));
+            }
+        }
+
+        // This function ensures only the video currently centered in the view is playing and unmuted
+        let scrollTimeout;
+        function handleScroll() {
+            if (scrollTimeout) clearTimeout(scrollTimeout);
+            
+            scrollTimeout = setTimeout(() => {
+                const centerPosition = videoFeedList.scrollTop + videoFeedList.clientHeight / 2;
+
+                videoFeedList.querySelectorAll('.snap-center').forEach(card => {
+                    const videoElement = card.querySelector('video');
+                    const cardTop = card.offsetTop;
+                    const cardBottom = card.offsetTop + card.clientHeight;
+
+                    if (centerPosition >= cardTop && centerPosition < cardBottom) {
+                        // Currently visible: Play and Unmute
+                        videoElement.muted = false;
+                        videoElement.play().catch(e => console.log('Play on scroll failed:', e));
+                    } else {
+                        // Not visible: Pause and Mute
+                        videoElement.pause();
+                        videoElement.muted = true;
+                    }
+                });
+            }, 150); // Debounce scroll event
+        }
+
+        function openVideoFeed(startingIndex) {
+            videoData = [...allVideos]; // Use all videos for the feed
+            if (videoData.length === 0) {
+                alert('No videos available.');
+                return;
+            }
+            videoFeedContainer.classList.remove('hidden');
+            renderVideoFeed(startingIndex);
+        }
+
+        // Start real-time updates
+        const startRealTimeUpdates = () => {
+            // Clear any existing intervals
+            stopRealTimeUpdates();
+            
+            // Start new intervals only if live updates are enabled
+            if (liveUpdatesCheckbox.checked) {
+                updateIntervals.map = setInterval(() => {
+                    if (document.getElementById('map-content').classList.contains('hidden') === false) {
+                        // Only update if user has enabled live updates
+                        updateLiveMapData();
+                    }
+                }, REAL_TIME_CONFIG.MAP_UPDATE_INTERVAL);
+                
+                updateIntervals.events = setInterval(() => {
+                    if (document.getElementById('events-content').classList.contains('hidden') === false) {
+                        // Only update if user is on events tab
+                        updateLiveEvents();
+                    }
+                }, REAL_TIME_CONFIG.EVENTS_UPDATE_INTERVAL);
+                
+                updateIntervals.videos = setInterval(() => {
+                    if (document.getElementById('videos-content').classList.contains('hidden') === false) {
+                        // Only update if user is on videos tab
+                        updateLiveVideos();
+                    }
+                }, REAL_TIME_CONFIG.VIDEO_UPDATE_INTERVAL);
+                
+                updateIntervals.chat = setInterval(() => {
+                    if (document.getElementById('chat-content').classList.contains('hidden') === false) {
+                        // Only update if user is on chat tab
+                        updateActiveUsers();
+                    }
+                }, REAL_TIME_CONFIG.CHAT_UPDATE_INTERVAL);
+            }
+            
+            showNotification('Real-time updates activated', 'success');
+        };
+
+        // Stop real-time updates
+        const stopRealTimeUpdates = () => {
+            Object.values(updateIntervals).forEach(interval => {
+                if (interval) clearInterval(interval);
+            });
+        };
+
+        // Real-time update functions
+        const updateLiveMapData = () => {
+            // Only update crowd levels occasionally for realism
+            if (Math.random() > 0.7) {
+                const randomLocation = allLocations[Math.floor(Math.random() * allLocations.length)];
+                if (randomLocation) {
+                    const crowdChange = Math.floor((Math.random() - 0.5) * 10);
+                    randomLocation.crowd = Math.max(0, Math.min(100, randomLocation.crowd + crowdChange));
+                    updateMarkerPopup(randomLocation);
+                }
+            }
+        };
+
+        const updateLiveEvents = () => {
+            // Only add new events occasionally for realism
+            if (Math.random() > 0.9) {
+                const newEvent = {
+                    id: Date.now(),
+                    name: "Spontaneous Party",
+                    category: "club",
+                    startDate: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+                    endDate: new Date(Date.now() + 5 * 60 * 60 * 1000),
+                    time: "10:00 PM",
+                    location: "Random Venue",
+                    address: "Sample City",
+                    lat: userLocation ? userLocation.lat + (Math.random() - 0.5) * 0.02 : 0.3476,
+                    lng: userLocation ? userLocation.lng + (Math.random() - 0.5) * 0.02 : 32.5825,
+                    description: "Last minute party announcement! Come join the fun!",
+                    price: "$",
+                    attendees: Math.floor(Math.random() * 100) + 50,
+                    isPopular: false,
+                    isTrending: true
+                };
+                
+                allEvents.unshift(newEvent);
+                addEventMarkerToMap(newEvent);
+                renderEvents();
+                
+                showNotification(`🎉 New event: ${newEvent.name}`, 'info');
+            }
+        };
+
+        const updateLiveVideos = () => {
+            // Only add new videos occasionally for realism
+            if (Math.random() > 0.8) {
+                const locations = allLocations.filter(loc => loc.crowd > 50);
+                if (locations.length > 0) {
+                    const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+                    const users = ['PartyLover', 'DanceKing', 'MusicFan', 'NightOwl', 'SocialButterfly'];
+                    const captions = [
+                        'The vibes here are amazing! 🔥',
+                        'You have to see this place!',
+                        'Best party in town right now!',
+                        'The music is fire tonight! 🎵',
+                        'This crowd is lit! Come join!'
+                    ];
+                    
+                    const newVideo = {
+                        id: Date.now(),
+                        username: users[Math.floor(Math.random() * users.length)],
+                        caption: captions[Math.floor(Math.random() * captions.length)],
+                        timestamp: 'Just now',
+                        video_file: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                        location: randomLocation.name,
+                        isLive: Math.random() > 0.8
+                    };
+                    
+                    allVideos.unshift(newVideo);
+                    if (allVideos.length > 20) allVideos.pop();
+                    
+                    renderVideos();
+                    
+                    // Show notification for new videos
+                    if (newVideo.isLive) {
+                        showNotification(`🔴 LIVE: ${newVideo.username} is streaming from ${newVideo.location}`, 'success');
+                    }
+                }
+            }
+        };
+
+        const updateActiveUsers = () => {
+            // Update user presence timestamps
+            activeUsers.forEach(user => {
+                user.lastActive = new Date();
+            });
+        };
+
+        // Location services
+        const requestLocationPermission = () => {
+            return new Promise((resolve, reject) => {
+                if (!navigator.geolocation) {
+                    reject(new Error('Geolocation is not supported'));
+                    return;
+                }
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude,
+                            timestamp: new Date(),
+                            userId: currentUser?.userId,
+                            username: currentUser?.username
+                        };
+                        resolve(userLocation);
+                    },
+                    (error) => {
+                        reject(error);
+                    },
+                    {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 300000 // 5 minutes
+                    }
+                );
+            });
+        };
+
+        // EVENT LISTENERS
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('authToken');
+            const username = localStorage.getItem('username');
+            const userId = localStorage.getItem('userId');
+            
+            if (token && username && userId) {
+                showMainApp(username, userId);
+            } else {
+                showLandingPage();
+            }
+        });
+
+        // Landing page buttons
+        getStartedButton.addEventListener('click', showAuthForm);
+        joinNowButton.addEventListener('click', showAuthForm);
+
+        // Authentication
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            handleLogin(email, password);
+        });
+
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('register-username').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            handleRegister(username, email, password);
+        });
+
+        toggleButton.addEventListener('click', toggleAuthForm);
+
+        // Dashboard
+        logoutButton.addEventListener('click', logout);
+
+        // Tab navigation
+        mapTab.addEventListener('click', () => showTab('map'));
+        eventsTab.addEventListener('click', () => showTab('events'));
+        videosTab.addEventListener('click', () => showTab('videos'));
+        chatTab.addEventListener('click', () => showTab('chat'));
+        profileTab.addEventListener('click', () => showTab('profile'));
+
+        // Map filters
+        applyFiltersButton.addEventListener('click', applyMapFilters);
+        resetFiltersButton.addEventListener('click', resetMapFilters);
+        toggleFiltersButton.addEventListener('click', toggleFiltersVisibility);
+        if (toggleFilters) {
+            toggleFilters.addEventListener('click', toggleFiltersVisibility);
+        }
+
+        // Events filters
+        eventsSearchBtn.addEventListener('click', renderEvents);
+        eventsSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                renderEvents();
+            }
+        });
+        eventsTimeframe.addEventListener('change', renderEvents);
+        eventsCategory.addEventListener('change', renderEvents);
+        eventsSort.addEventListener('change', renderEvents);
+
+        // Rating system
+        ratingStars.addEventListener('click', (e) => {
+            if (e.target.classList.contains('rating-star')) {
+                const rating = parseInt(e.target.getAttribute('data-rating'));
+                selectedRating = rating;
+                
+                // Update star display
+                const stars = ratingStars.querySelectorAll('.rating-star');
+                stars.forEach((star, index) => {
+                    if (index < rating) {
+                        star.classList.add('active');
+                    } else {
+                        star.classList.remove('active');
+                    }
+                });
+            }
+        });
+
+        submitRatingButton.addEventListener('click', submitRating);
+        cancelRatingButton.addEventListener('click', () => {
+            ratingModal.classList.add('hidden');
+        });
+
+        // Create location
+        createLocationBtn.addEventListener('click', () => {
+            if (userLocation) {
+                showCreateLocationModal(userLocation.lat, userLocation.lng);
+            } else {
+                showNotification('Please enable location services to add a location', 'error');
+            }
+        });
+
+        createLocationForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('location-name').value;
+            const description = document.getElementById('location-description').value;
+            const type = document.getElementById('location-type').value;
+            const lat = parseFloat(createLocationForm.dataset.lat);
+            const lng = parseFloat(createLocationForm.dataset.lng);
+            
+            createNewLocation(name, description, type, lat, lng);
+        });
+
+        cancelCreateLocationButton.addEventListener('click', () => {
+            createLocationModal.classList.add('hidden');
+            createLocationForm.reset();
+        });
+
+        // Profile management
+        profileButton.addEventListener('click', openProfileModal);
+        editProfileButton.addEventListener('click', openProfileModal);
+        closeProfileButton.addEventListener('click', () => {
+            profileModal.classList.add('hidden');
+        });
+        closeProfileModalButton.addEventListener('click', () => {
+            profileModal.classList.add('hidden');
+        });
+        saveProfileButton.addEventListener('click', saveProfile);
+        changeAvatarButton.addEventListener('click', () => {
+            avatarUpload.click();
+        });
+        avatarUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    profileAvatar.src = event.target.result;
+                    profileDisplayAvatar.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Location services
+        shareLocationBtn.addEventListener('click', () => {
+            locationPermissionModal.classList.remove('hidden');
+        });
+
+        allowLocationBtn.addEventListener('click', () => {
+            requestLocationPermission()
+                .then(location => {
+                    userLocation = location;
+                    showNotification('Location sharing enabled! Loading real-time data.', 'success');
+                    locationPermissionModal.classList.add('hidden');
+                    
+                    // Center map on user's location
+                    if (map) {
+                        map.setView([location.lat, location.lng], 14);
+                        
+                        // Add user location marker
+                        const userIcon = L.divIcon({
+                            className: 'party-marker user-generated',
+                            iconSize: [20, 20],
+                            html: '<i class="fas fa-user text-white text-xs flex items-center justify-center h-full"></i>'
+                        });
+                        
+                        L.marker([location.lat, location.lng], { icon: userIcon })
+                            .addTo(map)
+                            .bindPopup(`
+                                <div class="text-white">
+                                    <h3 class="font-bold text-lg">Your Location</h3>
+                                    <p class="text-sm">You are here!</p>
+                                </div>
+                            `);
+                        
+                        // Reload data with user's location
+                        loadRealData(location.lat, location.lng);
+                    }
+                })
+                .catch(error => {
+                    showNotification('Location access denied. You can still use the app, but location features will be limited.', 'error');
+                    locationPermissionModal.classList.add('hidden');
+                });
+        });
+
+        denyLocationBtn.addEventListener('click', () => {
+            locationPermissionModal.classList.add('hidden');
+            showNotification('You can enable location sharing later in settings.', 'info');
+        });
+
+        checkInBtn.addEventListener('click', () => {
+            // Get user's current location for check-in
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        checkInToLocation(lat, lng);
+                    },
+                    (error) => {
+                        showNotification('Unable to get your location. Please enable location services.', 'error');
+                    }
+                );
+            } else {
+                showNotification('Geolocation is not supported by your browser', 'error');
+            }
+        });
+
+        // Video upload
+        uploadForm.addEventListener('submit', handleVideoUpload);
+
+        // Chat
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+        sendChatButton.addEventListener('click', sendChatMessage);
+
+        // Live updates checkbox
+        liveUpdatesCheckbox.addEventListener('change', () => {
+            if (liveUpdatesCheckbox.checked) {
+                startRealTimeUpdates();
+            } else {
+                stopRealTimeUpdates();
+                showNotification('Live updates paused', 'info');
+            }
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Page is hidden, reduce update frequency
+                Object.values(updateIntervals).forEach(interval => {
+                    if (interval) clearInterval(interval);
+                });
+            } else {
+                // Page is visible, restart updates if enabled
+                if (liveUpdatesCheckbox.checked) {
+                    startRealTimeUpdates();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: vibez-app
+    env: python
+    plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: "gunicorn vibez.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: false
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+
+databases:
+  - name: vibez-db
+    plan: free
+    databaseName: vibez
+    user: vibez_user

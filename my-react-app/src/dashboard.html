@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vibez - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117;
+        }
+        .text-gradient {
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-purple-pink {
+            background-image: linear-gradient(to right, #a855f7, #ec4899);
+        }
+        .gradient-teal-blue {
+            background-image: linear-gradient(to right, #2dd4bf, #3b82f6);
+        }
+        .gradient-orange-yellow {
+            background-image: linear-gradient(to right, #fb923c, #facc15);
+        }
+        .tab-button.active {
+            border-bottom-color: #a855f7;
+            color: #ec4899;
+        }
+        #map-container {
+            width: 100%;
+            height: 600px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap"></script>
+</head>
+<body class="bg-gray-900 text-white">
+
+    <!-- Main Container -->
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="fixed top-0 left-0 right-0 p-6 flex justify-between items-center z-50 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg">
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-widest text-gradient gradient-purple-pink">VIBEZ</h1>
+            <div class="flex items-center">
+                <span id="user-info" class="text-lg text-white font-semibold mr-4">Hello, User</span>
+                <button
+                    id="logout-button"
+                    class="px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white font-semibold rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    Logout
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <div class="pt-24 pb-8 px-4 md:px-8">
+            <!-- Tab Navigation -->
+            <div class="flex justify-center space-x-8 mb-8 border-b border-gray-700">
+                <button id="map-tab" class="tab-button active px-4 py-2 font-semibold text-lg transition duration-300">Interactive Map</button>
+                <button id="videos-tab" class="tab-button px-4 py-2 font-semibold text-lg transition duration-300">Live Videos</button>
+                <button id="chat-tab" class="tab-button px-4 py-2 font-semibold text-lg transition duration-300">Real-Time Chat</button>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="tab-content">
+                <!-- Interactive Map Section -->
+                <div id="map-content" class="tab-pane">
+                    <div id="map-container" class="w-full h-[600px] rounded-lg shadow-lg"></div>
+                </div>
+
+                <!-- Live Videos Section -->
+                <div id="videos-content" class="tab-pane hidden">
+                    <h2 class="text-3xl font-bold text-center text-gradient gradient-orange-yellow mb-8">Live Videos</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        <!-- Upload and manage videos -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-gray-800 rounded-lg p-6 shadow-md mb-8">
+                                <h3 class="text-xl font-semibold mb-4">Upload a Video</h3>
+                                <form id="upload-form" class="space-y-4">
+                                    <div>
+                                        <label for="video-file" class="block text-sm font-medium text-gray-300">Video File (30s max)</label>
+                                        <input type="file" id="video-file" accept="video/mp4" class="mt-1 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-500 file:text-white hover:file:bg-purple-600"/>
+                                    </div>
+                                    <div>
+                                        <label for="video-caption" class="block text-sm font-medium text-gray-300">Caption</label>
+                                        <input type="text" id="video-caption" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-purple-500 focus:ring-purple-500"/>
+                                    </div>
+                                    <button type="submit" class="w-full py-2 px-4 rounded-md text-white font-semibold bg-pink-500 hover:bg-pink-600">Upload</button>
+                                </form>
+                            </div>
+                            <div class="bg-gray-800 rounded-lg p-6 shadow-md">
+                                <h3 class="text-xl font-semibold mb-4">Your Uploads</h3>
+                                <div id="my-videos" class="space-y-4">
+                                    <!-- User's videos will be dynamically loaded here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- All videos feed -->
+                        <div class="lg:col-span-2">
+                            <div id="all-videos" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <!-- All videos will be dynamically loaded here -->
+                                <div class="bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                                    <video src="https://www.w3schools.com/html/mov_bbb.mp4" controls class="w-full h-auto"></video>
+                                    <div class="p-4">
+                                        <p class="text-sm text-gray-400">@User123 at The Hive</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time Chat Section -->
+                <div id="chat-content" class="tab-pane hidden">
+                    <h2 class="text-3xl font-bold text-center text-gradient gradient-teal-blue mb-8">Real-Time Chat</h2>
+                    <div class="flex flex-col lg:flex-row gap-8 max-w-4xl mx-auto h-[600px]">
+                        <!-- Active Users Sidebar -->
+                        <div class="bg-gray-800 rounded-lg shadow-lg p-4 w-full lg:w-1/4 h-full">
+                            <h3 class="text-xl font-semibold mb-4">Active Users</h3>
+                            <ul id="active-users-list" class="space-y-2 text-gray-300">
+                                <li class="flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>MICH</li>
+                            </ul>
+                        </div>
+                        <!-- Chat Box -->
+                        <div class="bg-gray-800 rounded-lg shadow-lg w-full lg:w-3/4 h-full flex flex-col">
+                            <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-4">
+                                <!-- Chat messages will be dynamically added here -->
+                            </div>
+                            <div class="p-4 border-t border-gray-700">
+                                <input type="text" id="chat-input" placeholder="Type a message..." class="w-full px-4 py-2 rounded-full bg-gray-900 text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8000/api';
+        
+        // Retrieve and parse user info from localStorage
+        const authToken = localStorage.getItem('authToken');
+        const user = {
+            username: localStorage.getItem('username'),
+            userId: localStorage.getItem('userId'),
+        };
+
+        // --- Tab Logic ---
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const mapTab = document.getElementById('map-tab');
+        const videosTab = document.getElementById('videos-tab');
+        const chatTab = document.getElementById('chat-tab');
+
+        const showTab = (tabId) => {
+            tabPanes.forEach(pane => {
+                pane.classList.add('hidden');
+            });
+            tabButtons.forEach(button => {
+                button.classList.remove('active');
+            });
+            document.getElementById(`${tabId}-content`).classList.remove('hidden');
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+        };
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tabId = e.target.id.split('-')[0];
+                showTab(tabId);
+                // Trigger specific logic for each tab
+                if (tabId === 'map') {
+                    if (window.google && !map) { // Check if Google Maps API is loaded
+                        initMap();
+                    }
+                } else if (tabId === 'videos') {
+                    fetchVideos();
+                } else if (tabId === 'chat') {
+                    connectChat();
+                }
+            });
+        });
+
+        // New logic to handle URL parameters on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if (tabParam) {
+                showTab(tabParam);
+            } else {
+                showTab('map');
+            }
+        });
+        
+        // --- User Authentication Logic (Simplified for Dashboard) ---
+        const logoutButton = document.getElementById('logout-button');
+        const userInfo = document.getElementById('user-info');
+        
+        // Note: For this demo, we assume the user is logged in if an authToken exists.
+        if (authToken) {
+            userInfo.textContent = `Hello, ${user.username}`;
+        } else {
+            // Fix: Use a relative path from the root
+            window.location.href = '/';
+        }
+
+        logoutButton.addEventListener('click', async () => {
+            if (authToken) {
+                try {
+                    await fetch(`${API_BASE_URL}/logout/`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Token ${authToken}` }
+                    });
+                } finally {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('username');
+                    localStorage.removeItem('userId');
+                    // Fix: Use a relative path from the root
+                    window.location.href = '/'; 
+                }
+            }
+        });
+
+        // --- Google Maps Integration (Interactive Map Tab) ---
+        let map = null;
+
+        function initMap() {
+            const mapContainer = document.getElementById('map-container');
+            if (mapContainer && !map) {
+                map = new google.maps.Map(mapContainer, {
+                    center: { lat: 0.3475, lng: 32.5825 }, // Centered on Kampala, Uganda
+                    zoom: 12,
+                    mapId: "DEMO_MAP_ID" // You can create your own Map ID in Google Cloud
+                });
+
+                // Fix: Call fetchPartyLocations AFTER the map is initialized
+                fetchPartyLocations();
+            }
+        }
+
+        const fetchPartyLocations = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/partylocations/`, {
+                    headers: { 'Authorization': `Token ${authToken}` }
+                });
+                const locations = await response.json();
+                locations.forEach(location => {
+                    const marker = new google.maps.Marker({
+                        position: { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) },
+                        map: map,
+                        title: location.name,
+                    });
+
+                    const infowindow = new google.maps.InfoWindow({
+                        content: `<h3>${location.name}</h3><p>${location.description}</p><p>Rank: ${location.average_ranking || 'No rank'}/5</p>`,
+                    });
+
+                    marker.addListener("click", () => {
+                        infowindow.open(map, marker);
+                    });
+                });
+            } catch (error) {
+                console.error('Failed to fetch party locations:', error);
+            }
+        };
+
+        // --- Videos Integration (Live Videos Tab) ---
+        const uploadForm = document.getElementById('upload-form');
+        const videoFile = document.getElementById('video-file');
+        const videoCaption = document.getElementById('video-caption');
+        const myVideosContainer = document.getElementById('my-videos');
+        const allVideosContainer = document.getElementById('all-videos');
+        let allVideos = [];
+        let myVideos = [];
+
+        const fetchVideos = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/videos/`, {
+                    headers: { 'Authorization': `Token ${authToken}` }
+                });
+                const videos = await response.json();
+                allVideos = videos;
+                // Fix: Use the user ID from localStorage to filter videos
+                myVideos = videos.filter(video => video.user === parseInt(user.userId)); 
+                renderVideos();
+            } catch (error) {
+                console.error('Failed to fetch videos:', error);
+            }
+        };
+
+        const renderVideos = () => {
+            // Render all videos
+            allVideosContainer.innerHTML = '';
+            allVideos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.classList.add('bg-gray-800', 'rounded-lg', 'shadow-md', 'overflow-hidden');
+                videoCard.innerHTML = `
+                    <video src="${video.video_file}" controls class="w-full h-auto"></video>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-400">@${video.user} at The Hive</p>
+                    </div>
+                `;
+                allVideosContainer.appendChild(videoCard);
+            });
+
+            // Render user's videos
+            myVideosContainer.innerHTML = '';
+            myVideos.forEach(video => {
+                const myVideoCard = document.createElement('div');
+                myVideoCard.classList.add('bg-gray-900', 'rounded-lg', 'p-4', 'flex', 'justify-between', 'items-center', 'shadow-sm');
+                myVideoCard.innerHTML = `
+                    <div>
+                        <p class="text-sm font-semibold">${video.caption}</p>
+                        <p class="text-xs text-gray-500">at The Hive</p>
+                    </div>
+                    <button class="text-red-400 hover:text-red-500 transition-colors" data-video-id="${video.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                `;
+                myVideosContainer.appendChild(myVideoCard);
+            });
+        };
+
+        const removeVideo = async (videoId) => {
+            try {
+                await fetch(`${API_BASE_URL}/videos/${videoId}/`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Token ${authToken}` }
+                });
+                // After successful deletion, re-fetch and re-render videos
+                fetchVideos();
+            } catch (error) {
+                console.error('Failed to delete video:', error);
+            }
+        };
+
+        myVideosContainer.addEventListener('click', (e) => {
+            if (e.target.closest('button')) {
+                const videoId = e.target.closest('button').dataset.videoId;
+                if (confirm('Are you sure you want to delete this video?')) {
+                    removeVideo(videoId);
+                }
+            }
+        });
+
+        // --- Real-time Chat Integration ---
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const activeUsersList = document.getElementById('active-users-list');
+
+        let chatSocket = null;
+
+        const connectChat = () => {
+            // Placeholder for chat room name. This would be dynamic in a real app.
+            const roomName = 'main-party';
+            chatSocket = new WebSocket(`ws://localhost:8000/ws/chat/${roomName}/`);
+
+            chatSocket.onmessage = function(e) {
+                const data = JSON.parse(e.data);
+                addChatMessage(data.user, data.message);
+            };
+
+            chatSocket.onclose = function(e) {
+                console.error('Chat socket closed unexpectedly');
+            };
+        };
+
+        const addChatMessage = (user, message) => {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('p-3', 'rounded-lg', 'bg-gray-900', 'text-gray-200');
+            messageElement.innerHTML = `<span class="font-bold text-purple-400">${user}:</span> ${message}`;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
+
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && chatInput.value.trim() !== '') {
+                const message = chatInput.value;
+                // Fix: Pass the user ID from localStorage
+                chatSocket.send(JSON.stringify({ 'message': message, 'user_id': user.userId }));
+                chatInput.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
+

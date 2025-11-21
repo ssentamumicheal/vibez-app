@@ -1,0 +1,33 @@
+"""
+ASGI config for vibez project.
+
+It exposes the ASGI callable as a module-level variable named ``application``.
+
+For more information on this file, see
+https://docs.djangoproject.com/en/5.2/howto/deployment/asgi/
+"""
+
+# vibez_project/asgi.py (or vibez/asgi.py)
+
+import os
+from django.core.asgi import get_asgi_application
+from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.auth import AuthMiddlewareStack
+from django.urls import path # Import path
+
+# Set up Django's settings
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'vibez_project.settings') # **Check your settings path!**
+
+# Import your WebSocket routing
+from core import routing # Assumes your consumer routes are defined in core/routing.py
+
+# Define the overall ASGI application entry point
+application = ProtocolTypeRouter({
+    "http": get_asgi_application(), # Handles standard HTTP requests (Django Views, DRF APIs)
+
+    "websocket": AuthMiddlewareStack( # Handles WebSocket connections
+        URLRouter(
+            core.routing.websocket_urlpatterns # Point to the list of WebSocket paths
+        )
+    ),
+})

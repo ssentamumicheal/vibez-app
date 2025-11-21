@@ -1,0 +1,1059 @@
+--- index.html.original
++++ index.html.fixed
+@@ -1079,6 +1079,22 @@
+                 </div>
+             </div>
+             
++            <!-- Mobile Bottom Navigation -->
++            <div class="mobile-bottom-nav lg:hidden">
++                <button class="tab-button active flex flex-col items-center text-purple-400" data-tab="map">
++                    <i class="fas fa-map"></i>
++                    <span class="text-xs mt-1">Map</span>
++                </button>
++                <button class="tab-button flex flex-col items-center text-gray-400" data-tab="events">
++                    <i class="fas fa-calendar"></i>
++                    <span class="text-xs mt-1">Events</span>
++                </button>
++                <button class="tab-button flex flex-col items-center text-gray-400" data-tab="videos">
++                    <i class="fas fa-video"></i>
++                    <span class="text-xs mt-1">Videos</span>
++                </button>
++                <button class="tab-button flex flex-col items-center text-gray-400" data-tab="chat">
++                    <i class="fas fa-comments"></i>
++                    <span class="text-xs mt-1">Chat</span>
++                </button>
++            </div>
++
+             <!-- Mobile Bottom Navigation -->
+             <div class="mobile-bottom-nav lg:hidden">
+                 <button class="tab-button active flex flex-col items-center text-purple-400">
+@@ -1094,6 +1110,7 @@
+                 <button class="tab-button flex flex-col items-center text-gray-400">
+                     <i class="fas fa-comments"></i>
+                     <span class="text-xs mt-1">Chat</span>
+                 </button>
+             </div>
+         </div>
+     </div>
+@@ -1105,6 +1122,7 @@
+         // API Configuration
+         const API_CONFIG = {
+             BASE_URL: 'http://127.0.0.1:8000/api',
++            HEADERS: {
++                'Content-Type': 'application/json'
++            }
+@@ -1112,6 +1130,7 @@
+ 
+         // Real-time configuration
+         const REAL_TIME_CONFIG = {
++            MAP_UPDATE_INTERVAL: 15000,
+             EVENTS_UPDATE_INTERVAL: 10000,
+             VIDEO_UPDATE_INTERVAL: 20000,
+@@ -1120,6 +1139,7 @@
+         };
+
+         // Application State
+         const AppState = {
++            currentUser: null,
+             map: null,
+             markers: [],
+@@ -1128,6 +1148,7 @@
+             filteredLocations: [],
+             allEvents: [],
+             filteredEvents: [],
++            allVideos: [],
+             myVideos: [],
+             activeUsers: [],
+@@ -1136,6 +1157,7 @@
+                 events: null,
+                 videos: null,
+                 chat: null,
++                users: null
+             }
+         };
+@@ -1145,6 +1167,7 @@
+             landingPage: document.getElementById('landing-page'),
+             authContainer: document.getElementById('auth-container'),
+             mainAppContent: document.getElementById('main-app-content'),
++            getStartedButton: document.getElementById('get-started-button'),
+             joinNowButton: document.getElementById('join-now-button'),
+             logoutButton: document.getElementById('logout-button'),
+@@ -1153,6 +1176,7 @@
+             registerForm: document.getElementById('register-form'),
+             toggleButton: document.getElementById('toggle-button'),
+             formTitle: document.getElementById('form-title'),
++            formSubtitle: document.getElementById('form-subtitle'),
+             errorMessage: document.getElementById('error-message'),
+             tabButtons: document.querySelectorAll('.tab-button'),
+@@ -1161,6 +1185,7 @@
+             locationPermissionModal: document.getElementById('location-permission-modal'),
+             allowLocationBtn: document.getElementById('allow-location'),
+             denyLocationBtn: document.getElementById('deny-location'),
++            shareLocationBtn: document.getElementById('share-location-btn'),
+             checkInBtn: document.getElementById('check-in-btn'),
+             applyFiltersBtn: document.getElementById('apply-filters'),
+@@ -1169,6 +1194,7 @@
+             totalCount: document.getElementById('total-count'),
+             eventsGrid: document.getElementById('events-grid'),
+             eventsSearch: document.getElementById('events-search'),
++            searchEventsBtn: document.getElementById('search-events'),
+             eventsCategory: document.getElementById('events-category'),
+             allVideosContainer: document.getElementById('all-videos'),
+@@ -1177,6 +1203,7 @@
+             videoCaption: document.getElementById('video-caption'),
+             videoLocationSelect: document.getElementById('video-location'),
+             chatMessages: document.getElementById('chat-messages'),
++            chatInput: document.getElementById('chat-input'),
+             sendChatBtn: document.getElementById('send-chat'),
+             activeUsersList: document.getElementById('active-users-list'),
+@@ -1185,6 +1212,7 @@
+         };
+
+         // Utility Functions
+         const Utils = {
++            showLoading(show = true) {
+                 const loader = document.getElementById('loading-overlay');
+                 if (show) {
+@@ -1193,6 +1221,7 @@
+                     loader.classList.add('hidden');
+                 }
+             },
+
++            showNotification(message, type = 'info') {
+                 const container = document.getElementById('notification-container');
+                 const notification = document.createElement('div');
+@@ -1201,6 +1230,7 @@
+                                type === 'warning' ? 'bg-yellow-500' : 'bg-blue-500';
+                 
+                 notification.className = `${bgColor} text-white p-4 rounded-lg shadow-lg notification`;
++                notification.textContent = message;
+                 container.appendChild(notification);
+                 
+@@ -1209,6 +1239,7 @@
+
+             formatEventDate(date) {
+                 const options = { month: 'short', day: 'numeric' };
++                return date.toLocaleDateString('en-US', options);
+             },
+
+@@ -1217,6 +1248,7 @@
+                 return date.toLocaleDateString('en-US', options).toUpperCase();
+             }
+         };
+
+         // View Management
+         const ViewManager = {
++            showMainApp(username, userId) {
+                 DOM.landingPage.classList.add('hidden');
+@@ -1225,6 +1257,7 @@
+                 DOM.userInfo.textContent = `Hello, ${username}`;
+                 
++                AppState.currentUser = {
++                    username,
++                    userId,
++                    lastActive: new Date()
++                };
++                
+                 // Add current user to active users
++                AppState.activeUsers = [AppState.currentUser];
+                 this.updateActiveUsersList();
+                 
+@@ -1233,6 +1266,7 @@
+                 localStorage.setItem('authToken', 'demo-token-' + Date.now());
+                 
+                 // Start real-time updates
++                this.startRealTimeUpdates();
+                 
+                 // Show location permission modal after a short delay
+@@ -1241,6 +1275,7 @@
+                 }, 1000);
+                 
++                this.showTab('map');
+                 Utils.showNotification('Welcome to Vibez!', 'success');
+             },
+
+@@ -1249,6 +1284,7 @@
+                 DOM.authContainer.classList.remove('hidden');
+                 DOM.mainAppContent.classList.add('hidden');
++                DOM.errorMessage.classList.add('hidden');
+                 
+                 // Stop real-time updates when showing auth form
+@@ -1257,6 +1293,7 @@
+
+             showLandingPage() {
+                 DOM.landingPage.classList.remove('hidden');
++                DOM.authContainer.classList.add('hidden');
+                 DOM.mainAppContent.classList.add('hidden');
+                 
+@@ -1265,6 +1302,7 @@
+             },
+
+             showTab(tabId) {
++                DOM.tabPanes.forEach(pane => pane.classList.add('hidden'));
+                 DOM.tabButtons.forEach(button => button.classList.remove('active'));
+                 document.getElementById(`${tabId}-content`).classList.remove('hidden');
+@@ -1272,6 +1310,7 @@
+                 
+                 // Update mobile navigation
+                 const mobileButtons = document.querySelectorAll('.mobile-bottom-nav .tab-button');
++                mobileButtons.forEach((button, index) => {
+                     const tabIds = ['map', 'events', 'videos', 'chat'];
+                     if (tabIds[index] === tabId) {
+@@ -1280,6 +1319,7 @@
+                     } else {
+                         button.classList.remove('text-purple-400');
+                         button.classList.add('text-gray-400');
+                     }
++                });
+                 
+                 if (tabId === 'map') {
+@@ -1297,6 +1337,7 @@
+             },
+
+             updateLocationSelect() {
++                // Update the location select dropdown for video uploads
+                 DOM.videoLocationSelect.innerHTML = '<option value="">Select a location</option>';
+                 AppState.allLocations.forEach(location => {
+@@ -1305,6 +1346,7 @@
+                     option.textContent = location.title;
+                     DOM.videoLocationSelect.appendChild(option);
+                 });
++            },
+
+             updateActiveUsersList() {
+@@ -1313,6 +1355,7 @@
+                         <div class="flex items-center">
+                             <span class="online-indicator"></span>
++                            <span class="${user.username === AppState.currentUser?.username ? 'text-purple-300' : 'text-gray-300'}">${user.username}</span>
+                         </div>
++                        ${user.username === AppState.currentUser?.username ? '<span class="text-xs text-purple-300">You</span>' : ''}
+                     </li>
+@@ -1321,6 +1364,7 @@
+                 DOM.onlineUsersCount.textContent = `${AppState.activeUsers.length} user${AppState.activeUsers.length !== 1 ? 's' : ''} online`;
+             },
+
++            startRealTimeUpdates() {
+                 // Clear any existing intervals
+                 this.stopRealTimeUpdates();
+@@ -1329,6 +1373,7 @@
+                 if (DOM.liveUpdatesCheckbox.checked) {
+                     AppState.updateIntervals.map = setInterval(() => {
++                        if (document.getElementById('map-content').classList.contains('hidden') === false) {
+                             // Only update if user has enabled live updates
+                             MapManager.updateLiveMapData();
+@@ -1337,6 +1382,7 @@
+                     
+                     AppState.updateIntervals.events = setInterval(() => {
++                        if (document.getElementById('events-content').classList.contains('hidden') === false) {
+                             // Only update if user is on events tab
+                             EventManager.updateLiveEvents();
+@@ -1345,6 +1391,7 @@
+                     
+                     AppState.updateIntervals.videos = setInterval(() => {
++                        if (document.getElementById('videos-content').classList.contains('hidden') === false) {
+                             // Only update if user is on videos tab
+                             VideoManager.updateLiveVideos();
+@@ -1353,6 +1400,7 @@
+                     
+                     AppState.updateIntervals.chat = setInterval(() => {
++                        if (document.getElementById('chat-content').classList.contains('hidden') === false) {
+                             // Only update if user is on chat tab
+                             ChatManager.updateActiveUsers();
+@@ -1361,6 +1409,7 @@
+                 }
+             },
+
++            stopRealTimeUpdates() {
+                 Object.values(AppState.updateIntervals).forEach(interval => {
+                     if (interval) clearInterval(interval);
+@@ -1369,6 +1418,7 @@
+         };
+
+         // Authentication Manager
+         const AuthManager = {
++            async handleLogin(email, password) {
+                 Utils.showLoading(true);
+                 try {
+@@ -1377,6 +1427,7 @@
+                     
+                     if (email && password) {
+                         const username = email.split('@')[0] || 'User';
++                        ViewManager.showMainApp(username, 'user123');
+                     } else {
+                         throw new Error('Please enter email and password');
+@@ -1385,6 +1436,7 @@
+                     this.showError(error.message);
+                 } finally {
+                     Utils.showLoading(false);
++                }
+             },
+
+@@ -1397,6 +1449,7 @@
+                     
+                     if (username && email && password) {
++                        ViewManager.showMainApp(username, 'user123');
+                     } else {
+                         throw new Error('Please fill all fields');
+@@ -1405,6 +1458,7 @@
+                     this.showError(error.message);
+                 } finally {
+                     Utils.showLoading(false);
++                }
+             },
+
+@@ -1413,6 +1467,7 @@
+                 DOM.errorMessage.classList.remove('hidden');
+             },
+
++            toggleAuthForm() {
+                 const isLogin = !DOM.loginForm.classList.contains('hidden');
+                 
+@@ -1421,6 +1476,7 @@
+                     DOM.registerForm.classList.remove('hidden');
+                     DOM.formTitle.textContent = 'Join Vibez!';
++                    DOM.formSubtitle.textContent = 'Create an account to start exploring parties in real-time.';
+                     DOM.toggleButton.textContent = 'Login';
+                 } else {
+@@ -1428,6 +1484,7 @@
+                     DOM.registerForm.classList.add('hidden');
+                     DOM.formTitle.textContent = 'Welcome Back!';
++                    DOM.formSubtitle.textContent = 'Log in to find the hottest parties in Uganda in real-time.';
+                     DOM.toggleButton.textContent = 'Sign Up';
+                 }
+@@ -1435,6 +1492,7 @@
+             },
+
+             logout() {
++                localStorage.removeItem('authToken');
+                 localStorage.removeItem('username');
+                 localStorage.removeItem('userId');
+@@ -1443,6 +1501,7 @@
+                 Utils.showNotification('Logged out successfully', 'success');
+             }
+         };
+
+         // Map Manager
+         const MapManager = {
++            initMap() {
+                 // Default to Kampala, Uganda
+@@ -1451,6 +1510,7 @@
+                 // Initialize the map
++                AppState.map = L.map('map-container').setView(kampala, 13);
+                 
+                 // Add OpenStreetMap tiles
++                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+@@ -1459,6 +1519,7 @@
+                 // Add sample locations for demo
++                this.addSampleLocations();
+                 
+                 // Add sample events for demo
++                this.addSampleEvents();
+                 
+                 // Initialize filter counts
+@@ -1467,6 +1528,7 @@
+
+             addSampleLocations() {
++                AppState.allLocations = [
+                     { id: 1, lat: 0.3163, lng: 32.5822, title: "Club Guvnor", rating: 4.5, type: "club", vibe: "high" },
+                     { id: 2, lat: 0.3136, lng: 32.5876, title: "Cayenne", rating: 4.2, type: "lounge", vibe: "medium" },
+@@ -1475,6 +1537,7 @@
+                     { id: 5, lat: 0.3131, lng: 32.5905, title: "The Lawns", rating: 4.8, type: "lounge", vibe: "high" }
+                 ];
+                 
++                // Add crowd data to locations
+                 AppState.allLocations.forEach(location => {
+                     location.crowd = Math.floor(Math.random() * 100);
+@@ -1483,6 +1546,7 @@
+                 
++                AppState.filteredLocations = [...AppState.allLocations];
+                 
+                 // Clear existing markers
++                AppState.markers.forEach(marker => AppState.map.removeLayer(marker));
+                 AppState.markers = [];
+
+@@ -1491,6 +1555,7 @@
+                     this.addMarkerToMap(location);
+                 });
++            },
+
+             addSampleEvents() {
+@@ -1499,6 +1564,7 @@
+                     {
+                         id: 1,
+                         name: "Nyege Nyege Festival 2025",
++                        category: "festival",
+                         date: new Date(2025, 10, 20),
+                         time: "7:00 PM",
+@@ -1507,6 +1573,7 @@
+                         description: "The biggest electronic music festival in East Africa featuring international and local artists.",
+                         popularity: "high",
++                        price: "$$$",
+                         attendees: 15000,
+                         isPopular: true,
+@@ -1515,6 +1582,7 @@
+                     {
+                         id: 2,
+                         name: "The Unveil",
++                        category: "music",
+                         date: new Date(2025, 10, 21),
+                         time: "5:00 PM",
+@@ -1523,6 +1591,7 @@
+                         description: "Live music performance featuring upcoming local artists.",
+                         popularity: "medium",
++                        price: "$",
+                         attendees: 200,
+                         isPopular: false,
+@@ -1531,6 +1600,7 @@
+                     {
+                         id: 3,
+                         name: "Friends of C Perl",
++                        category: "music",
+                         date: new Date(2025, 11, 4),
+                         time: "3:00 PM",
+@@ -1539,6 +1609,7 @@
+                         description: "An intimate evening with acoustic performances.",
+                         popularity: "medium",
++                        price: "$$",
+                         attendees: 150,
+                         isPopular: false,
+@@ -1547,6 +1618,7 @@
+                 ];
+                 
++                AppState.filteredEvents = [...AppState.allEvents];
+                 
+                 // Add event markers to map
+@@ -1555,6 +1627,7 @@
+
+             addMarkerToMap(location) {
++                // Determine marker class based on rating
+                 let markerClass = 'party-marker';
+                 if (location.rating >= 4.5) {
+@@ -1563,6 +1636,7 @@
+                     markerClass += ' high-rated';
+                 }
+
++                // Create custom icon
+                 const customIcon = L.divIcon({
+                     className: markerClass,
+@@ -1571,6 +1645,7 @@
+                 });
+
++                // Create marker with custom icon
+                 const marker = L.marker([location.lat, location.lng], { icon: customIcon })
+                     .addTo(AppState.map)
+                     .bindPopup(`
+@@ -1581,6 +1656,7 @@
+                             <p class="text-sm">💫 Vibe: ${location.vibe}</p>
+                             <p class="text-sm">👥 ${location.crowd}% crowd level</p>
++                            <p class="text-sm">📍 ${location.checkIns || 0} check-ins</p>
+                             <div class="mt-2 flex space-x-2">
+-                                <button onclick="MapManager.viewLocationDetails(${location.id})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
++                                <button onclick="MapManager.viewLocationDetails(${location.lat}, ${location.lng})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                                     View Details
+                                 </button>
+@@ -1591,6 +1667,7 @@
+                     `);
+                 
++                AppState.markers.push(marker);
+             },
+
+@@ -1599,6 +1676,7 @@
+                 AppState.eventMarkers.forEach(marker => AppState.map.removeLayer(marker));
+                 AppState.eventMarkers = [];
+
++                // Add new event markers
+                 AppState.allEvents.forEach(event => {
+                     const eventIcon = L.divIcon({
+@@ -1607,6 +1685,7 @@
+                         html: '<i class="fas fa-calendar-alt"></i>'
+                     });
+
++                    const marker = L.marker([event.lat, event.lng], { icon: eventIcon })
+                         .addTo(AppState.map)
+                         .bindPopup(`
+@@ -1615,6 +1694,7 @@
+                                 <p class="text-sm">📅 ${Utils.formatEventDate(event.date)} at ${event.time}</p>
+                                 <p class="text-sm">📍 ${event.location}</p>
++                                <p class="text-sm">🎵 ${event.category.toUpperCase()}</p>
+                                 <p class="text-sm">👥 ${event.attendees.toLocaleString()} attendees</p>
+-                                <p class="text-sm">💰 Price: ${event.price}</p>
++                                <p class="text-sm">💰 ${event.price}</p>
+                                 <div class="mt-2 flex space-x-2">
+                                     <button onclick="EventManager.viewEventDetails(${event.id})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+@@ -1625,6 +1705,7 @@
+                                     </button>
+                                 </div>
+                             </div>
+                         `);
++                    
++                    AppState.eventMarkers.push(marker);
+                 });
+             },
+
+@@ -1633,6 +1714,7 @@
+                 const rating = document.getElementById('rating-filter').value;
+                 const vibe = document.getElementById('vibe-filter').value;
+                 
++                // Filter locations based on selected criteria
+                 AppState.filteredLocations = AppState.allLocations.filter(location => {
+                     // Filter by party type
+@@ -1641,6 +1723,7 @@
+                     }
+                     
+                     // Filter by rating
++                    if (rating !== 'any' && location.rating < parseFloat(rating)) {
+                         return false;
+                     }
+@@ -1651,6 +1734,7 @@
+                     
+                     return true;
+                 });
+                 
++                // Update markers visibility
+                 AppState.markers.forEach(marker => {
+                     const location = AppState.allLocations.find(loc => 
+@@ -1659,6 +1743,7 @@
+                     
+                     if (location) {
++                        const isVisible = AppState.filteredLocations.some(loc => loc.id === location.id);
+                         
+                         if (isVisible) {
+@@ -1669,6 +1754,7 @@
+                 });
+                 
+                 // Update filter counts
++                this.updateFilterCounts();
+                 
+                 // Show notification
+@@ -1677,6 +1763,7 @@
+
+             resetMapFilters() {
++                // Reset filter dropdowns to default values
+                 document.getElementById('party-type-filter').value = 'all';
+                 document.getElementById('rating-filter').value = 'any';
+@@ -1685,6 +1772,7 @@
+                 // Reset to show all locations
++                AppState.filteredLocations = [...AppState.allLocations];
+                 
+                 // Show all markers
++                AppState.markers.forEach(marker => {
+                     AppState.map.addLayer(marker);
+@@ -1693,6 +1781,7 @@
+                 // Update filter counts
++                this.updateFilterCounts();
+                 
+                 // Show notification
+@@ -1701,6 +1790,7 @@
+
+             updateFilterCounts() {
++                DOM.filteredCount.textContent = AppState.filteredLocations.length;
+                 DOM.totalCount.textContent = AppState.allLocations.length;
+             },
+
+@@ -1709,6 +1799,7 @@
+                 if (location) {
+                     const locationName = location.title;
+                     // Update location stats
++                    location.checkIns = (location.checkIns || 0) + 1;
+                     location.crowd = Math.min(100, (location.crowd || 0) + 5);
+                     
+@@ -1717,6 +1808,7 @@
+                     
+                     Utils.showNotification(`✅ Checked in at ${locationName}!`, 'success');
+                 } else {
++                    const locationName = prompt('Enter location name:');
+                     if (locationName) {
+                         // Create new location from check-in
+@@ -1725,6 +1817,7 @@
+                             lat: lat,
+                             lng: lng,
+                             title: locationName,
++                            rating: 4.0,
+                             type: 'user_generated',
+                             vibe: ['high', 'medium', 'chill'][Math.floor(Math.random() * 3)],
+@@ -1733,6 +1826,7 @@
+                             userGenerated: true
+                         };
+                         
++                        AppState.allLocations.push(newLocation);
+                         this.addMarkerToMap(newLocation);
+                         
+@@ -1741,6 +1835,7 @@
+                 }
+                 
++                ViewManager.updateLocationSelect();
+                 this.updateFilterCounts();
+             },
+
+@@ -1749,6 +1844,7 @@
+                     const markerLat = marker.getLatLng().lat;
+                     const markerLng = marker.getLatLng().lng;
+                     
++                    if (Math.abs(markerLat - location.lat) < 0.0001 && Math.abs(markerLng - location.lng) < 0.0001) {
+                         const popupContent = `
+                             <div class="text-white">
+@@ -1756,6 +1852,7 @@
+                                 <p class="text-sm">⭐ ${location.rating.toFixed(1)}/5 rating</p>
++                                <p class="text-sm">👥 ${location.checkIns} check-ins</p>
+                                 <p class="text-sm">🎯 ${location.crowd}% crowd level</p>
+-                                <p class="text-sm">💫 Vibe: ${location.vibe}</p>
+-                                <button onclick="MapManager.checkInToLocation(${location.id})" 
++                                <p class="text-sm">💫 Vibe: ${location.vibe}</p>
++                                <button onclick="MapManager.checkInToLocation(${location.lat}, ${location.lng})" 
+                                         class="mt-2 w-full py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">
+                                     Check In
+@@ -1764,6 +1861,7 @@
+                         `;
+                         marker.setPopupContent(popupContent);
++                    }
+                 });
+             },
+
+@@ -1772,6 +1870,7 @@
+                 if (location) {
+                     alert(`Location: ${location.title}\nRating: ${location.rating}/5\nCrowd: ${location.crowd}%\nCheck-ins: ${location.checkIns || 0}\nVibe: ${location.vibe}`);
++                }
+             },
+
+@@ -1779,6 +1878,7 @@
+                 // Only update crowd levels occasionally for realism
+                 if (Math.random() > 0.7) {
++                    const randomLocation = AppState.allLocations[Math.floor(Math.random() * AppState.allLocations.length)];
+                     if (randomLocation) {
+                         const crowdChange = Math.floor((Math.random() - 0.5) * 10);
+@@ -1787,6 +1887,7 @@
+                     }
+                 }
+             },
+
++            requestLocationPermission() {
+                 return new Promise((resolve, reject) => {
+                     if (!navigator.geolocation) {
+@@ -1795,6 +1896,7 @@
+                     }
+                     
++                    navigator.geolocation.getCurrentPosition(
+                         (position) => {
+                             const userLocation = {
+@@ -1803,6 +1905,7 @@
+                                 timestamp: new Date()
+                             };
++                            resolve(userLocation);
+                         },
+                         (error) => {
+@@ -1811,6 +1914,7 @@
+                         {
+                             enableHighAccuracy: true,
++                            timeout: 10000,
+                             maximumAge: 300000 // 5 minutes
+                         }
+@@ -1819,6 +1923,7 @@
+         };
+
+         // Event Manager
+         const EventManager = {
++            async fetchEvents() {
+                 Utils.showLoading(true);
+                 try {
+@@ -1827,6 +1932,7 @@
+                         this.renderEvents();
+                         Utils.showLoading(false);
+                     }, 1000);
++                } catch (error) {
+                     console.error('Failed to fetch events:', error);
+                     Utils.showLoading(false);
+@@ -1835,6 +1941,7 @@
+
+             renderEvents() {
++                // Apply filters
+                 this.applyEventFilters();
+                 
+@@ -1843,6 +1950,7 @@
+                     <div class="event-card">
+                         <div class="flex">
+                             <div class="event-date">
++                                <div class="month">${event.date.toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}</div>
+                                 <div class="day">${event.date.getDate()}</div>
+                                 <div class="weekday">${event.date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()}</div>
+@@ -1851,6 +1959,7 @@
+                                 <div class="flex justify-between items-start mb-2">
+                                     <h3 class="font-bold text-white text-lg">${event.name}</h3>
+                                     <div class="flex space-x-1">
++                                        ${event.isPopular ? '<span class="event-category event-popular">POPULAR</span>' : ''}
+                                         ${event.isTrending ? '<span class="event-category event-trending">TRENDING</span>' : ''}
+                                     </div>
+                                 </div>
+@@ -1858,6 +1967,7 @@
+                                 <p class="text-gray-300 mb-2">${event.location} • ${event.time}</p>
+                                 <p class="text-gray-400 text-sm mb-3">${event.description}</p>
+                                 <div class="flex justify-between items-center">
++                                    <span class="text-gray-300 text-sm">👥 ${event.attendees.toLocaleString()} attendees</span>
+                                     <span class="text-gray-300 text-sm">💰 ${event.price}</span>
+                                 </div>
+                                 <div class="mt-3 flex space-x-2">
+@@ -1871,6 +1981,7 @@
+                     </div>
+                 `).join('');
++            },
+
+             applyEventFilters() {
+@@ -1879,6 +1990,7 @@
+                 
+                 // Filter events based on selected criteria
++                AppState.filteredEvents = AppState.allEvents.filter(event => {
+                     // Filter by search
+                     if (search && !event.name.toLowerCase().includes(search) && 
+@@ -1887,6 +1999,7 @@
+                         return false;
+                     }
+                     
+                     // Filter by category
++                    if (category !== 'all' && event.category !== category) {
+                         return false;
+                     }
+@@ -1895,6 +2008,7 @@
+                 });
+             },
+
++            viewEventDetails(eventId) {
+                 const event = AppState.allEvents.find(e => e.id === eventId);
+                 if (event) {
+@@ -1902,6 +2016,7 @@
+                 }
+             },
+
++            rsvpToEvent(eventId) {
+                 const event = AppState.allEvents.find(e => e.id === eventId);
+                 if (event) {
+@@ -1909,6 +2024,7 @@
+                 }
+             },
+
++            updateLiveEvents() {
+                 // Only add new events occasionally for realism
+                 if (Math.random() > 0.9) {
+@@ -1917,6 +2033,7 @@
+                         name: "Spontaneous Party",
+                         category: "club",
++                        date: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+                         time: "10:00 PM",
+                         location: "Random Venue",
+@@ -1925,6 +2042,7 @@
+                         lng: 32.5825 + (Math.random() - 0.5) * 0.02,
+                         description: "Last minute party announcement! Come join the fun!",
+                         popularity: "medium",
++                        price: "$",
+                         attendees: Math.floor(Math.random() * 100) + 50,
+                         isPopular: false,
+@@ -1933,6 +2051,7 @@
+                     
++                    AppState.allEvents.unshift(newEvent);
+                     MapManager.addEventMarkersToMap();
+                     this.renderEvents();
+                     
+@@ -1942,6 +2061,7 @@
+         };
+
+         // Video Manager
+         const VideoManager = {
++            async fetchVideos() {
+                 Utils.showLoading(true);
+                 try {
+@@ -1951,6 +2071,7 @@
+                         AppState.allVideos = [
+                             { id: 1, username: 'PartyLover', caption: 'Amazing vibes at Club XYZ!', timestamp: '2 hours ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Club XYZ', isLive: true },
+                             { id: 2, username: 'DanceKing', caption: 'The music is fire tonight!', timestamp: '4 hours ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Beach Party', isLive: false }
+                         ];
+                         
++                        AppState.myVideos = [
+                             { id: 3, username: 'You', caption: 'My first video upload!', timestamp: '1 day ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Rooftop Lounge', isLive: false }
+@@ -1959,6 +2080,7 @@
+                         this.renderVideos();
+                         Utils.showLoading(false);
+                     }, 1000);
++                } catch (error) {
+                     console.error('Failed to fetch videos:', error);
+                     Utils.showLoading(false);
+@@ -1967,6 +2089,7 @@
+
+             renderVideos() {
++                // Render all videos
+                 DOM.allVideosContainer.innerHTML = AppState.allVideos.map(video => `
+                     <div class="bg-gray-800 rounded-lg p-4 shadow-lg">
+@@ -1975,6 +2098,7 @@
+                             <video src="${video.video_file}" class="w-full h-full object-cover rounded-lg" controls></video>
+                         </div>
+                         <div class="mt-4">
++                            <h4 class="font-semibold text-white">${video.username}</h4>
+                             <p class="text-gray-300 text-sm mt-1">${video.caption}</p>
+                             <p class="text-gray-500 text-xs mt-2">${video.timestamp} • ${video.location}</p>
+                         </div>
+@@ -1982,6 +2106,7 @@
+                 `).join('');
+             },
+
++            async handleVideoUpload(e) {
+                 e.preventDefault();
+                 const file = DOM.videoFile.files[0];
+@@ -1990,6 +2115,7 @@
+                 
+                 if (!file) {
++                    Utils.showNotification("Please select a video file", "error");
+                     return;
+                 }
+@@ -1998,6 +2124,7 @@
+                     Utils.showNotification("Please select a location", "error");
+                     return;
+                 }
+                 
++                if (file.size > 50 * 1024 * 1024) {
+                     Utils.showNotification("Video file too large (max 50MB)", "error");
+                     return;
+@@ -2006,6 +2133,7 @@
+                 const allowedTypes = ["video/mp4", "video/avi", "video/mov", "video/wmv"];
+                 if (!allowedTypes.includes(file.type)) {
++                    Utils.showNotification("Please select a video file (MP4, AVI, MOV, WMV)", "error");
+                     return;
+                 }
+@@ -2014,6 +2142,7 @@
+                 
+                 try {
+                     // For demo purposes, simulate upload
++                    setTimeout(() => {
+                         const newVideo = {
+                             id: Date.now(),
+@@ -2023,6 +2152,7 @@
+                             video_file: URL.createObjectURL(file),
+                             location: location,
++                            isLive: false
+                         };
+                         
+@@ -2031,6 +2161,7 @@
+                         this.renderVideos();
+                         
++                        DOM.videoFile.value = '';
+                         DOM.videoCaption.value = '';
+                         DOM.videoLocationSelect.value = '';
+@@ -2038,6 +2169,7 @@
+                         Utils.showNotification("Video uploaded successfully!", "success");
+                     }, 2000);
++                } catch (error) {
+                     console.error("Error uploading video:", error);
+                     Utils.showNotification("Network error during upload", "error");
+@@ -2045,6 +2177,7 @@
+                 }
+             },
+
++            updateLiveVideos() {
+                 // Only add new videos occasionally for realism
+                 if (Math.random() > 0.8) {
+@@ -2053,6 +2186,7 @@
+                         const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+                         const users = ['PartyLover', 'DanceKing', 'MusicFan', 'NightOwl', 'SocialButterfly'];
++                        const captions = [
+                             'The vibes here are amazing! 🔥',
+                             'You have to see this place!',
+@@ -2061,6 +2195,7 @@
+                             'This crowd is lit! Come join!'
+                         ];
+                         
++                        const newVideo = {
+                             id: Date.now(),
+                             username: users[Math.floor(Math.random() * users.length)],
+@@ -2069,6 +2204,7 @@
+                             video_file: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                             location: randomLocation.title,
++                            isLive: Math.random() > 0.8
+                         };
+                         
+@@ -2077,6 +2213,7 @@
+                         
+                         this.renderVideos();
+                         
++                        // Show notification for new videos
+                         if (newVideo.isLive) {
+                             Utils.showNotification(`🔴 LIVE: ${newVideo.username} is streaming from ${newVideo.location}`, 'success');
+@@ -2086,6 +2223,7 @@
+         };
+
+         // Chat Manager
+         const ChatManager = {
++            connectChat() {
+                 // Add sample messages for demo
+@@ -2094,6 +2232,7 @@
+                         <p class="text-white">Welcome to Vibez Chat! Start a conversation about parties in Uganda.</p>
+                         <p class="chat-message-time">System • Just now</p>
+                     </div>
++                `;
+                 
+                 // Update active users list
+@@ -2101,6 +2240,7 @@
+             },
+
++            addChatMessage(user, message, isOwn = false) {
+                 const messageElement = document.createElement('div');
+                 messageElement.className = `chat-message ${isOwn ? 'own' : 'other'}`;
+@@ -2109,6 +2249,7 @@
+                 messageElement.innerHTML = `
+                     <p class="text-white">${message}</p>
++                    <p class="chat-message-time">${user.username} • ${timestamp}</p>
+                 `;
+                 
+@@ -2117,6 +2258,7 @@
+             },
+
++            sendChatMessage() {
+                 if (DOM.chatInput.value.trim()) {
+                     const message = DOM.chatInput.value.trim();
+@@ -2125,6 +2267,7 @@
+                 }
+             },
+
++            updateActiveUsers() {
+                 // Update user presence timestamps
+                 AppState.activeUsers.forEach(user => {
+@@ -2133,6 +2276,7 @@
+         };
+
+         // Event Listeners
++        document.addEventListener('DOMContentLoaded', () => {
+             const token = localStorage.getItem('authToken');
+@@ -2141,6 +2285,7 @@
+             
+             if (token && username && userId) {
++                ViewManager.showMainApp(username, userId);
+             }
+         });
+
+@@ -2149,6 +2294,7 @@
+         DOM.joinNowButton.addEventListener('click', ViewManager.showAuthForm);
+
+         // Authentication
++        DOM.loginForm.addEventListener('submit', (e) => {
+             e.preventDefault();
+             const email = document.getElementById('login-email').value;
+@@ -2157,6 +2303,7 @@
+         });
+
++        DOM.registerForm.addEventListener('submit', (e) => {
+             e.preventDefault();
+             const username = document.getElementById('register-username').value;
+@@ -2165,6 +2312,7 @@
+             AuthManager.handleRegister(username, email, password);
+         });
+
++        DOM.toggleButton.addEventListener('click', AuthManager.toggleAuthForm);
+
+         // Dashboard
+@@ -2173,6 +2321,7 @@
+         // Tab navigation
+         document.getElementById('map-tab').addEventListener('click', () => ViewManager.showTab('map'));
++        document.getElementById('events-tab').addEventListener('click', () => ViewManager.showTab('events'));
+         document.getElementById('videos-tab').addEventListener('click', () => ViewManager.showTab('videos'));
+         document.getElementById('chat-tab').addEventListener('click', () => ViewManager.showTab('chat'));
+
+@@ -2181,6 +2330,7 @@
+         mobileButtons.forEach((button, index) => {
+             const tabIds = ['map', 'events', 'videos', 'chat'];
+             button.addEventListener('click', () => ViewManager.showTab(tabIds[index]));
++        });
+
+         // Map buttons
+@@ -2189,6 +2339,7 @@
+         });
+
++        DOM.checkInBtn.addEventListener('click', () => {
+             // Get user's current location for check-in
+             if (navigator.geolocation) {
+@@ -2197,6 +2348,7 @@
+                         const lat = position.coords.latitude;
+                         const lng = position.coords.longitude;
++                        MapManager.checkInToLocation(lat, lng);
+                     },
+                     (error) => {
+@@ -2204,6 +2356,7 @@
+                     }
+                 );
+             } else {
++                Utils.showNotification('Geolocation is not supported by your browser', 'error');
+             }
+         });
+@@ -2212,6 +2365,7 @@
+         DOM.applyFiltersBtn.addEventListener('click', () => MapManager.applyMapFilters());
++        DOM.resetFiltersBtn.addEventListener('click', () => MapManager.resetMapFilters());
+
+         // Location services
+@@ -2220,6 +2374,7 @@
+                 .then(location => {
+                     Utils.showNotification('Location sharing enabled! Helping improve party discovery.', 'success');
++                    DOM.locationPermissionModal.classList.add('hidden');
+                     
+                     // Center map on user's location
+@@ -2228,6 +2383,7 @@
+                         // Add user location marker
+                         const userIcon = L.divIcon({
++                            className: 'party-marker user-generated',
+                             iconSize: [20, 20],
+-                            html: '<i class="fas fa-user"></i>'
++                            html: '<i class="fas fa-user text-white text-xs flex items-center justify-center h-full"></i>'
+                         });
+                         
+@@ -2236,6 +2392,7 @@
+                             .bindPopup(`
+                                 <div class="text-white">
+                                     <h3 class="font-bold text-lg">Your Location</h3>
++                                    <p class="text-sm">You are here!</p>
+                                 </div>
+                             `);
+                     }
+@@ -2243,6 +2400,7 @@
+                 .catch(error => {
+                     Utils.showNotification('Location access denied. You can still use the app, but location features will be limited.', 'error');
++                    DOM.locationPermissionModal.classList.add('hidden');
+                 });
+         });
+
+@@ -2251,6 +2409,7 @@
+         });
+
+         // Events
++        DOM.searchEventsBtn.addEventListener('click', () => EventManager.renderEvents());
+         DOM.eventsSearch.addEventListener('keypress', (e) => {
+             if (e.key === 'Enter') {
+@@ -2259,6 +2418,7 @@
+         });
++        DOM.eventsCategory.addEventListener('change', () => EventManager.renderEvents());
+
+         // Video upload
+@@ -2267,6 +2427,7 @@
+         // Chat
+         DOM.chatInput.addEventListener('keypress', (e) => {
+             if (e.key === 'Enter') {
++                ChatManager.sendChatMessage();
+             }
+         });
++        DOM.sendChatBtn.addEventListener('click', () => ChatManager.sendChatMessage());
+
+         // Live updates checkbox
++        DOM.liveUpdatesCheckbox.addEventListener('change', () => {
+             if (DOM.liveUpdatesCheckbox.checked) {
++                ViewManager.startRealTimeUpdates();
+             } else {
++                ViewManager.stopRealTimeUpdates();
+                 Utils.showNotification('Live updates paused', 'info');
+             }
+@@ -2275,6 +2436,7 @@
+         // Handle page visibility changes
++        document.addEventListener('visibilitychange', () => {
+             if (document.hidden) {
+                 // Page is hidden, reduce update frequency
++                ViewManager.stopRealTimeUpdates();
+             } else {
+@@ -2283,6 +2445,7 @@
+                     ViewManager.startRealTimeUpdates();
+                 }
++            }
+         });
+
+         console.log('Vibez app initialized successfully!');
