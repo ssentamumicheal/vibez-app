@@ -14,7 +14,7 @@ import os
 import django
 from pathlib import Path
 from channels.routing import ProtocolTypeRouter
-import environ
+import django_environ as environ
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
