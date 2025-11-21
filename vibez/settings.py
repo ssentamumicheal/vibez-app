@@ -87,6 +87,7 @@ DEFAULT_FROM_EMAIL = 'noreply@vibez.com'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 import dj_database_url
+from dotenv import load_dotenv
 # Load the .env file
 load_dotenv()
 DATABASES = {
@@ -155,7 +156,6 @@ CHANNEL_LAYERS = {
     },
 }
 
-from dotenv import load_dotenv
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
