@@ -172,17 +172,49 @@
         
         /* Mobile-specific styles */
         @media (max-width: 768px) {
-            .tab-button {
+            /* Header improvements */
+            #main-header {
                 padding: 12px 16px;
+            }
+            
+            #main-header .flex {
+                gap: 8px;
+            }
+            
+            #main-header button {
+                padding: 8px;
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            #main-header .text-2xl {
+                font-size: 1.5rem;
+            }
+            
+            /* Tab navigation improvements */
+            .tab-button {
+                padding: 14px 12px;
                 font-size: 14px;
                 flex: 1;
                 text-align: center;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                gap: 4px;
             }
             
+            .tab-button i {
+                font-size: 16px;
+            }
+            
+            /* Map improvements */
             #map-container {
                 height: 400px;
             }
             
+            /* Filters sidebar */
             #filters-sidebar {
                 position: fixed;
                 bottom: 0;
@@ -194,12 +226,15 @@
                 transform: translateY(100%);
                 transition: transform 0.3s ease;
                 z-index: 1000;
+                max-height: 80vh;
+                overflow-y: auto;
             }
             
             #filters-sidebar.open {
                 transform: translateY(0);
             }
             
+            /* Mobile bottom navigation */
             .mobile-bottom-nav {
                 position: fixed;
                 bottom: 0;
@@ -210,18 +245,109 @@
                 display: flex;
                 justify-content: space-around;
                 z-index: 40;
+                border-top: 1px solid #374151;
+            }
+            
+            .mobile-nav-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                color: #9ca3af;
+                font-size: 12px;
+                gap: 4px;
+                padding: 8px;
+                flex: 1;
+            }
+            
+            .mobile-nav-item.active {
+                color: #a855f7;
+            }
+            
+            .mobile-nav-item i {
+                font-size: 20px;
+            }
+            
+            /* Map action buttons */
+            .map-action-buttons {
+                position: absolute;
+                top: 70px;
+                right: 10px;
+                z-index: 10;
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .map-action-button {
+                background: rgba(31, 41, 55, 0.9);
+                color: white;
+                padding: 12px;
+                border-radius: 50%;
+                width: 50px;
+                height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            }
+            
+            /* Events grid improvements */
+            #events-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .event-card {
+                margin-bottom: 16px;
+            }
+            
+            /* Video grid improvements */
+            #all-videos {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            /* Chat improvements */
+            .chat-message {
+                max-width: 85%;
+            }
+            
+            #chat-input {
+                min-height: 44px;
+                font-size: 16px;
+            }
+            
+            /* Profile improvements */
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+            }
+            
+            /* Prevent zoom on input focus */
+            input, select, textarea {
+                font-size: 16px;
             }
         }
         
-        /* Touch-friendly buttons */
-        .tab-button, .auth-button {
-            min-height: 44px;
-        }
-        
-        /* Prevent zoom on input focus */
-        @media (max-width: 768px) {
-            input, select, textarea {
-                font-size: 16px;
+        /* Small phones */
+        @media (max-width: 480px) {
+            .tab-button {
+                font-size: 12px;
+                padding: 12px 8px;
+            }
+            
+            .tab-button i {
+                font-size: 14px;
+            }
+            
+            #map-container {
+                height: 350px;
+            }
+            
+            .modal-content {
+                padding: 1rem;
+                width: 95%;
             }
         }
         
@@ -244,6 +370,10 @@
             background: #374151;
             color: #f9fafb;
             border: none;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            font-size: 18px;
         }
         
         .leaflet-control-zoom a:hover {
@@ -1018,18 +1148,15 @@
                 <div id="map-content" class="tab-pane">
                     <div class="max-w-7xl mx-auto">
                         <!-- Location Action Buttons -->
-                        <div class="absolute top-4 right-4 z-10 space-y-2">
-                            <button id="share-location-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center">
-                                <i class="fas fa-share-location mr-2"></i>
-                                Share My Location
+                        <div class="map-action-buttons">
+                            <button id="share-location-btn" class="map-action-button" title="Share My Location">
+                                <i class="fas fa-share-location"></i>
                             </button>
-                            <button id="check-in-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-700 transition-colors flex items-center">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
-                                Check In
+                            <button id="check-in-btn" class="map-action-button" title="Check In">
+                                <i class="fas fa-map-marker-alt"></i>
                             </button>
-                            <button id="create-location-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-purple-700 transition-colors flex items-center">
-                                <i class="fas fa-plus mr-2"></i>
-                                Add Location
+                            <button id="create-location-btn" class="map-action-button" title="Add Location">
+                                <i class="fas fa-plus"></i>
                             </button>
                         </div>
 
@@ -1378,6 +1505,30 @@
             </div>
         </div>
 
+        <!-- Mobile Bottom Navigation -->
+        <div class="mobile-bottom-nav hidden">
+            <div class="mobile-nav-item active" data-tab="map">
+                <i class="fas fa-map"></i>
+                <span>Map</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="events">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Events</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="videos">
+                <i class="fas fa-video"></i>
+                <span>Videos</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="chat">
+                <i class="fas fa-comments"></i>
+                <span>Chat</span>
+            </div>
+            <div class="mobile-nav-item" data-tab="profile">
+                <i class="fas fa-user"></i>
+                <span>Profile</span>
+            </div>
+        </div>
+
         <!-- Marketing/Landing Page Content -->
         <div id="landing-page" class="min-h-screen">
             <!-- App Title at the very top -->
@@ -1540,6 +1691,8 @@
         const userInfo = document.getElementById('user-info');
         const getStartedButton = document.getElementById('get-started-button');
         const joinNowButton = document.getElementById('join-now-button');
+        const mobileBottomNav = document.querySelector('.mobile-bottom-nav');
+        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
 
         // Authentication elements
         const loginForm = document.getElementById('login-form');
@@ -1729,6 +1882,24 @@
                 notification.classList.add('translate-x-full');
                 setTimeout(() => notification.remove(), 300);
             }, 5000);
+        };
+
+        // Check if device is mobile
+        const isMobile = () => {
+            return window.innerWidth <= 768;
+        };
+
+        // Initialize mobile navigation
+        const initMobileNavigation = () => {
+            if (isMobile()) {
+                mobileBottomNav.classList.remove('hidden');
+                // Hide desktop tab navigation
+                document.querySelector('.flex.justify-center.space-x-8.mb-8').classList.add('hidden');
+            } else {
+                mobileBottomNav.classList.add('hidden');
+                // Show desktop tab navigation
+                document.querySelector('.flex.justify-center.space-x-8.mb-8').classList.remove('hidden');
+            }
         };
 
         // API Functions
@@ -2007,6 +2178,9 @@
             localStorage.setItem('userId', userId);
             localStorage.setItem('authToken', 'demo-token-' + Date.now());
             
+            // Initialize mobile navigation
+            initMobileNavigation();
+            
             // Initialize map immediately with default coordinates
             initMap();
             
@@ -2045,6 +2219,15 @@
             tabButtons.forEach(button => button.classList.remove('active'));
             document.getElementById(`${tabId}-content`).classList.remove('hidden');
             document.getElementById(`${tabId}-tab`).classList.add('active');
+            
+            // Update mobile navigation
+            mobileNavItems.forEach(item => {
+                if (item.dataset.tab === tabId) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
             
             if (tabId === 'map') {
                 if (!map) {
@@ -3545,7 +3728,7 @@
                             <span class="px-2 py-1 rounded text-xs ${
                                 invite.status === 'PENDING' ? 'bg-yellow-600 text-white' : 
                                 invite.status === 'ACCEPTED' ? 'bg-green-600 text-white' : 
-                                'bg-red-600 text-white'
+                                'bg-red-600 text white'
                             }">
                                 ${invite.status}
                             </span>
@@ -3824,6 +4007,12 @@
             } else {
                 showLandingPage();
             }
+            
+            // Initialize mobile navigation
+            initMobileNavigation();
+            
+            // Listen for window resize to update mobile navigation
+            window.addEventListener('resize', initMobileNavigation);
         });
 
         // Landing page buttons
@@ -3858,6 +4047,13 @@
         videosTab.addEventListener('click', () => showTab('videos'));
         chatTab.addEventListener('click', () => showTab('chat'));
         profileTab.addEventListener('click', () => showTab('profile'));
+
+        // Mobile navigation
+        mobileNavItems.forEach(item => {
+            item.addEventListener('click', () => {
+                showTab(item.dataset.tab);
+            });
+        });
 
         // Map filters
         applyFiltersButton.addEventListener('click', applyMapFilters);

@@ -95,9 +95,12 @@ DEFAULT_FROM_EMAIL = 'noreply@vibez.com'
 # Load the .env file
 load_dotenv()
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Database configuration - CRITICAL
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'postgres://vibez_user:website1126@localhost:5423/vibez'),
+        default=os.environ.get('DATABASE_URL'),
         conn_max_age=600,
         conn_health_checks=True,
     )
