@@ -170,7 +170,7 @@
             border: 4px solid #a855f7;
         }
         
-        /* Mobile-specific styles */
+        /* Mobile-specific styles - IMPROVED MAP SIZE AND CONTROLS */
         @media (max-width: 768px) {
             .tab-button {
                 padding: 12px 16px;
@@ -179,44 +179,14 @@
                 text-align: center;
             }
             
+            /* IMPROVED: Larger map for mobile */
             #map-container {
-                height: 70vh;
+                height: 80vh !important;
                 min-height: 500px;
+                border-radius: 0;
             }
             
-            #filters-sidebar {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                top: auto;
-                width: 100%;
-                border-radius: 20px 20px 0 0;
-                transform: translateY(100%);
-                transition: transform 0.3s ease;
-                z-index: 1000;
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-            
-            #filters-sidebar.open {
-                transform: translateY(0);
-            }
-            
-            .mobile-bottom-nav {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: #1f2937;
-                padding: 12px;
-                display: flex;
-                justify-content: space-around;
-                z-index: 40;
-                border-top: 1px solid #374151;
-            }
-            
-            /* Improved mobile map controls */
+            /* IMPROVED: Better map controls positioning */
             .leaflet-control-zoom {
                 margin-bottom: 80px !important;
             }
@@ -229,11 +199,11 @@
                 width: auto !important;
             }
             
-            /* Mobile map action buttons */
+            /* IMPROVED: Better mobile map action buttons */
             .mobile-map-actions {
                 position: absolute;
-                bottom: 80px;
-                right: 10px;
+                bottom: 100px;
+                right: 15px;
                 z-index: 1000;
                 display: flex;
                 flex-direction: column;
@@ -251,6 +221,40 @@
                 justify-content: center;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
                 font-size: 20px;
+            }
+            
+            /* IMPROVED: Better filters sidebar for mobile */
+            #filters-sidebar {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                top: auto;
+                width: 100%;
+                border-radius: 20px 20px 0 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+                max-height: 80vh;
+                overflow-y: auto;
+                padding: 20px;
+            }
+            
+            #filters-sidebar.open {
+                transform: translateY(0);
+            }
+            
+            .mobile-bottom-nav {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #1f2937;
+                padding: 12px;
+                display: flex;
+                justify-content: space-around;
+                z-index: 40;
+                border-top: 1px solid #374151;
             }
             
             /* Mobile tab navigation improvements */
@@ -303,7 +307,7 @@
                 font-size: 20px;
             }
             
-            /* Mobile map fullscreen mode */
+            /* IMPROVED: Better mobile map fullscreen mode */
             .map-fullscreen {
                 position: fixed !important;
                 top: 0;
@@ -338,7 +342,7 @@
                 font-size: 18px;
             }
             
-            /* Mobile popup improvements */
+            /* IMPROVED: Better mobile popup improvements */
             .mobile-popup-content {
                 max-width: 85vw;
             }
@@ -354,6 +358,36 @@
                 padding: 10px;
                 border-radius: 8px;
                 text-align: center;
+                font-size: 14px;
+            }
+            
+            /* IMPROVED: Better map container layout for mobile */
+            .map-filters-container {
+                flex-direction: column;
+                height: 100%;
+            }
+            
+            #map-content-container {
+                height: 80vh;
+                position: relative;
+            }
+            
+            /* IMPROVED: Better desktop action buttons for mobile */
+            .desktop-map-actions {
+                display: none !important;
+            }
+            
+            /* IMPROVED: Better filter button positioning */
+            #toggle-filters-button {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                z-index: 1000;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 8px;
                 font-size: 14px;
             }
         }
@@ -1292,7 +1326,7 @@
                                 </div>
                             </div>
 
-                            <!-- Map Container -->
+                            <!-- IMPROVED: Map Container with better mobile sizing -->
                             <div id="map-content-container">
                                 <div id="map-container" class="w-full rounded-lg shadow-lg"></div>
                                 <div class="mt-4 flex justify-between items-center">
@@ -1945,9 +1979,9 @@
                 desktopTabs.classList.add('hidden');
                 desktopMapActions.classList.add('hidden');
                 
-                // Adjust map height for mobile
+                // IMPROVED: Adjust map height for mobile - larger map
                 if (mapContainer && !isMapFullscreen) {
-                    mapContainer.style.height = '70vh';
+                    mapContainer.style.height = '80vh';
                     mapContainer.style.minHeight = '500px';
                 }
             } else {
@@ -2015,7 +2049,7 @@
                 
                 // Reset map height based on device
                 if (isMobile) {
-                    mapContainer.style.height = '70vh';
+                    mapContainer.style.height = '80vh';
                     mapContainer.style.minHeight = '500px';
                 } else {
                     mapContainer.style.height = '600px';
@@ -2481,7 +2515,7 @@
                 contextMenu.style.display = 'none';
             });
             
-            // Improve mobile popups
+            // IMPROVED: Better mobile popups
             map.on('popupopen', function(e) {
                 if (isMobile) {
                     const popup = e.popup;
