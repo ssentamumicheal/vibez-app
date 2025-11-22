@@ -1709,9 +1709,12 @@
                                         </div>
                                         <div>
                                             <label for="video-location" class="block text-sm font-medium text-gray-300">Location</label>
-                                            <select id="video-location" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                                                <option value="">Select a location</option>
-                                            </select>
+                                            <div class="flex space-x-2">
+                                                <input type="text" id="video-location-input" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-white shadow-sm focus:border-purple-500 focus:ring-purple-500" placeholder="Enter location or use current">
+                                                <button type="button" id="use-current-location" class="mt-1 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                                                    <i class="fas fa-location-arrow"></i>
+                                                </button>
+                                            </div>
                                         </div>
                                         <button type="submit" class="w-full py-2 px-4 rounded-md text-white font-semibold bg-pink-500 hover:bg-pink-600">
                                             Upload & Share Live
@@ -1745,7 +1748,7 @@
                             </h2>
                             <div class="flex items-center text-green-500 text-sm">
                                 <span class="online-indicator"></span>
-                                <span id="online-users-count">1 user online</span>
+                                <span id="online-users-count">0 users online</span>
                             </div>
                         </div>
                         <div class="flex flex-col lg:flex-row gap-8 h-[600px]">
@@ -2090,7 +2093,8 @@
         const uploadForm = document.getElementById('upload-form');
         const videoFile = document.getElementById('video-file');
         const videoCaption = document.getElementById('video-caption');
-        const videoLocationSelect = document.getElementById('video-location');
+        const videoLocationInput = document.getElementById('video-location-input');
+        const useCurrentLocationBtn = document.getElementById('use-current-location');
         const myVideosContainer = document.getElementById('my-videos');
         const allVideosContainer = document.getElementById('all-videos');
 
@@ -2644,7 +2648,6 @@
                 fetchEvents();
             } else if (tabId === 'videos') {
                 fetchVideos();
-                updateLocationSelect();
             } else if (tabId === 'chat') {
                 connectChat();
             } else if (tabId === 'profile') {
@@ -3002,14 +3005,12 @@
         };
 
         const updateLocationSelect = () => {
-            // Update the location select dropdown for video uploads and event creation
-            videoLocationSelect.innerHTML = '<option value="">Select a location</option>';
+            // Update the location select dropdown for event creation
             eventLocationSelect.innerHTML = '<option value="">Select a location</option>';
             allLocations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location.name;
                 option.textContent = location.name;
-                videoLocationSelect.appendChild(option.cloneNode(true));
                 eventLocationSelect.appendChild(option);
             });
         };
@@ -3769,7 +3770,7 @@
             const authToken = localStorage.getItem('authToken');
             const file = videoFile.files[0];
             const caption = videoCaption.value;
-            const location = videoLocationSelect.value;
+            const location = videoLocationInput.value;
             
             if (!file) {
                 showNotification("Please select a video file", "error");
@@ -3783,7 +3784,7 @@
             }
             
             if (!location) {
-                showNotification("Please select a location", "error");
+                showNotification("Please enter a location", "error");
                 return;
             }
             
@@ -3827,7 +3828,7 @@
                     
                     videoFile.value = '';
                     videoCaption.value = '';
-                    videoLocationSelect.value = '';
+                    videoLocationInput.value = '';
                     showLoading(false);
                     showNotification("Video uploaded successfully!", "success");
                     
@@ -5071,6 +5072,34 @@
 
         // Video upload
         uploadForm.addEventListener('submit', handleVideoUpload);
+
+        // Use current location for video
+        useCurrentLocationBtn.addEventListener('click', () => {
+            if (userLocation) {
+                // Find the nearest location to the user
+                const nearestLocation = allLocations.reduce((nearest, location) => {
+                    const distance = Math.sqrt(
+                        Math.pow(location.lat - userLocation.lat, 2) + 
+                        Math.pow(location.lng - userLocation.lng, 2)
+                    );
+                    
+                    if (!nearest || distance < nearest.distance) {
+                        return { location, distance };
+                    }
+                    return nearest;
+                }, null);
+                
+                if (nearestLocation) {
+                    videoLocationInput.value = nearestLocation.location.name;
+                    showNotification(`Using location: ${nearestLocation.location.name}`, 'success');
+                } else {
+                    showNotification('No nearby locations found', 'error');
+                }
+            } else {
+                showNotification('Please enable location services first', 'error');
+                locationPermissionModal.classList.remove('hidden');
+            }
+        });
 
         // Chat
         chatInput.addEventListener('keypress', (e) => {
