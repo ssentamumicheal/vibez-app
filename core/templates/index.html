@@ -1096,6 +1096,78 @@
         </div>
     </div>
 
+    <!-- Create Event Modal -->
+    <div id="create-event-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Create New Event</h2>
+                <button id="close-create-event-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="create-event-form" class="space-y-4">
+                <div>
+                    <label for="event-name" class="block text-sm font-medium text-gray-300 mb-1">Event Name</label>
+                    <input type="text" id="event-name" required class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label for="event-description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                    <textarea id="event-description" rows="3" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+                
+                <div>
+                    <label for="event-category" class="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                    <select id="event-category" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="music">Music</option>
+                        <option value="festival">Festival</option>
+                        <option value="club">Club Night</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="sports">Sports</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="event-date" class="block text-sm font-medium text-gray-300 mb-1">Date</label>
+                    <input type="date" id="event-date" required class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label for="event-time" class="block text-sm font-medium text-gray-300 mb-1">Time</label>
+                    <input type="time" id="event-time" required class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label for="event-location" class="block text-sm font-medium text-gray-300 mb-1">Location</label>
+                    <select id="event-location" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="">Select a location</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="event-price" class="block text-sm font-medium text-gray-300 mb-1">Price</label>
+                    <select id="event-price" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="Free">Free</option>
+                        <option value="$">$ (Under $20)</option>
+                        <option value="$$">$$ ($20-$50)</option>
+                        <option value="$$$">$$$ (Over $50)</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="cancel-create-event" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                        Create Event
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Context Menu -->
     <div id="context-menu" class="context-menu">
         <div id="create-location-context" class="context-menu-item">
@@ -1327,12 +1399,18 @@
                             </div>
                         </div>
 
-                        <!-- Events Search and Filters -->
-                        <div class="events-search-bar flex items-center">
-                            <i class="fas fa-search text-gray-400 mr-3"></i>
-                            <input type="text" id="events-search" placeholder="Search events, artists, venues..." class="flex-1 bg-transparent text-white focus:outline-none">
-                            <button id="events-search-btn" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors ml-2">
-                                Search
+                        <!-- Create Event Button -->
+                        <div class="mb-6 flex justify-between items-center">
+                            <div class="events-search-bar flex items-center w-full">
+                                <i class="fas fa-search text-gray-400 mr-3"></i>
+                                <input type="text" id="events-search" placeholder="Search events, artists, venues..." class="flex-1 bg-transparent text-white focus:outline-none">
+                                <button id="events-search-btn" class="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-700 transition-colors ml-2">
+                                    Search
+                                </button>
+                            </div>
+                            <button id="create-event-btn" class="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                Create Event
                             </button>
                         </div>
 
@@ -1356,6 +1434,7 @@
                                     <option value="club">Club Night</option>
                                     <option value="cultural">Cultural</option>
                                     <option value="sports">Sports</option>
+                                    <option value="other">Other</option>
                                 </select>
                             </div>
                             <div>
@@ -1503,7 +1582,7 @@
                                     </div>
                                     <div>
                                         <h4 class="text-lg font-semibold text-white mb-2">Bio</h4>
-                                        <p id="profile-display-bio" class="text-gray-300">No bio yet.</p>
+                                        <p id="profile-display-bio" class="text-gray-300">No bio yet. Click "Edit Profile" to add one.</p>
                                     </div>
                                 </div>
 
@@ -1804,6 +1883,12 @@
         const eventsSort = document.getElementById('events-sort');
         const eventsCount = document.getElementById('events-count');
         const eventsGrid = document.getElementById('events-grid');
+        const createEventBtn = document.getElementById('create-event-btn');
+        const createEventModal = document.getElementById('create-event-modal');
+        const closeCreateEventModal = document.getElementById('close-create-event-modal');
+        const createEventForm = document.getElementById('create-event-form');
+        const cancelCreateEvent = document.getElementById('cancel-create-event');
+        const eventLocationSelect = document.getElementById('event-location');
 
         // Video Feed elements
         const videoFeedContainer = document.getElementById('video-feed-container');
@@ -2738,13 +2823,15 @@
         };
 
         const updateLocationSelect = () => {
-            // Update the location select dropdown for video uploads
+            // Update the location select dropdown for video uploads and event creation
             videoLocationSelect.innerHTML = '<option value="">Select a location</option>';
+            eventLocationSelect.innerHTML = '<option value="">Select a location</option>';
             allLocations.forEach(location => {
                 const option = document.createElement('option');
                 option.value = location.name;
                 option.textContent = location.name;
-                videoLocationSelect.appendChild(option);
+                videoLocationSelect.appendChild(option.cloneNode(true));
+                eventLocationSelect.appendChild(option);
             });
         };
 
@@ -2963,6 +3050,84 @@
             }
         };
 
+        // Create event functions
+        const createNewEvent = async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('event-name').value;
+            const description = document.getElementById('event-description').value;
+            const category = document.getElementById('event-category').value;
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            const location = document.getElementById('event-location').value;
+            const price = document.getElementById('event-price').value;
+            
+            if (!name || !date || !time || !location) {
+                showNotification('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            // Combine date and time
+            const eventDateTime = new Date(`${date}T${time}`);
+            
+            // Check if event date is in the past
+            if (eventDateTime < new Date()) {
+                showNotification('Event date cannot be in the past', 'error');
+                return;
+            }
+            
+            try {
+                // In a real app, you would send this to your API
+                // const newEvent = await apiRequest('/events/', {
+                //     method: 'POST',
+                //     body: JSON.stringify({
+                //         name,
+                //         description,
+                //         category,
+                //         start_date: eventDateTime.toISOString(),
+                //         end_date: new Date(eventDateTime.getTime() + 3 * 60 * 60 * 1000).toISOString(), // 3 hours duration
+                //         location,
+                //         price,
+                //         created_by: currentUser.userId
+                //     })
+                // });
+                
+                // For demo purposes
+                const newEvent = {
+                    id: Date.now(),
+                    name,
+                    description,
+                    category,
+                    startDate: eventDateTime,
+                    endDate: new Date(eventDateTime.getTime() + 3 * 60 * 60 * 1000),
+                    time: eventDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    location,
+                    address: location,
+                    lat: userLocation ? userLocation.lat + (Math.random() - 0.5) * 0.02 : defaultLocation[0],
+                    lng: userLocation ? userLocation.lng + (Math.random() - 0.5) * 0.02 : defaultLocation[1],
+                    price,
+                    attendees: 1, // Start with the creator
+                    isPopular: false,
+                    isTrending: false,
+                    isLiveNow: false,
+                    source: 'user'
+                };
+                
+                allEvents.unshift(newEvent);
+                addEventMarkerToMap(newEvent);
+                renderEvents();
+                
+                createEventModal.classList.add('hidden');
+                showNotification(`Event "${name}" created successfully!`, 'success');
+                
+                // Reset form
+                createEventForm.reset();
+            } catch (error) {
+                console.error('Error creating event:', error);
+                showNotification('Failed to create event', 'error');
+            }
+        };
+
         // Profile functions
         function loadProfileData() {
             // Set profile data
@@ -3095,6 +3260,11 @@
                     const ticketmasterEvents = await fetchEventsFromTicketmaster(userLocation.lat, userLocation.lng);
                     const userEvents = await fetchUserEvents();
                     allEvents = [...ticketmasterEvents, ...userEvents];
+                    
+                    // Filter out past events
+                    const now = new Date();
+                    allEvents = allEvents.filter(event => event.endDate >= now);
+                    
                     filteredEvents = [...allEvents];
                 }
                 
@@ -3126,6 +3296,7 @@
                                     ${event.isLiveNow ? '<span class="event-category" style="background: #ef4444;">LIVE NOW</span>' : ''}
                                     ${event.isPopular ? '<span class="event-category event-popular">POPULAR</span>' : ''}
                                     ${event.isTrending ? '<span class="event-category event-trending">TRENDING</span>' : ''}
+                                    ${event.source === 'user' ? '<span class="event-category" style="background: #3b82f6;">USER EVENT</span>' : ''}
                                 </div>
                             </div>
                             <p class="text-gray-400 text-sm mb-2">${event.category.toUpperCase()}</p>
@@ -3234,6 +3405,8 @@
         function rsvpToEvent(eventId) {
             const event = allEvents.find(e => e.id === eventId);
             if (event) {
+                event.attendees += 1;
+                renderEvents();
                 showNotification(`✅ RSVP'd to ${event.name}!`, 'success');
                 // Add option to invite friends after RSVP
                 setTimeout(() => {
@@ -3590,6 +3763,12 @@
         };
 
         const updateLiveEvents = () => {
+            // Filter out past events
+            const now = new Date();
+            allEvents = allEvents.filter(event => event.endDate >= now);
+            filteredEvents = [...allEvents];
+            renderEvents();
+            
             // Only add new events occasionally for realism
             if (Math.random() > 0.9) {
                 const newEvent = {
@@ -4234,6 +4413,17 @@
         eventsTimeframe.addEventListener('change', renderEvents);
         eventsCategory.addEventListener('change', renderEvents);
         eventsSort.addEventListener('change', renderEvents);
+
+        // Create event button
+        createEventBtn.addEventListener('click', () => {
+            createEventModal.classList.remove('hidden');
+            updateLocationSelect();
+        });
+
+        // Create event form
+        createEventForm.addEventListener('submit', createNewEvent);
+        closeCreateEventModal.addEventListener('click', () => createEventModal.classList.add('hidden'));
+        cancelCreateEvent.addEventListener('click', () => createEventModal.classList.add('hidden'));
 
         // New feature buttons
         document.getElementById('friends-button').addEventListener('click', openFriendsModal);
