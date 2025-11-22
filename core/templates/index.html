@@ -800,6 +800,93 @@
         .context-menu-item:hover {
             background: #374151;
         }
+        
+        /* Video feed styles */
+        .video-feed-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .video-feed-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 16px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .video-feed-list {
+            flex: 1;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+        }
+        
+        .video-feed-item {
+            height: 100vh;
+            scroll-snap-align: start;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .video-feed-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .video-feed-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+        }
+        
+        .video-feed-actions {
+            position: absolute;
+            right: 16px;
+            bottom: 100px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+        
+        .video-action-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            gap: 4px;
+        }
+        
+        .video-action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -832,13 +919,15 @@
     </div>
 
     <!-- Video Feed Container -->
-    <div id="video-feed-container" class="hidden fixed inset-0 z-50 bg-black">
-        <button id="close-video-feed" class="absolute top-4 left-4 text-white z-50 p-3 rounded-full bg-gray-900/50 hover:bg-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <div id="video-feed-list" class="h-full overflow-y-scroll snap-y snap-mandatory"></div>
+    <div id="video-feed-container" class="video-feed-container hidden">
+        <div class="video-feed-header">
+            <button id="close-video-feed" class="text-white p-2 rounded-full bg-gray-900/50 hover:bg-gray-700">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h2 class="text-white font-bold">Vibez Videos</h2>
+            <div class="w-10"></div> <!-- Spacer for balance -->
+        </div>
+        <div id="video-feed-list" class="video-feed-list"></div>
     </div>
 
     <!-- Profile Modal -->
@@ -1508,7 +1597,7 @@
                             <div class="lg:col-span-2 relative">
                                 <div id="all-videos" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <!-- All videos will be dynamically loaded here -->
-                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1984,6 +2073,8 @@
         let currentChatRoom = 'general';
         let isMobile = window.innerWidth <= 768;
         let isMapFullscreen = false;
+        let activeVideoElement = null;
+        let currentVideoIndex = 0;
         
         // Default coordinates (Kampala)
         const defaultLocation = [0.3476, 32.5825];
@@ -2315,7 +2406,7 @@
                             price: event.priceRanges ? `$${event.priceRanges[0].min}` : 'Varies',
                             attendees: Math.floor(Math.random() * 1000) + 100,
                             isPopular: Math.random() > 0.7,
-                            isTrending: false,
+                            isTrending: Math.random() > 0.8,
                             isLiveNow: isLiveNow,
                             source: 'ticketmaster'
                         };
@@ -2382,7 +2473,7 @@
                     price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
                     attendees: Math.floor(Math.random() * 1000) + 100,
                     isPopular: Math.random() > 0.7,
-                    isTrending: false,
+                    isTrending: Math.random() > 0.8,
                     isLiveNow: isLiveNow,
                     source: 'sample'
                 });
@@ -3417,28 +3508,79 @@
             }
         }
 
-        // VIDEO FUNCTIONS
+        // VIDEO FUNCTIONS - COMPLETELY REWRITTEN
         const fetchVideos = async () => {
             const authToken = localStorage.getItem('authToken');
             const userId = localStorage.getItem('userId');
             
             showLoading(true);
             try {
-                const saved = localStorage.getItem('vibez_videos'); if(saved){allVideos=JSON.parse(saved);renderVideos();showLoading(false);return;} // For now, we'll use sample videos
-                setTimeout(() => {
+                // Load videos from localStorage for persistence
+                const savedVideos = localStorage.getItem('vibez_videos');
+                const savedMyVideos = localStorage.getItem('vibez_my_videos');
+                
+                if (savedVideos && savedMyVideos) {
+                    allVideos = JSON.parse(savedVideos);
+                    myVideos = JSON.parse(savedMyVideos);
+                } else {
                     // Sample videos for demo
                     allVideos = [
-                        { id: 1, username: 'PartyLover', caption: 'Amazing vibes at Club XYZ!', timestamp: '2 hours ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Club XYZ', isLive: true },
-                        { id: 2, username: 'DanceKing', caption: 'The music is fire tonight!', timestamp: '4 hours ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Beach Party', isLive: false }
+                        { 
+                            id: 1, 
+                            username: 'PartyLover', 
+                            caption: 'Amazing vibes at Club XYZ! 🔥', 
+                            timestamp: '2 hours ago', 
+                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-group-of-friends-partying-happily-4640-large.mp4', 
+                            location: 'Club XYZ', 
+                            isLive: true,
+                            likes: 42,
+                            comments: 8
+                        },
+                        { 
+                            id: 2, 
+                            username: 'DanceKing', 
+                            caption: 'The music is fire tonight! 🎵', 
+                            timestamp: '4 hours ago', 
+                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-young-women-dancing-at-a-party-4645-large.mp4', 
+                            location: 'Beach Party', 
+                            isLive: false,
+                            likes: 28,
+                            comments: 3
+                        },
+                        { 
+                            id: 3, 
+                            username: 'MusicFan', 
+                            caption: 'Best DJ set ever! 🎧', 
+                            timestamp: '1 day ago', 
+                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-woman-dancing-at-a-party-4651-large.mp4', 
+                            location: 'Rooftop Lounge', 
+                            isLive: false,
+                            likes: 56,
+                            comments: 12
+                        }
                     ];
                     
                     myVideos = [
-                        { id: 3, username: 'You', caption: 'My first video upload!', timestamp: '1 day ago', video_file: 'https://www.w3schools.com/html/mov_bbb.mp4', location: 'Rooftop Lounge', isLive: false }
+                        { 
+                            id: 4, 
+                            username: 'You', 
+                            caption: 'My first video upload! 🎉', 
+                            timestamp: '1 day ago', 
+                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-people-celebrating-a-party-4642-large.mp4', 
+                            location: 'Downtown Club', 
+                            isLive: false,
+                            likes: 15,
+                            comments: 2
+                        }
                     ];
                     
-                    renderVideos();
-                    showLoading(false);
-                }, 1000);
+                    // Save to localStorage for persistence
+                    localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                    localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
+                }
+                
+                renderVideos();
+                showLoading(false);
             } catch (error) {
                 console.error('Failed to fetch videos:', error);
                 showLoading(false);
@@ -3448,14 +3590,27 @@
         const renderVideos = () => {
             // Render all videos
             allVideosContainer.innerHTML = allVideos.map(video => `
-                <div class="bg-gray-800 rounded-lg p-4 shadow-lg cursor-pointer relative" onclick="openVideoFeed(${video.id - 1})">
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer relative group" onclick="openVideoFeed(${video.id})">
                     ${video.isLive ? '<div class="live-badge">LIVE</div>' : ''}
-                    <div class="bg-gray-700 rounded-lg video-thumbnail flex items-center justify-center">
-                        <video src="${video.video_file}" class="w-full h-full object-cover rounded-lg"></video>
+                    <div class="bg-gray-700 video-thumbnail relative overflow-hidden">
+                        <video class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" muted>
+                            <source src="${video.video_file}" type="video/mp4">
+                        </video>
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                            <i class="fas fa-play text-white text-4xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></i>
+                        </div>
                     </div>
-                    <div class="mt-4">
-                        <h4 class="font-semibold text-white">${video.username}</h4>
-                        <p class="text-gray-300 text-sm mt-1">${video.caption}</p>
+                    <div class="p-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-white">${video.username}</h4>
+                                <p class="text-gray-300 text-sm mt-1 line-clamp-2">${video.caption}</p>
+                            </div>
+                            <div class="flex items-center space-x-2 text-gray-400 text-sm">
+                                <span><i class="fas fa-heart mr-1"></i> ${video.likes}</span>
+                                <span><i class="fas fa-comment mr-1"></i> ${video.comments}</span>
+                            </div>
+                        </div>
                         <p class="text-gray-500 text-xs mt-2">${video.timestamp} • ${video.location}</p>
                     </div>
                 </div>
@@ -3464,9 +3619,16 @@
             // Render user's videos
             myVideosContainer.innerHTML = myVideos.map(video => `
                 <div class="bg-gray-700 rounded-lg p-3 flex justify-between items-center">
-                    <div>
-                        <span class="text-white text-sm">${video.caption}</span>
-                        <p class="text-gray-400 text-xs mt-1">${video.timestamp} • ${video.location}</p>
+                    <div class="flex items-center space-x-3">
+                        <div class="w-16 h-12 bg-gray-600 rounded overflow-hidden">
+                            <video class="w-full h-full object-cover" muted>
+                                <source src="${video.video_file}" type="video/mp4">
+                            </video>
+                        </div>
+                        <div>
+                            <span class="text-white text-sm block">${video.caption}</span>
+                            <p class="text-gray-400 text-xs mt-1">${video.timestamp} • ${video.location}</p>
+                        </div>
                     </div>
                     <button class="text-red-400 hover:text-red-300" onclick="removeVideo(${video.id})">
                         <i class="fas fa-trash"></i>
@@ -3521,11 +3683,18 @@
                         timestamp: 'Just now',
                         video_file: URL.createObjectURL(file),
                         location: location,
-                        isLive: false
+                        isLive: false,
+                        likes: 0,
+                        comments: 0
                     };
                     
                     myVideos.unshift(newVideo);
-                    allVideos.unshift(newVideo); localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                    allVideos.unshift(newVideo);
+                    
+                    // Save to localStorage for persistence
+                    localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                    localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
+                    
                     renderVideos();
                     
                     videoFile.value = '';
@@ -3548,6 +3717,11 @@
             if (confirm('Are you sure you want to delete this video?')) {
                 myVideos = myVideos.filter(video => video.id !== videoId);
                 allVideos = allVideos.filter(video => video.id !== videoId);
+                
+                // Update localStorage
+                localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
+                
                 renderVideos();
                 showNotification('Video deleted successfully', 'success');
                 
@@ -3556,46 +3730,151 @@
             }
         };
 
-        // CHAT FUNCTIONS
+        // CHAT FUNCTIONS - COMPLETELY REWRITTEN
+        let chatMessagesData = [];
+        let chatUsers = [];
+        
         const connectChat = () => {
-            // Add sample messages for demo
-            chatMessages.innerHTML = `
-                <div class="chat-message other">
-                    <p class="text-white">Welcome to Vibez Chat! Start a conversation about parties and events.</p>
-                    <p class="chat-message-time">System • Just now</p>
-                </div>
-            `;
+            // Load chat data from localStorage for persistence
+            const savedChat = localStorage.getItem('vibez_chat');
+            const savedUsers = localStorage.getItem('vibez_chat_users');
             
-            // Update active users list
+            if (savedChat) {
+                chatMessagesData = JSON.parse(savedChat);
+            } else {
+                // Sample chat messages for demo
+                chatMessagesData = [
+                    {
+                        id: 1,
+                        user: { username: 'PartyBot', avatar: null },
+                        message: 'Welcome to Vibez Chat! Start a conversation about parties and events.',
+                        timestamp: new Date(Date.now() - 60000).toISOString(),
+                        isOwn: false
+                    },
+                    {
+                        id: 2,
+                        user: { username: 'PartyLover', avatar: null },
+                        message: 'Anyone at Club XYZ tonight? The vibes are amazing!',
+                        timestamp: new Date(Date.now() - 30000).toISOString(),
+                        isOwn: false
+                    },
+                    {
+                        id: 3,
+                        user: { username: 'DanceKing', avatar: null },
+                        message: 'Yeah! The DJ is killing it right now 🔥',
+                        timestamp: new Date(Date.now() - 20000).toISOString(),
+                        isOwn: false
+                    }
+                ];
+                localStorage.setItem('vibez_chat', JSON.stringify(chatMessagesData));
+            }
+            
+            if (savedUsers) {
+                chatUsers = JSON.parse(savedUsers);
+            } else {
+                // Sample active users
+                chatUsers = [
+                    { username: 'PartyLover', isOnline: true, lastActive: new Date() },
+                    { username: 'DanceKing', isOnline: true, lastActive: new Date() },
+                    { username: 'MusicFan', isOnline: false, lastActive: new Date(Date.now() - 300000) },
+                    { username: 'NightOwl', isOnline: true, lastActive: new Date() }
+                ];
+                localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+            }
+            
+            // Add current user to chat users if not already there
+            if (currentUser && !chatUsers.find(u => u.username === currentUser.username)) {
+                chatUsers.unshift({
+                    username: currentUser.username,
+                    isOnline: true,
+                    lastActive: new Date()
+                });
+                localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+            }
+            
+            renderChatMessages();
             updateActiveUsersList();
+            
+            // Start chat simulation
+            startChatSimulation();
+        };
+
+        const renderChatMessages = () => {
+            chatMessages.innerHTML = chatMessagesData.map(msg => {
+                const time = new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                return `
+                    <div class="chat-message ${msg.isOwn ? 'own' : 'other'}">
+                        <div class="flex items-start space-x-2">
+                            ${!msg.isOwn ? `<div class="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center text-white text-sm font-bold">
+                                ${msg.user.username.charAt(0).toUpperCase()}
+                            </div>` : ''}
+                            <div class="flex-1">
+                                ${!msg.isOwn ? `<div class="text-xs text-gray-400 mb-1">${msg.user.username}</div>` : ''}
+                                <p class="text-white">${msg.message}</p>
+                                <p class="chat-message-time">${time}</p>
+                            </div>
+                            ${msg.isOwn ? `<div class="w-8 h-8 rounded-full bg-pink-500 flex items-center justify-center text-white text-sm font-bold">
+                                ${msg.user.username.charAt(0).toUpperCase()}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         };
 
         const updateActiveUsersList = () => {
-            activeUsersList.innerHTML = activeUsers.map(user => `
-                <li class="flex items-center justify-between p-2 rounded ${user.username === currentUser?.username ? 'bg-gray-700' : ''}">
-                    <div class="flex items-center">
+            const onlineUsers = chatUsers.filter(user => user.isOnline);
+            const offlineUsers = chatUsers.filter(user => !user.isOnline);
+            
+            activeUsersList.innerHTML = '';
+            
+            // Add online users
+            onlineUsers.forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between p-2 rounded hover:bg-gray-700 transition-colors';
+                li.innerHTML = `
+                    <div class="flex items-center space-x-2">
                         <span class="online-indicator"></span>
-                        <span class="${user.username === currentUser?.username ? 'text-purple-300' : 'text-gray-300'}">${user.username}</span>
+                        <span class="${user.username === currentUser?.username ? 'text-purple-300 font-semibold' : 'text-gray-300'}">${user.username}</span>
                     </div>
                     ${user.username === currentUser?.username ? '<span class="text-xs text-purple-300">You</span>' : ''}
-                </li>
-            `).join('');
+                `;
+                activeUsersList.appendChild(li);
+            });
             
-            onlineUsersCount.textContent = `${activeUsers.length} user${activeUsers.length !== 1 ? 's' : ''} online`;
+            // Add offline users
+            offlineUsers.forEach(user => {
+                const li = document.createElement('li');
+                li.className = 'flex items-center justify-between p-2 rounded opacity-60';
+                li.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 bg-gray-500 rounded-full"></span>
+                        <span class="text-gray-400">${user.username}</span>
+                    </div>
+                    <span class="text-xs text-gray-500">offline</span>
+                `;
+                activeUsersList.appendChild(li);
+            });
+            
+            onlineUsersCount.textContent = `${onlineUsers.length} user${onlineUsers.length !== 1 ? 's' : ''} online`;
         };
 
         const addChatMessage = (user, message, isOwn = false) => {
-            const messageElement = document.createElement('div');
-            messageElement.className = `chat-message ${isOwn ? 'own' : 'other'}`;
+            const newMessage = {
+                id: Date.now(),
+                user: user,
+                message: message,
+                timestamp: new Date().toISOString(),
+                isOwn: isOwn
+            };
             
-            const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            messageElement.innerHTML = `
-                <p class="text-white">${message}</p>
-                <p class="chat-message-time">${user.username} • ${timestamp}</p>
-            `;
+            chatMessagesData.push(newMessage);
+            localStorage.setItem('vibez_chat', JSON.stringify(chatMessagesData));
             
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            renderChatMessages();
         };
 
         const sendChatMessage = () => {
@@ -3603,105 +3882,210 @@
                 const message = chatInput.value.trim();
                 addChatMessage(currentUser, message, true);
                 chatInput.value = '';
+                
+                // Simulate responses from other users
+                simulateChatResponse(message);
             }
         };
 
-        // VIDEO FEED FUNCTIONS
-        closeFeedButton.addEventListener('click', () => {
-            document.querySelectorAll('video').forEach(v => v.pause()); videoFeedContainer.classList.add('hidden');
-            // Stop the currently playing video when closing
-            const activeVideo = videoFeedList.querySelector('.snap-center video:not([muted])');
-            if (activeVideo) activeVideo.pause();
-        });
-        
-        function createVideoCard(video, index) {
-            const card = document.createElement('div');
-            card.className = 'w-full h-screen snap-center relative flex justify-center items-center bg-black';
-            
-            const videoElement = document.createElement('video');
-            videoElement.src = video.video_file; 
-            videoElement.className = 'w-full h-full object-cover';
-            videoElement.setAttribute('loop', '');
-            videoElement.setAttribute('autoplay', '');
-            videoElement.setAttribute('playsinline', '');
-            videoElement.setAttribute('muted', ''); // Start muted, unmuted when scrolled into view
-
-            // Overlay for information and interaction
-            const overlay = `
-                <div class="absolute inset-x-0 bottom-0 p-4 text-white bg-gradient-to-t from-black/80 to-transparent">
-                    <p class="font-bold text-lg">${video.caption || 'No caption'}</p>
-                    <p class="text-sm text-purple-300">${video.username || 'Anonymous'}</p>
-                    <p class="text-sm mt-1">@${video.location || 'Check-In Location'}</p>
-                </div>
-                <div class="absolute right-4 bottom-1/4 flex flex-col space-y-6 text-white text-center">
-                    <button class="flex flex-col items-center">
-                        <span class="text-2xl">❤️</span> <span class="text-xs">Like</span>
-                    </button>
-                    <button class="flex flex-col items-center">
-                        <span class="text-2xl">💬</span> <span class="text-xs">Comment</span>
-                    </button>
-                </div>
-            `;
-
-            card.appendChild(videoElement);
-            card.insertAdjacentHTML('beforeend', overlay);
-            return card;
-        }
-
-        function renderVideoFeed(startIndex = 0) {
-            videoFeedList.innerHTML = '';
-            videoData.forEach((video, index) => {
-                videoFeedList.appendChild(createVideoCard(video, index));
-            });
-
-            videoFeedList.removeEventListener('scroll', handleScroll); // Avoid duplicates
-            videoFeedList.addEventListener('scroll', handleScroll);
-            
-            // Initial scroll and play
-            const startCard = videoFeedList.querySelector(`.snap-center:nth-child(${startIndex + 1})`);
-            if (startCard) {
-                 startCard.scrollIntoView({ behavior: 'instant' });
-                 const startVideo = startCard.querySelector('video');
-                 startVideo.muted = false; // Unmute the starting video
-                 startVideo.play().catch(e => console.log('Autoplay failed:', e));
+        const simulateChatResponse = (message) => {
+            // Only respond to certain keywords or randomly
+            const shouldRespond = Math.random() > 0.7 || 
+                message.toLowerCase().includes('?') || 
+                message.toLowerCase().includes('anyone');
+                
+            if (shouldRespond) {
+                setTimeout(() => {
+                    const responses = [
+                        "That sounds awesome! Where is that?",
+                        "I'm heading there now!",
+                        "Anyone want to meet up?",
+                        "The vibes are amazing there!",
+                        "I was there last night, it was lit!",
+                        "What's the cover charge?",
+                        "Is it crowded right now?"
+                    ];
+                    
+                    const randomUser = chatUsers[Math.floor(Math.random() * chatUsers.length)];
+                    if (randomUser && randomUser.username !== currentUser.username) {
+                        const response = responses[Math.floor(Math.random() * responses.length)];
+                        addChatMessage(randomUser, response, false);
+                    }
+                }, 1000 + Math.random() * 3000);
             }
-        }
+        };
 
-        // This function ensures only the video currently centered in the view is playing and unmuted
-        let scrollTimeout;
-        function handleScroll() {
-            if (scrollTimeout) clearTimeout(scrollTimeout);
+        const startChatSimulation = () => {
+            // Simulate random chat activity
+            setInterval(() => {
+                if (Math.random() > 0.8 && chatUsers.length > 1) {
+                    const randomUser = chatUsers[Math.floor(Math.random() * chatUsers.length)];
+                    if (randomUser && randomUser.username !== currentUser.username) {
+                        const messages = [
+                            "Just arrived at Club XYZ! 🎉",
+                            "The music here is fire! 🔥",
+                            "Anyone else at the beach party?",
+                            "This DJ is amazing!",
+                            "The crowd here is awesome!",
+                            "Best party of the year!",
+                            "Can't believe how good this is!"
+                        ];
+                        
+                        const message = messages[Math.floor(Math.random() * messages.length)];
+                        addChatMessage(randomUser, message, false);
+                    }
+                }
+            }, 15000);
             
-            scrollTimeout = setTimeout(() => {
-                const centerPosition = videoFeedList.scrollTop + videoFeedList.clientHeight / 2;
-
-                videoFeedList.querySelectorAll('.snap-center').forEach(card => {
-                    const videoElement = card.querySelector('video');
-                    const cardTop = card.offsetTop;
-                    const cardBottom = card.offsetTop + card.clientHeight;
-
-                    if (centerPosition >= cardTop && centerPosition < cardBottom) {
-                        // Currently visible: Play and Unmute
-                        videoElement.muted = false;
-                        videoElement.play().catch(e => console.log('Play on scroll failed:', e));
-                    } else {
-                        // Not visible: Pause and Mute
-                        videoElement.pause();
-                        videoElement.muted = true;
+            // Simulate user status changes
+            setInterval(() => {
+                chatUsers.forEach(user => {
+                    if (user.username !== currentUser.username) {
+                        // Randomly change online status
+                        if (Math.random() > 0.9) {
+                            user.isOnline = !user.isOnline;
+                            user.lastActive = new Date();
+                        }
                     }
                 });
-            }, 150); // Debounce scroll event
-        }
+                localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+                updateActiveUsersList();
+            }, 30000);
+        };
 
-        function openVideoFeed(startingIndex) {
-            videoData = [...allVideos]; // Use all videos for the feed
-            if (videoData.length === 0) {
-                alert('No videos available.');
-                return;
-            }
+        // VIDEO FEED FUNCTIONS - COMPLETELY REWRITTEN
+        const openVideoFeed = (videoId) => {
+            const videoIndex = allVideos.findIndex(v => v.id === videoId);
+            if (videoIndex === -1) return;
+            
+            currentVideoIndex = videoIndex;
+            videoData = [...allVideos];
             videoFeedContainer.classList.remove('hidden');
-            renderVideoFeed(startingIndex);
-        }
+            renderVideoFeed();
+            
+            // Play the first video
+            playCurrentVideo();
+        };
+
+        const renderVideoFeed = () => {
+            videoFeedList.innerHTML = '';
+            
+            videoData.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-feed-item';
+                videoItem.setAttribute('data-video-id', video.id);
+                
+                videoItem.innerHTML = `
+                    <video class="video-feed-video" loop playsinline>
+                        <source src="${video.video_file}" type="video/mp4">
+                    </video>
+                    <div class="video-feed-overlay">
+                        <div class="mb-4">
+                            <h3 class="font-bold text-xl">${video.username}</h3>
+                            <p class="text-lg mt-2">${video.caption}</p>
+                            <p class="text-gray-300 text-sm mt-2">${video.location} • ${video.timestamp}</p>
+                        </div>
+                    </div>
+                    <div class="video-feed-actions">
+                        <div class="video-action-button">
+                            <div class="video-action-icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <span class="text-sm">${video.likes}</span>
+                        </div>
+                        <div class="video-action-button" onclick="toggleVideoComments(${video.id})">
+                            <div class="video-action-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <span class="text-sm">${video.comments}</span>
+                        </div>
+                        <div class="video-action-button">
+                            <div class="video-action-icon">
+                                <i class="fas fa-share"></i>
+                            </div>
+                            <span class="text-sm">Share</span>
+                        </div>
+                    </div>
+                `;
+                
+                videoFeedList.appendChild(videoItem);
+            });
+            
+            // Set up scroll behavior for video feed
+            videoFeedList.addEventListener('scroll', handleVideoScroll);
+            
+            // Scroll to the current video
+            const currentVideoElement = videoFeedList.querySelector(`[data-video-id="${videoData[currentVideoIndex].id}"]`);
+            if (currentVideoElement) {
+                currentVideoElement.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        const handleVideoScroll = () => {
+            const videoItems = videoFeedList.querySelectorAll('.video-feed-item');
+            const containerHeight = videoFeedList.clientHeight;
+            const scrollTop = videoFeedList.scrollTop;
+            
+            // Find the video that's currently in the center of the viewport
+            let newActiveIndex = -1;
+            videoItems.forEach((item, index) => {
+                const rect = item.getBoundingClientRect();
+                const videoFeedRect = videoFeedList.getBoundingClientRect();
+                
+                // Check if the video is in the center of the viewport
+                if (rect.top <= videoFeedRect.top + containerHeight / 2 && 
+                    rect.bottom >= videoFeedRect.top + containerHeight / 2) {
+                    newActiveIndex = index;
+                }
+            });
+            
+            // If we found a new active video, play it
+            if (newActiveIndex !== -1 && newActiveIndex !== currentVideoIndex) {
+                // Pause current video
+                if (activeVideoElement) {
+                    activeVideoElement.pause();
+                }
+                
+                // Update current index and play new video
+                currentVideoIndex = newActiveIndex;
+                playCurrentVideo();
+            }
+        };
+
+        const playCurrentVideo = () => {
+            const videoItems = videoFeedList.querySelectorAll('.video-feed-item');
+            if (videoItems.length === 0) return;
+            
+            const currentVideoItem = videoItems[currentVideoIndex];
+            if (!currentVideoItem) return;
+            
+            const videoElement = currentVideoItem.querySelector('video');
+            if (!videoElement) return;
+            
+            // Set as active video
+            activeVideoElement = videoElement;
+            
+            // Play the video
+            videoElement.play().catch(e => {
+                console.log('Video play failed:', e);
+            });
+        };
+
+        const closeVideoFeed = () => {
+            // Pause the active video
+            if (activeVideoElement) {
+                activeVideoElement.pause();
+                activeVideoElement = null;
+            }
+            
+            // Hide the video feed
+            videoFeedContainer.classList.add('hidden');
+        };
+
+        const toggleVideoComments = (videoId) => {
+            // This would open a comments modal in a real app
+            showNotification('Comments feature coming soon!', 'info');
+        };
 
         // Start real-time updates
         const startRealTimeUpdates = () => {
@@ -3801,7 +4185,7 @@
 
         const updateLiveVideos = () => {
             // Only add new videos occasionally for realism
-            if (false) {
+            if (Math.random() > 0.8) {
                 const locations = allLocations.filter(loc => loc.crowd > 50);
                 if (locations.length > 0) {
                     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
@@ -3819,13 +4203,18 @@
                         username: users[Math.floor(Math.random() * users.length)],
                         caption: captions[Math.floor(Math.random() * captions.length)],
                         timestamp: 'Just now',
-                        video_file: 'https://www.w3schools.com/html/mov_bbb.mp4',
+                        video_file: 'https://assets.mixkit.co/videos/preview/mixkit-people-celebrating-a-party-4642-large.mp4',
                         location: randomLocation.name,
-                        isLive: false
+                        isLive: Math.random() > 0.8,
+                        likes: Math.floor(Math.random() * 50),
+                        comments: Math.floor(Math.random() * 10)
                     };
                     
-                    allVideos.unshift(newVideo); localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                    allVideos.unshift(newVideo);
                     if (allVideos.length > 20) allVideos.pop();
+                    
+                    // Update localStorage
+                    localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
                     
                     renderVideos();
                     
@@ -3839,9 +4228,12 @@
 
         const updateActiveUsers = () => {
             // Update user presence timestamps
-            activeUsers.forEach(user => {
-                user.lastActive = new Date();
+            chatUsers.forEach(user => {
+                if (user.username === currentUser?.username) {
+                    user.lastActive = new Date();
+                }
             });
+            localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
         };
 
         // Location services
@@ -4546,6 +4938,9 @@
             }
         });
 
+        // Video feed
+        closeFeedButton.addEventListener('click', closeVideoFeed);
+
         // Handle page visibility changes
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
@@ -4553,68 +4948,41 @@
                 Object.values(updateIntervals).forEach(interval => {
                     if (interval) clearInterval(interval);
                 });
+                
+                // Pause active video if any
+                if (activeVideoElement) {
+                    activeVideoElement.pause();
+                }
             } else {
                 // Page is visible, restart updates if enabled
                 if (liveUpdatesCheckbox.checked) {
                     startRealTimeUpdates();
                 }
+                
+                // Resume video if in video feed
+                if (activeVideoElement && !videoFeedContainer.classList.contains('hidden')) {
+                    activeVideoElement.play().catch(e => {
+                        console.log('Video resume failed:', e);
+                    });
+                }
             }
         });
-        const requestAccurateLocation = () => {
-    return new Promise((resolve, reject) => {
-        if (!navigator.geolocation) {
-            reject(new Error('Geolocation not supported'));
-            return;
-        }
 
-        let bestLocation = null;
-        let attempts = 0;
-        const maxAttempts = 3;
-
-        const watchId = navigator.geolocation.watchPosition(
-            (position) => {
-                attempts++;
-                const newLocation = {
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude,
-                    accuracy: position.coords.accuracy,
-                    timestamp: position.timestamp
-                };
-
-                // Keep the most accurate location
-                if (!bestLocation || newLocation.accuracy < bestLocation.accuracy) {
-                    bestLocation = newLocation;
-                }
-
-                // Stop after max attempts or if we have high accuracy
-                if (attempts >= maxAttempts || bestLocation.accuracy < 100) {
-                    navigator.geolocation.clearWatch(watchId);
-                    resolve(bestLocation);
-                }
-            },
-            (error) => {
-                navigator.geolocation.clearWatch(watchId);
-                reject(error);
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0 // Don't use cached position
-            }
-        );
-
-        // Fallback timeout
-        setTimeout(() => {
-            navigator.geolocation.clearWatch(watchId);
-            if (bestLocation) {
-                resolve(bestLocation);
-            } else {
-                reject(new Error('Location timeout'));
-            }
-        }, 20000);
-    });
-};
-
+        // Make functions globally available for onclick handlers
+        window.rateLocation = rateLocation;
+        window.checkInToLocation = checkInToLocation;
+        window.joinLocationChat = joinLocationChat;
+        window.viewLocationDetails = viewLocationDetails;
+        window.viewEventDetails = viewEventDetails;
+        window.rsvpToEvent = rsvpToEvent;
+        window.removeVideo = removeVideo;
+        window.openVideoFeed = openVideoFeed;
+        window.toggleVideoComments = toggleVideoComments;
+        window.openInviteFriendsModal = openInviteFriendsModal;
+        window.respondToInvite = respondToInvite;
+        window.sendFriendRequest = sendFriendRequest;
+        window.acceptFriendRequest = acceptFriendRequest;
+        window.removeFriend = removeFriend;
     </script>
 </body>
 </html>
