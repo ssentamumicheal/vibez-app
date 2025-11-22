@@ -3672,60 +3672,9 @@
                     allVideos = JSON.parse(savedVideos);
                     myVideos = JSON.parse(savedMyVideos);
                 } else {
-                    // Sample videos for demo
-                    allVideos = [
-                        { 
-                            id: 1, 
-                            username: 'PartyLover', 
-                            caption: 'Amazing vibes at Club XYZ! 🔥', 
-                            timestamp: '2 hours ago', 
-                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-group-of-friends-partying-happily-4640-large.mp4', 
-                            location: 'Club XYZ', 
-                            isLive: true,
-                            likes: 42,
-                            comments: 8,
-                            likedByUser: false
-                        },
-                        { 
-                            id: 2, 
-                            username: 'DanceKing', 
-                            caption: 'The music is fire tonight! 🎵', 
-                            timestamp: '4 hours ago', 
-                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-young-women-dancing-at-a-party-4645-large.mp4', 
-                            location: 'Beach Party', 
-                            isLive: false,
-                            likes: 28,
-                            comments: 3,
-                            likedByUser: false
-                        },
-                        { 
-                            id: 3, 
-                            username: 'MusicFan', 
-                            caption: 'Best DJ set ever! 🎧', 
-                            timestamp: '1 day ago', 
-                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-woman-dancing-at-a-party-4651-large.mp4', 
-                            location: 'Rooftop Lounge', 
-                            isLive: false,
-                            likes: 56,
-                            comments: 12,
-                            likedByUser: false
-                        }
-                    ];
-                    
-                    myVideos = [
-                        { 
-                            id: 4, 
-                            username: 'You', 
-                            caption: 'My first video upload! 🎉', 
-                            timestamp: '1 day ago', 
-                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-people-celebrating-a-party-4642-large.mp4', 
-                            location: 'Downtown Club', 
-                            isLive: false,
-                            likes: 15,
-                            comments: 2,
-                            likedByUser: false
-                        }
-                    ];
+                    // Start with empty arrays - no sample videos
+                    allVideos = [];
+                    myVideos = [];
                     
                     // Save to localStorage for persistence
                     localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
@@ -3768,6 +3717,10 @@
                                     <i class="fas fa-comment"></i>
                                     <span>${video.comments}</span>
                                 </button>
+                                <button onclick="shareVideo(${video.id})" class="flex items-center space-x-1">
+                                    <i class="fas fa-share"></i>
+                                    <span>Share</span>
+                                </button>
                             </div>
                         </div>
                         <p class="text-gray-500 text-xs mt-2">${video.timestamp} • ${video.location}</p>
@@ -3794,6 +3747,21 @@
                     </button>
                 </div>
             `).join('');
+            
+            // If no videos, show message
+            if (allVideos.length === 0) {
+                allVideosContainer.innerHTML = `
+                    <div class="col-span-2 text-center py-12">
+                        <i class="fas fa-video text-gray-500 text-6xl mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-400 mb-2">No Videos Yet</h3>
+                        <p class="text-gray-500">Be the first to upload a video and share your party experience!</p>
+                    </div>
+                `;
+            }
+            
+            if (myVideos.length === 0) {
+                myVideosContainer.innerHTML = '<p class="text-gray-400 text-center">You haven\'t uploaded any videos yet.</p>';
+            }
         };
 
         const handleVideoUpload = async (e) => {
@@ -3837,7 +3805,7 @@
                 setTimeout(() => {
                     const newVideo = {
                         id: Date.now(),
-                        username: 'You',
+                        username: currentUser.username,
                         caption: caption || 'No caption',
                         timestamp: 'Just now',
                         video_file: URL.createObjectURL(file),
@@ -3924,6 +3892,30 @@
                         likeButton.classList.toggle('text-red-500', video.likedByUser);
                         likeCount.textContent = video.likes;
                     }
+                }
+            }
+        };
+
+        const shareVideo = (videoId) => {
+            const video = allVideos.find(v => v.id === videoId);
+            if (video) {
+                if (navigator.share) {
+                    navigator.share({
+                        title: `Check out this video by ${video.username} on Vibez`,
+                        text: video.caption,
+                        url: window.location.href
+                    }).catch(err => {
+                        console.log('Error sharing:', err);
+                        showNotification('Video shared!', 'success');
+                    });
+                } else {
+                    // Fallback for browsers that don't support Web Share API
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        showNotification('Link copied to clipboard!', 'success');
+                    }).catch(err => {
+                        console.log('Error copying to clipboard:', err);
+                        showNotification('Video shared!', 'success');
+                    });
                 }
             }
         };
@@ -4028,12 +4020,12 @@
             if (savedChat) {
                 chatMessagesData = JSON.parse(savedChat);
             } else {
-                // Sample chat messages for demo
+                // Welcome message only
                 chatMessagesData = [
                     {
                         id: 1,
-                        user: { username: 'PartyBot', avatar: null },
-                        message: 'Welcome to Vibez Chat! Start a conversation about parties and events.',
+                        user: { username: 'VibezBot', avatar: null },
+                        message: 'Welcome to Vibez Chat! Connect with other party enthusiasts.',
                         timestamp: new Date(Date.now() - 60000).toISOString(),
                         isOwn: false
                     }
@@ -4044,13 +4036,8 @@
             if (savedUsers) {
                 chatUsers = JSON.parse(savedUsers);
             } else {
-                // Sample active users
-                chatUsers = [
-                    { username: 'PartyLover', isOnline: true, lastActive: new Date() },
-                    { username: 'DanceKing', isOnline: true, lastActive: new Date() },
-                    { username: 'MusicFan', isOnline: false, lastActive: new Date(Date.now() - 300000) },
-                    { username: 'NightOwl', isOnline: true, lastActive: new Date() }
-                ];
+                // Start with empty users array
+                chatUsers = [];
                 localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
             }
             
@@ -4066,9 +4053,6 @@
             
             renderChatMessages();
             updateActiveUsersList();
-            
-            // Start chat simulation
-            startChatSimulation();
         };
 
         const renderChatMessages = () => {
@@ -4155,74 +4139,8 @@
                 addChatMessage(currentUser, message, true);
                 chatInput.value = '';
                 
-                // Simulate responses from other users
-                simulateChatResponse(message);
+                // No automatic responses - only real user messages
             }
-        };
-
-        const simulateChatResponse = (message) => {
-            // Only respond to certain keywords or randomly
-            const shouldRespond = Math.random() > 0.7 || 
-                message.toLowerCase().includes('?') || 
-                message.toLowerCase().includes('anyone');
-                
-            if (shouldRespond) {
-                setTimeout(() => {
-                    const responses = [
-                        "That sounds awesome! Where is that?",
-                        "I'm heading there now!",
-                        "Anyone want to meet up?",
-                        "The vibes are amazing there!",
-                        "I was there last night, it was lit!",
-                        "What's the cover charge?",
-                        "Is it crowded right now?"
-                    ];
-                    
-                    const randomUser = chatUsers[Math.floor(Math.random() * chatUsers.length)];
-                    if (randomUser && randomUser.username !== currentUser.username) {
-                        const response = responses[Math.floor(Math.random() * responses.length)];
-                        addChatMessage(randomUser, response, false);
-                    }
-                }, 1000 + Math.random() * 3000);
-            }
-        };
-
-        const startChatSimulation = () => {
-            // Simulate random chat activity
-            setInterval(() => {
-                if (Math.random() > 0.8 && chatUsers.length > 1) {
-                    const randomUser = chatUsers[Math.floor(Math.random() * chatUsers.length)];
-                    if (randomUser && randomUser.username !== currentUser.username) {
-                        const messages = [
-                            "Just arrived at Club XYZ! 🎉",
-                            "The music here is fire! 🔥",
-                            "Anyone else at the beach party?",
-                            "This DJ is amazing!",
-                            "The crowd here is awesome!",
-                            "Best party of the year!",
-                            "Can't believe how good this is!"
-                        ];
-                        
-                        const message = messages[Math.floor(Math.random() * messages.length)];
-                        addChatMessage(randomUser, message, false);
-                    }
-                }
-            }, 15000);
-            
-            // Simulate user status changes
-            setInterval(() => {
-                chatUsers.forEach(user => {
-                    if (user.username !== currentUser.username) {
-                        // Randomly change online status
-                        if (Math.random() > 0.9) {
-                            user.isOnline = !user.isOnline;
-                            user.lastActive = new Date();
-                        }
-                    }
-                });
-                localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
-                updateActiveUsersList();
-            }, 30000);
         };
 
         // VIDEO FEED FUNCTIONS - COMPLETELY REWRITTEN
@@ -4271,7 +4189,7 @@
                             </div>
                             <span class="text-sm">${video.comments}</span>
                         </div>
-                        <div class="video-action-button">
+                        <div class="video-action-button" onclick="shareVideo(${video.id})">
                             <div class="video-action-icon">
                                 <i class="fas fa-share"></i>
                             </div>
@@ -4428,39 +4346,43 @@
                 const locations = allLocations.filter(loc => loc.crowd > 50);
                 if (locations.length > 0) {
                     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-                    const users = ['PartyLover', 'DanceKing', 'MusicFan', 'NightOwl', 'SocialButterfly'];
-                    const captions = [
-                        'The vibes here are amazing! 🔥',
-                        'You have to see this place!',
-                        'Best party in town right now!',
-                        'The music is fire tonight! 🎵',
-                        'This crowd is lit! Come join!'
-                    ];
+                    const users = chatUsers.filter(user => user.isOnline).map(user => user.username);
                     
-                    const newVideo = {
-                        id: Date.now(),
-                        username: users[Math.floor(Math.random() * users.length)],
-                        caption: captions[Math.floor(Math.random() * captions.length)],
-                        timestamp: 'Just now',
-                        video_file: 'https://assets.mixkit.co/videos/preview/mixkit-people-celebrating-a-party-4642-large.mp4',
-                        location: randomLocation.name,
-                        isLive: Math.random() > 0.8,
-                        likes: Math.floor(Math.random() * 50),
-                        comments: Math.floor(Math.random() * 10),
-                        likedByUser: false
-                    };
-                    
-                    allVideos.unshift(newVideo);
-                    if (allVideos.length > 20) allVideos.pop();
-                    
-                    // Update localStorage
-                    localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
-                    
-                    renderVideos();
-                    
-                    // Show notification for new videos
-                    if (newVideo.isLive) {
-                        showNotification(`🔴 LIVE: ${newVideo.username} is streaming from ${newVideo.location}`, 'success');
+                    if (users.length > 0) {
+                        const randomUser = users[Math.floor(Math.random() * users.length)];
+                        const captions = [
+                            'The vibes here are amazing! 🔥',
+                            'You have to see this place!',
+                            'Best party in town right now!',
+                            'The music is fire tonight! 🎵',
+                            'This crowd is lit! Come join!'
+                        ];
+                        
+                        const newVideo = {
+                            id: Date.now(),
+                            username: randomUser,
+                            caption: captions[Math.floor(Math.random() * captions.length)],
+                            timestamp: 'Just now',
+                            video_file: 'https://assets.mixkit.co/videos/preview/mixkit-people-celebrating-a-party-4642-large.mp4',
+                            location: randomLocation.name,
+                            isLive: Math.random() > 0.8,
+                            likes: Math.floor(Math.random() * 50),
+                            comments: Math.floor(Math.random() * 10),
+                            likedByUser: false
+                        };
+                        
+                        allVideos.unshift(newVideo);
+                        if (allVideos.length > 20) allVideos.pop();
+                        
+                        // Update localStorage
+                        localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                        
+                        renderVideos();
+                        
+                        // Show notification for new videos
+                        if (newVideo.isLive) {
+                            showNotification(`🔴 LIVE: ${newVideo.username} is streaming from ${newVideo.location}`, 'success');
+                        }
                     }
                 }
             }
@@ -5243,6 +5165,7 @@
         window.openVideoFeed = openVideoFeed;
         window.toggleVideoLike = toggleVideoLike;
         window.openVideoComments = openVideoComments;
+        window.shareVideo = shareVideo;
         window.openInviteFriendsModal = openInviteFriendsModal;
         window.respondToInvite = respondToInvite;
         window.sendFriendRequest = sendFriendRequest;
