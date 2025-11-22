@@ -1429,7 +1429,7 @@
                             <div class="lg:col-span-2 relative">
                                 <div id="all-videos" class="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <!-- All videos will be dynamically loaded here -->
-                                </div>
+                                    </div>
                             </div>
                         </div>
                     </div>
@@ -2140,8 +2140,19 @@
             return vibes[Math.floor(Math.random() * vibes.length)];
         };
 
+        // FIXED: Updated getSampleVenues function to use real location names
         const getSampleVenues = (lat, lon) => {
-            // Generate sample venues around the user's location
+            // Generate sample venues around the user's location with realistic names
+            const venueNames = [
+                "Club Paradise", "The Electric Lounge", "Beachside Bar", "Midnight Club", 
+                "Rooftop Terrace", "The Underground", "Sunset Beach Club", "Urban Brews",
+                "The Jazz Cellar", "Ocean View Bar", "Moonlight Lounge", "The Social Hub",
+                "Downtown Club", "Harbor Lights", "The Velvet Room", "Skyline Bar",
+                "The Groove Factory", "Neon Nights", "City Lights", "The Hideaway"
+            ];
+            
+            const venueTypes = ['club', 'bar', 'lounge', 'concert', 'beach'];
+            
             const venues = [];
             for (let i = 0; i < 15; i++) {
                 const offsetLat = (Math.random() - 0.5) * 0.05;
@@ -2149,8 +2160,8 @@
                 
                 venues.push({
                     id: i + 1000,
-                    name: `Venue ${i + 1}`,
-                    type: ['club', 'bar', 'lounge', 'concert'][Math.floor(Math.random() * 4)],
+                    name: venueNames[i % venueNames.length],
+                    type: venueTypes[Math.floor(Math.random() * venueTypes.length)],
                     lat: lat + offsetLat,
                     lng: lon + offsetLon,
                     address: 'Sample Address',
