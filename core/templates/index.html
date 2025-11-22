@@ -170,7 +170,7 @@
             border: 4px solid #a855f7;
         }
         
-        /* Mobile-specific styles - IMPROVED MAP SIZE AND CONTROLS */
+        /* Mobile-specific styles */
         @media (max-width: 768px) {
             .tab-button {
                 padding: 12px 16px;
@@ -179,51 +179,11 @@
                 text-align: center;
             }
             
-            /* IMPROVED: Larger map for mobile */
             #map-container {
-                height: 80vh !important;
+                height: 70vh;
                 min-height: 500px;
-                border-radius: 0;
             }
             
-            /* IMPROVED: Better map controls positioning */
-            .leaflet-control-zoom {
-                margin-bottom: 80px !important;
-            }
-            
-            .leaflet-popup-content-wrapper {
-                max-width: 90vw;
-            }
-            
-            .leaflet-popup-content {
-                width: auto !important;
-            }
-            
-            /* IMPROVED: Better mobile map action buttons */
-            .mobile-map-actions {
-                position: absolute;
-                bottom: 100px;
-                right: 15px;
-                z-index: 1000;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .mobile-map-action-btn {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #4f46e5;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-                font-size: 20px;
-            }
-            
-            /* IMPROVED: Better filters sidebar for mobile */
             #filters-sidebar {
                 position: fixed;
                 bottom: 0;
@@ -237,7 +197,6 @@
                 z-index: 1000;
                 max-height: 80vh;
                 overflow-y: auto;
-                padding: 20px;
             }
             
             #filters-sidebar.open {
@@ -255,6 +214,43 @@
                 justify-content: space-around;
                 z-index: 40;
                 border-top: 1px solid #374151;
+            }
+            
+            /* Improved mobile map controls */
+            .leaflet-control-zoom {
+                margin-bottom: 80px !important;
+            }
+            
+            .leaflet-popup-content-wrapper {
+                max-width: 90vw;
+            }
+            
+            .leaflet-popup-content {
+                width: auto !important;
+            }
+            
+            /* Mobile map action buttons */
+            .mobile-map-actions {
+                position: absolute;
+                bottom: 80px;
+                right: 10px;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mobile-map-action-btn {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: #4f46e5;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                font-size: 20px;
             }
             
             /* Mobile tab navigation improvements */
@@ -307,7 +303,7 @@
                 font-size: 20px;
             }
             
-            /* IMPROVED: Better mobile map fullscreen mode */
+            /* Mobile map fullscreen mode */
             .map-fullscreen {
                 position: fixed !important;
                 top: 0;
@@ -342,7 +338,7 @@
                 font-size: 18px;
             }
             
-            /* IMPROVED: Better mobile popup improvements */
+            /* Mobile popup improvements */
             .mobile-popup-content {
                 max-width: 85vw;
             }
@@ -358,36 +354,6 @@
                 padding: 10px;
                 border-radius: 8px;
                 text-align: center;
-                font-size: 14px;
-            }
-            
-            /* IMPROVED: Better map container layout for mobile */
-            .map-filters-container {
-                flex-direction: column;
-                height: 100%;
-            }
-            
-            #map-content-container {
-                height: 80vh;
-                position: relative;
-            }
-            
-            /* IMPROVED: Better desktop action buttons for mobile */
-            .desktop-map-actions {
-                display: none !important;
-            }
-            
-            /* IMPROVED: Better filter button positioning */
-            #toggle-filters-button {
-                position: absolute;
-                top: 10px;
-                left: 10px;
-                z-index: 1000;
-                background: rgba(0, 0, 0, 0.7);
-                color: white;
-                border: none;
-                padding: 10px 15px;
-                border-radius: 8px;
                 font-size: 14px;
             }
         }
@@ -1326,7 +1292,7 @@
                                 </div>
                             </div>
 
-                            <!-- IMPROVED: Map Container with better mobile sizing -->
+                            <!-- Map Container -->
                             <div id="map-content-container">
                                 <div id="map-container" class="w-full rounded-lg shadow-lg"></div>
                                 <div class="mt-4 flex justify-between items-center">
@@ -1979,9 +1945,9 @@
                 desktopTabs.classList.add('hidden');
                 desktopMapActions.classList.add('hidden');
                 
-                // IMPROVED: Adjust map height for mobile - larger map
+                // Adjust map height for mobile
                 if (mapContainer && !isMapFullscreen) {
-                    mapContainer.style.height = '80vh';
+                    mapContainer.style.height = '70vh';
                     mapContainer.style.minHeight = '500px';
                 }
             } else {
@@ -2049,7 +2015,7 @@
                 
                 // Reset map height based on device
                 if (isMobile) {
-                    mapContainer.style.height = '80vh';
+                    mapContainer.style.height = '70vh';
                     mapContainer.style.minHeight = '500px';
                 } else {
                     mapContainer.style.height = '600px';
@@ -2108,85 +2074,67 @@
         };
 
         const fetchVenuesFromOpenStreetMap = async (lat, lon, radius = 5000) => {
-    try {
-        // Overpass API query to find entertainment venues
-        const query = `
-            [out:json][timeout:25];
-            (
-              node["amenity"="bar"](around:${radius},${lat},${lon});
-              node["amenity"="pub"](around:${radius},${lat},${lon});
-              node["amenity"="nightclub"](around:${radius},${lat},${lon});
-              node["amenity"="restaurant"](around:${radius},${lat},${lon});
-              node["leisure"="dance"](around:${radius},${lat},${lon});
-              node["tourism"="hotel"](around:${radius},${lat},${lon});
-              node["amenity"="arts_centre"](around:${radius},${lat},${lon});
-              node["amenity"="theatre"](around:${radius},${lat},${lon});
-            );
-            out body;
-        `;
+            try {
+                // Overpass API query to find entertainment venues
+                const query = `
+                    [out:json][timeout:25];
+                    (
+                      node["amenity"="bar"](around:${radius},${lat},${lon});
+                      node["amenity"="pub"](around:${radius},${lat},${lon});
+                      node["amenity"="nightclub"](around:${radius},${lat},${lon});
+                      node["amenity"="restaurant"](around:${radius},${lat},${lon});
+                      node["leisure"="dance"](around:${radius},${lat},${lon});
+                      node["tourism"="hotel"](around:${radius},${lat},${lon});
+                    );
+                    out body;
+                `;
 
-        const response = await fetch(API_CONFIG.OVERPASS_API_URL, {
-            method: 'POST',
-            body: `data=${encodeURIComponent(query)}`
-        });
+                const response = await fetch(API_CONFIG.OVERPASS_API_URL, {
+                    method: 'POST',
+                    body: `data=${encodeURIComponent(query)}`
+                });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch venues from OpenStreetMap');
-        }
+                if (!response.ok) {
+                    throw new Error('Failed to fetch venues from OpenStreetMap');
+                }
 
-        const data = await response.json();
-        
-        // Transform the data to our format
-        return data.elements.map(element => {
-            const tags = element.tags || {};
-            
-            // Get the best available name
-            let name = tags.name;
-            if (!name) {
-                // Fallback names based on venue type
-                const venueType = getVenueType(tags);
-                const fallbackNames = {
-                    'bar': ['Local Bar', 'Neighborhood Pub'],
-                    'club': ['Nightclub', 'Dance Venue'],
-                    'lounge': ['Lounge', 'Chill Spot'],
-                    'concert': ['Music Venue', 'Performance Space']
-                };
-                name = fallbackNames[venueType] ? 
-                    fallbackNames[venueType][Math.floor(Math.random() * fallbackNames[venueType].length)] : 
-                    'Entertainment Venue';
+                const data = await response.json();
+                
+                // Transform the data to our format
+                return data.elements.map(element => {
+                    const tags = element.tags || {};
+                    return {
+                        id: element.id,
+                        name: tags.name || 'Unnamed Venue',
+                        type: getVenueType(tags),
+                        lat: element.lat,
+                        lng: element.lon,
+                        address: tags['addr:street'] || '',
+                        city: tags['addr:city'] || '',
+                        rating: Math.random() * 2 + 3, // Random rating between 3-5
+                        vibe: getRandomVibe(),
+                        crowd: Math.floor(Math.random() * 100),
+                        checkIns: Math.floor(Math.random() * 50),
+                        description: tags.description || `A ${getVenueType(tags)} in the area`,
+                        userGenerated: false
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching venues:', error);
+                showNotification('Failed to load venues. Using sample data.', 'error');
+                return getSampleVenues(lat, lon);
             }
-            
-            return {
-                id: element.id,
-                name: name,
-                type: getVenueType(tags),
-                lat: element.lat,
-                lng: element.lon,
-                address: tags['addr:street'] || '',
-                city: tags['addr:city'] || '',
-                rating: Math.random() * 2 + 3, // Random rating between 3-5
-                vibe: getRandomVibe(),
-                crowd: Math.floor(Math.random() * 100),
-                checkIns: Math.floor(Math.random() * 50),
-                description: tags.description || `A ${getVenueType(tags)} in the area`,
-                userGenerated: false
-            };
-        });
-    } catch (error) {
-        console.error('Error fetching venues:', error);
-        showNotification('Failed to load venues. Using sample data.', 'error');
-        return getSampleVenues(lat, lon);
-    }
-};
+        };
 
         const getVenueType = (tags) => {
-    if (tags.amenity === 'bar' || tags.amenity === 'pub') return 'bar';
-    if (tags.amenity === 'nightclub' || tags.leisure === 'dance') return 'club';
-    if (tags.amenity === 'restaurant' && (tags.cuisine === 'pizza' || tags.cuisine === 'burger')) return 'bar';
-    if (tags.tourism === 'hotel' && tags.hotel === 'resort') return 'lounge';
-    if (tags.amenity === 'arts_centre' || tags.amenity === 'theatre') return 'concert';
-    return 'lounge';
-};
+            if (tags.amenity === 'bar') return 'bar';
+            if (tags.amenity === 'pub') return 'bar';
+            if (tags.amenity === 'nightclub') return 'club';
+            if (tags.amenity === 'restaurant') return 'lounge';
+            if (tags.leisure === 'dance') return 'club';
+            return 'lounge';
+        };
+
         const getRandomVibe = () => {
             const vibes = ['high', 'medium', 'chill'];
             return vibes[Math.floor(Math.random() * vibes.length)];
@@ -2194,57 +2142,29 @@
 
         const getSampleVenues = (lat, lon) => {
             // Generate sample venues around the user's location
-            const getSampleVenues = (lat, lon) => {
-    // Generate sample venues with realistic names around the user's location
-    const venueTypes = {
-        'club': ['Nightclub', 'Dance Club', 'Music Venue', 'Party Spot'],
-        'bar': ['Sports Bar', 'Cocktail Lounge', 'Pub', 'Wine Bar', 'Brewery'],
-        'lounge': ['Rooftop Lounge', 'VIP Lounge', 'Hookah Bar', 'Chill Spot'],
-        'concert': ['Concert Hall', 'Live Music Venue', 'Performance Space'],
-        'beach': ['Beach Club', 'Seaside Bar', 'Oceanfront Venue']
-    };
-    
-    const streetNames = ['Main', 'Broadway', 'First', 'Central', 'Park', 'Oak', 'Maple', 'Cedar', 'Elm', 'Pine'];
-    const areaNames = ['Downtown', 'Uptown', 'Midtown', 'The District', 'Waterfront', 'City Center'];
-    
-    const venues = [];
-    for (let i = 0; i < 15; i++) {
-        const offsetLat = (Math.random() - 0.5) * 0.05;
-        const offsetLon = (Math.random() - 0.5) * 0.05;
-        
-        const venueType = ['club', 'bar', 'lounge', 'concert', 'beach'][Math.floor(Math.random() * 5)];
-        const typeNames = venueTypes[venueType];
-        const venueName = typeNames[Math.floor(Math.random() * typeNames.length)];
-        
-        // Create more realistic names
-        const nameVariations = [
-            `${venueName}`,
-            `${venueName} ${areaNames[Math.floor(Math.random() * areaNames.length)]}`,
-            `The ${venueName}`,
-            `${streetNames[Math.floor(Math.random() * streetNames.length)]} ${venueName}`,
-            `${venueName} ${Math.floor(Math.random() * 5) + 1}`
-        ];
-        
-        const finalName = nameVariations[Math.floor(Math.random() * nameVariations.length)];
-        
-        venues.push({
-            id: i + 1000,
-            name: finalName,
-            type: venueType,
-            lat: lat + offsetLat,
-            lng: lon + offsetLon,
-            address: `${Math.floor(Math.random() * 1000) + 1} ${streetNames[Math.floor(Math.random() * streetNames.length)]} Street`,
-            city: 'Sample City',
-            rating: Math.random() * 2 + 3, // Random rating between 3-5
-            vibe: getRandomVibe(),
-            crowd: Math.floor(Math.random() * 100),
-            checkIns: Math.floor(Math.random() * 50),
-            description: `A popular ${venueType} in the area known for great music and atmosphere`,
-            userGenerated: false
-        });
-    }
-    return venues;
-};
+            const venues = [];
+            for (let i = 0; i < 15; i++) {
+                const offsetLat = (Math.random() - 0.5) * 0.05;
+                const offsetLon = (Math.random() - 0.5) * 0.05;
+                
+                venues.push({
+                    id: i + 1000,
+                    name: `Venue ${i + 1}`,
+                    type: ['club', 'bar', 'lounge', 'concert'][Math.floor(Math.random() * 4)],
+                    lat: lat + offsetLat,
+                    lng: lon + offsetLon,
+                    address: 'Sample Address',
+                    city: 'Sample City',
+                    rating: Math.random() * 2 + 3,
+                    vibe: getRandomVibe(),
+                    crowd: Math.floor(Math.random() * 100),
+                    checkIns: Math.floor(Math.random() * 50),
+                    description: 'A popular venue in the area',
+                    userGenerated: false
+                });
+            }
+            return venues;
+        };
 
         const fetchEventsFromTicketmaster = async (lat, lon, radius = 50) => {
             try {
@@ -2340,52 +2260,39 @@
         };
 
         const getSampleEvents = (lat, lon) => {
-    const events = [];
-    const categories = ['music', 'festival', 'club', 'cultural', 'sports'];
-    
-    // Realistic event names by category
-    const eventNames = {
-        'music': ['Live Band Night', 'DJ Session', 'Concert Series', 'Music Festival'],
-        'festival': ['Street Festival', 'Food & Music Fest', 'Cultural Celebration'],
-        'club': ['Club Night', 'Dance Party', 'VIP Event'],
-        'cultural': ['Art Exhibition', 'Cultural Night', 'Community Gathering'],
-        'sports': ['Game Night', 'Sports Viewing', 'Tournament']
-    };
-    
-    for (let i = 0; i < 10; i++) {
-        const offsetLat = (Math.random() - 0.5) * 0.05;
-        const offsetLon = (Math.random() - 0.5) * 0.05;
-        const startDate = new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000);
-        const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
-        const now = new Date();
-        const isLiveNow = startDate <= now && endDate >= now;
-        
-        const category = categories[Math.floor(Math.random() * categories.length)];
-        const categoryNames = eventNames[category];
-        const eventName = categoryNames[Math.floor(Math.random() * categoryNames.length)];
-        
-        events.push({
-            id: i + 2000,
-            name: eventName,
-            description: 'An exciting event happening soon',
-            category: category,
-            startDate: startDate,
-            endDate: endDate,
-            time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            location: 'Sample Venue',
-            address: 'Sample City',
-            lat: lat + offsetLat,
-            lng: lon + offsetLon,
-            price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
-            attendees: Math.floor(Math.random() * 1000) + 100,
-            isPopular: Math.random() > 0.7,
-            isTrending: Math.random() > 0.8,
-            isLiveNow: isLiveNow,
-            source: 'sample'
-        });
-    }
-    return events;
-};
+            const events = [];
+            const categories = ['music', 'festival', 'club', 'cultural', 'sports'];
+            
+            for (let i = 0; i < 10; i++) {
+                const offsetLat = (Math.random() - 0.5) * 0.05;
+                const offsetLon = (Math.random() - 0.5) * 0.05;
+                const startDate = new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000);
+                const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
+                const now = new Date();
+                const isLiveNow = startDate <= now && endDate >= now;
+                
+                events.push({
+                    id: i + 2000,
+                    name: `Sample Event ${i + 1}`,
+                    description: 'An exciting event happening soon',
+                    category: categories[Math.floor(Math.random() * categories.length)],
+                    startDate: startDate,
+                    endDate: endDate,
+                    time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                    location: 'Sample Venue',
+                    address: 'Sample City',
+                    lat: lat + offsetLat,
+                    lng: lon + offsetLon,
+                    price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
+                    attendees: Math.floor(Math.random() * 1000) + 100,
+                    isPopular: Math.random() > 0.7,
+                    isTrending: Math.random() > 0.8,
+                    isLiveNow: isLiveNow,
+                    source: 'sample'
+                });
+            }
+            return events;
+        };
 
         // VIEW MANAGEMENT
         const showMainApp = (username, userId) => {
@@ -2574,7 +2481,7 @@
                 contextMenu.style.display = 'none';
             });
             
-            // IMPROVED: Better mobile popups
+            // Improve mobile popups
             map.on('popupopen', function(e) {
                 if (isMobile) {
                     const popup = e.popup;
