@@ -11,6 +11,8 @@
     <!-- Leaflet Marker Cluster -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <!-- Leaflet Routing Machine -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -355,6 +357,29 @@
                 border-radius: 8px;
                 text-align: center;
                 font-size: 14px;
+            }
+        }
+
+        /* Tablet-specific styles */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            #map-container {
+                height: 500px;
+            }
+            
+            .mobile-tab-container {
+                display: none;
+            }
+            
+            .desktop-tabs {
+                display: flex;
+            }
+            
+            .mobile-map-actions {
+                display: none;
+            }
+            
+            .desktop-map-actions {
+                display: flex;
             }
         }
         
@@ -887,6 +912,80 @@
             justify-content: center;
             font-size: 20px;
         }
+
+        /* Video comments styles */
+        .video-comments-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 16px;
+            border-radius: 12px 12px 0 0;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 60vh;
+            overflow-y: auto;
+            z-index: 10000;
+        }
+
+        .video-comments-container.open {
+            transform: translateY(0);
+        }
+
+        .comment-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comment-author {
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .comment-input-container {
+            display: flex;
+            margin-top: 12px;
+        }
+
+        .comment-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            margin-right: 8px;
+        }
+
+        /* Directions panel */
+        .directions-panel {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 15px;
+            width: 300px;
+            max-height: 80%;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .directions-panel.hidden {
+            display: none;
+        }
+
+        .route-step {
+            padding: 8px 0;
+            border-bottom: 1px solid #374151;
+        }
+
+        .route-step:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -928,6 +1027,22 @@
             <div class="w-10"></div> <!-- Spacer for balance -->
         </div>
         <div id="video-feed-list" class="video-feed-list"></div>
+        <!-- Video Comments Container -->
+        <div id="video-comments-container" class="video-comments-container">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-white font-bold">Comments</h3>
+                <button id="close-comments" class="text-white">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="video-comments-list"></div>
+            <div class="comment-input-container">
+                <input type="text" id="comment-input" class="comment-input" placeholder="Add a comment...">
+                <button id="submit-comment" class="bg-purple-600 text-white px-4 py-2 rounded-full">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Profile Modal -->
@@ -1264,6 +1379,17 @@
         </div>
     </div>
 
+    <!-- Directions Panel -->
+    <div id="directions-panel" class="directions-panel hidden">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-white font-bold">Directions</h3>
+            <button id="close-directions" class="text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="directions-content"></div>
+    </div>
+
     <div id="app-container">
         <!-- Header for the logged-in view - FIXED POSITIONING -->
         <header id="main-header" class="fixed top-0 left-0 right-0 p-4 flex justify-between items-center z-40 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg border-b border-gray-700 hidden">
@@ -1363,6 +1489,10 @@
                                 <i class="fas fa-plus mr-2"></i>
                                 Add Location
                             </button>
+                            <button id="get-directions-btn" class="bg-yellow-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-yellow-700 transition-colors flex items-center">
+                                <i class="fas fa-route mr-2"></i>
+                                Get Directions
+                            </button>
                         </div>
 
                         <!-- Mobile Map Action Buttons -->
@@ -1375,6 +1505,9 @@
                             </button>
                             <button id="mobile-fullscreen-btn" class="mobile-map-action-btn">
                                 <i class="fas fa-expand"></i>
+                            </button>
+                            <button id="mobile-directions-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-route"></i>
                             </button>
                         </div>
 
@@ -1860,6 +1993,8 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Leaflet Marker Cluster -->
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    <!-- Leaflet Routing Machine -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     
     <script>
         // API Configuration
@@ -1934,6 +2069,7 @@
         const shareLocationBtn = document.getElementById('share-location-btn');
         const checkInBtn = document.getElementById('check-in-btn');
         const createLocationBtn = document.getElementById('create-location-btn');
+        const getDirectionsBtn = document.getElementById('get-directions-btn');
         const locationPermissionModal = document.getElementById('location-permission-modal');
         const allowLocationBtn = document.getElementById('allow-location');
         const denyLocationBtn = document.getElementById('deny-location');
@@ -1946,6 +2082,7 @@
         const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
         const mobileLocationBtn = document.getElementById('mobile-location-btn');
         const mobileFullscreenBtn = document.getElementById('mobile-fullscreen-btn');
+        const mobileDirectionsBtn = document.getElementById('mobile-directions-btn');
         const mobileMapActions = document.querySelector('.mobile-map-actions');
         const desktopMapActions = document.querySelector('.desktop-map-actions');
 
@@ -1983,6 +2120,11 @@
         const videoFeedContainer = document.getElementById('video-feed-container');
         const videoFeedList = document.getElementById('video-feed-list');
         const closeFeedButton = document.getElementById('close-video-feed');
+        const videoCommentsContainer = document.getElementById('video-comments-container');
+        const videoCommentsList = document.getElementById('video-comments-list');
+        const commentInput = document.getElementById('comment-input');
+        const submitCommentButton = document.getElementById('submit-comment');
+        const closeCommentsButton = document.getElementById('close-comments');
 
         // Profile elements
         const profileModal = document.getElementById('profile-modal');
@@ -2034,6 +2176,11 @@
         const contextMenu = document.getElementById('context-menu');
         const createLocationContext = document.getElementById('create-location-context');
 
+        // Directions elements
+        const directionsPanel = document.getElementById('directions-panel');
+        const directionsContent = document.getElementById('directions-content');
+        const closeDirectionsButton = document.getElementById('close-directions');
+
         // Feature modals
         const friendsModal = document.getElementById('friends-modal');
         const eventInvitesModal = document.getElementById('event-invites-modal');
@@ -2072,9 +2219,14 @@
         };
         let currentChatRoom = 'general';
         let isMobile = window.innerWidth <= 768;
+        let isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
         let isMapFullscreen = false;
         let activeVideoElement = null;
         let currentVideoIndex = 0;
+        let routingControl = null;
+        let selectedLocationForDirections = null;
+        let currentVideoComments = [];
+        let currentVideoForComments = null;
         
         // Default coordinates (Kampala)
         const defaultLocation = [0.3476, 32.5825];
@@ -2113,6 +2265,7 @@
         // Mobile detection and UI adjustment
         const checkMobileView = () => {
             isMobile = window.innerWidth <= 768;
+            isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
             
             if (isMobile) {
                 // Show mobile UI elements
@@ -2125,6 +2278,17 @@
                 if (mapContainer && !isMapFullscreen) {
                     mapContainer.style.height = '70vh';
                     mapContainer.style.minHeight = '500px';
+                }
+            } else if (isTablet) {
+                // Show desktop UI elements for tablet
+                mobileTabContainer.classList.add('hidden');
+                mobileMapActions.classList.add('hidden');
+                desktopTabs.classList.remove('hidden');
+                desktopMapActions.classList.remove('hidden');
+                
+                // Adjust map height for tablet
+                if (mapContainer && !isMapFullscreen) {
+                    mapContainer.style.height = '500px';
                 }
             } else {
                 // Show desktop UI elements
@@ -2193,6 +2357,8 @@
                 if (isMobile) {
                     mapContainer.style.height = '70vh';
                     mapContainer.style.minHeight = '500px';
+                } else if (isTablet) {
+                    mapContainer.style.height = '500px';
                 } else {
                     mapContainer.style.height = '600px';
                 }
@@ -2353,71 +2519,28 @@
             return venues;
         };
 
-        const fetchEventsFromTicketmaster = async (lat, lon, radius = 50) => {
+        const fetchEventsFromAPI = async (lat, lon) => {
             try {
-                console.log("Fetching events with YOUR API key...");
-                
-                // Get current time in ISO format for Ticketmaster
-                const now = new Date();
-                const startDateTime = now.toISOString().split('.')[0] + 'Z';
-                
-                const params = new URLSearchParams({
-                    apikey: API_CONFIG.TICKETMASTER_API_KEY,
-                    latlong: `${lat},${lon}`,
-                    radius: radius,
-                    unit: 'miles',
-                    size: '20',
-                    sort: 'date,asc',
-                    classificationName: 'music',
-                    startDateTime: startDateTime // Only get events from now onwards
+                // Fetch user-created events from our API
+                const events = await apiRequest('/events/');
+                return events.map(event => {
+                    const startDate = new Date(event.start_date);
+                    const endDate = new Date(event.end_date);
+                    const now = new Date();
+                    const isLiveNow = startDate <= now && endDate >= now;
+                    
+                    return {
+                        ...event,
+                        startDate: startDate,
+                        endDate: endDate,
+                        time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        isLiveNow: isLiveNow,
+                        source: 'user'
+                    };
                 });
-
-                const response = await fetch(`${API_CONFIG.TICKETMASTER_BASE_URL}?${params}`);
-                console.log("API Response status:", response.status);
-
-                if (!response.ok) {
-                    throw new Error(`API returned ${response.status}`);
-                }
-
-                const data = await response.json();
-                console.log("Ticketmaster data:", data);
-                
-                if (data._embedded && data._embedded.events) {
-                    return data._embedded.events.map(event => {
-                        const venue = event._embedded.venues[0];
-                        const startDate = new Date(event.dates.start.dateTime);
-                        const endDate = event.dates.end ? new Date(event.dates.end.dateTime) : new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
-                        
-                        // Check if event is happening now
-                        const now = new Date();
-                        const isLiveNow = startDate <= now && endDate >= now;
-                        
-                        return {
-                            id: event.id,
-                            name: event.name,
-                            description: event.info || 'Live event',
-                            startDate: startDate,
-                            endDate: endDate,
-                            time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                            location: venue.name,
-                            address: `${venue.address?.line1 || ''}, ${venue.city?.name || ''}`,
-                            lat: venue.location?.latitude || lat + (Math.random() - 0.5) * 0.05,
-                            lng: venue.location?.longitude || lon + (Math.random() - 0.5) * 0.05,
-                            price: event.priceRanges ? `$${event.priceRanges[0].min}` : 'Varies',
-                            attendees: Math.floor(Math.random() * 1000) + 100,
-                            isPopular: Math.random() > 0.7,
-                            isTrending: Math.random() > 0.8,
-                            isLiveNow: isLiveNow,
-                            source: 'ticketmaster'
-                        };
-                    });
-                } else {
-                    console.log("No events in response, using samples");
-                    return getSampleEvents(lat, lon);
-                }
             } catch (error) {
-                console.error("Ticketmaster error:", error);
-                return getSampleEvents(lat, lon);
+                console.error('Error fetching events:', error);
+                return [];
             }
         };
 
@@ -2444,41 +2567,6 @@
                 console.error('Error fetching user events:', error);
                 return [];
             }
-        };
-
-        const getSampleEvents = (lat, lon) => {
-            const events = [];
-            const categories = ['music', 'festival', 'club', 'cultural', 'sports'];
-            
-            for (let i = 0; i < 10; i++) {
-                const offsetLat = (Math.random() - 0.5) * 0.05;
-                const offsetLon = (Math.random() - 0.5) * 0.05;
-                const startDate = new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000);
-                const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
-                const now = new Date();
-                const isLiveNow = startDate <= now && endDate >= now;
-                
-                events.push({
-                    id: i + 2000,
-                    name: `Sample Event ${i + 1}`,
-                    description: 'An exciting event happening soon',
-                    category: categories[Math.floor(Math.random() * categories.length)],
-                    startDate: startDate,
-                    endDate: endDate,
-                    time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-                    location: 'Sample Venue',
-                    address: 'Sample City',
-                    lat: lat + offsetLat,
-                    lng: lon + offsetLon,
-                    price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
-                    attendees: Math.floor(Math.random() * 1000) + 100,
-                    isPopular: Math.random() > 0.7,
-                    isTrending: Math.random() > 0.8,
-                    isLiveNow: isLiveNow,
-                    source: 'sample'
-                });
-            }
-            return events;
         };
 
         // VIEW MANAGEMENT
@@ -2695,14 +2783,11 @@
                 allLocations = venues;
                 filteredLocations = [...allLocations];
                 
-                // Fetch events from Ticketmaster
-                const ticketmasterEvents = await fetchEventsFromTicketmaster(lat, lon);
-                
                 // Fetch events from user database
-                const userEvents = await fetchUserEvents();
+                const userEvents = await fetchEventsFromAPI(lat, lon);
                 
                 // Combine all events
-                allEvents = [...ticketmasterEvents, ...userEvents];
+                allEvents = [...userEvents];
                 filteredEvents = [...allEvents];
                 
                 // Add markers to map
@@ -2782,8 +2867,8 @@
                             <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                 Check In
                             </button>
-                            <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
-                                Join Chat
+                            <button onclick="getDirectionsToLocation(${location.lat}, ${location.lng}, '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
+                                Get Directions
                             </button>
                             <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
                                 View Details
@@ -2822,6 +2907,9 @@
                             </button>
                             <button onclick="rsvpToEvent('${event.id}')" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                 RSVP
+                            </button>
+                            <button onclick="getDirectionsToLocation(${event.lat}, ${event.lng}, '${event.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
+                                Get Directions
                             </button>
                         </div>
                     </div>
@@ -2967,8 +3055,8 @@
                                 <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                     Check In
                                 </button>
-                                <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
-                                    Join Chat
+                                <button onclick="getDirectionsToLocation(${location.lat}, ${location.lng}, '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
+                                    Get Directions
                                 </button>
                                 <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
                                     View Details
@@ -2988,21 +3076,79 @@
             }
         }
 
-        function joinLocationChat(locationId, locationName) {
-            // In a real app, you would connect to a WebSocket for this specific location
-            currentChatRoom = `location_${locationId}`;
-            showNotification(`Joined chat for ${locationName}`, 'success');
+        function getDirectionsToLocation(lat, lng, name) {
+            selectedLocationForDirections = { lat, lng, name };
             
-            // Clear current messages and show a welcome message
-            chatMessages.innerHTML = `
-                <div class="chat-message other">
-                    <p class="text-white">You joined the chat for ${locationName}. Say hi to other partygoers!</p>
-                    <p class="chat-message-time">System • Just now</p>
-                </div>
-            `;
+            if (!userLocation) {
+                showNotification('Please share your location to get directions', 'error');
+                locationPermissionModal.classList.remove('hidden');
+                return;
+            }
             
-            // Switch to chat tab
-            showTab('chat');
+            // Clear any existing routing
+            if (routingControl) {
+                map.removeControl(routingControl);
+            }
+            
+            // Create routing control
+            routingControl = L.Routing.control({
+                waypoints: [
+                    L.latLng(userLocation.lat, userLocation.lng),
+                    L.latLng(lat, lng)
+                ],
+                routeWhileDragging: true,
+                showAlternatives: true,
+                lineOptions: {
+                    styles: [{ color: '#a855f7', weight: 6 }]
+                },
+                createMarker: function(i, waypoint, n) {
+                    if (i === 0) {
+                        return L.marker(waypoint.latLng, {
+                            icon: L.divIcon({
+                                className: 'party-marker user-generated',
+                                iconSize: [20, 20],
+                                html: '<i class="fas fa-user text-white text-xs flex items-center justify-center h-full"></i>'
+                            })
+                        }).bindPopup('Your Location');
+                    } else {
+                        return L.marker(waypoint.latLng, {
+                            icon: L.divIcon({
+                                className: 'party-marker',
+                                iconSize: [20, 20],
+                                html: ''
+                            })
+                        }).bindPopup(name);
+                    }
+                }
+            }).addTo(map);
+            
+            // Show directions panel
+            directionsPanel.classList.remove('hidden');
+            
+            // Listen for route found event
+            routingControl.on('routesfound', function(e) {
+                const routes = e.routes;
+                const summary = routes[0].summary;
+                
+                // Display route information
+                directionsContent.innerHTML = `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-white">Route to ${name}</h4>
+                        <p class="text-gray-300">Distance: ${(summary.totalDistance / 1000).toFixed(2)} km</p>
+                        <p class="text-gray-300">Time: ${Math.round(summary.totalTime / 60)} minutes</p>
+                    </div>
+                    <div class="space-y-2">
+                        ${routes[0].instructions.map((instruction, index) => `
+                            <div class="route-step">
+                                <p class="text-white text-sm">${index + 1}. ${instruction.text}</p>
+                                <p class="text-gray-400 text-xs">${(instruction.distance / 1000).toFixed(2)} km</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            });
+            
+            showNotification(`Getting directions to ${name}`, 'info');
         }
 
         function updateUserStats() {
@@ -3184,6 +3330,7 @@
                 // });
                 
                 // For demo purposes
+                const locationData = allLocations.find(loc => loc.name === location);
                 const newEvent = {
                     id: Date.now(),
                     name,
@@ -3194,8 +3341,8 @@
                     time: eventDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     location,
                     address: location,
-                    lat: userLocation ? userLocation.lat + (Math.random() - 0.5) * 0.02 : defaultLocation[0],
-                    lng: userLocation ? userLocation.lng + (Math.random() - 0.5) * 0.02 : defaultLocation[1],
+                    lat: locationData ? locationData.lat : (userLocation ? userLocation.lat + (Math.random() - 0.5) * 0.02 : defaultLocation[0]),
+                    lng: locationData ? locationData.lng : (userLocation ? userLocation.lng + (Math.random() - 0.5) * 0.02 : defaultLocation[1]),
                     price,
                     attendees: 1, // Start with the creator
                     isPopular: false,
@@ -3348,9 +3495,8 @@
             try {
                 // If we have user location, use it to fetch events
                 if (userLocation) {
-                    const ticketmasterEvents = await fetchEventsFromTicketmaster(userLocation.lat, userLocation.lng);
-                    const userEvents = await fetchUserEvents();
-                    allEvents = [...ticketmasterEvents, ...userEvents];
+                    const userEvents = await fetchEventsFromAPI(userLocation.lat, userLocation.lng);
+                    allEvents = [...userEvents];
                     
                     // Filter out past events
                     const now = new Date();
@@ -3403,6 +3549,9 @@
                                 </button>
                                 <button onclick="rsvpToEvent('${event.id}')" class="flex-1 px-3 py-2 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
                                     RSVP
+                                </button>
+                                <button onclick="getDirectionsToLocation(${event.lat}, ${event.lng}, '${event.name}')" class="flex-1 px-3 py-2 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                                    Directions
                                 </button>
                             </div>
                         </div>
@@ -3534,7 +3683,8 @@
                             location: 'Club XYZ', 
                             isLive: true,
                             likes: 42,
-                            comments: 8
+                            comments: 8,
+                            likedByUser: false
                         },
                         { 
                             id: 2, 
@@ -3545,7 +3695,8 @@
                             location: 'Beach Party', 
                             isLive: false,
                             likes: 28,
-                            comments: 3
+                            comments: 3,
+                            likedByUser: false
                         },
                         { 
                             id: 3, 
@@ -3556,7 +3707,8 @@
                             location: 'Rooftop Lounge', 
                             isLive: false,
                             likes: 56,
-                            comments: 12
+                            comments: 12,
+                            likedByUser: false
                         }
                     ];
                     
@@ -3570,7 +3722,8 @@
                             location: 'Downtown Club', 
                             isLive: false,
                             likes: 15,
-                            comments: 2
+                            comments: 2,
+                            likedByUser: false
                         }
                     ];
                     
@@ -3590,9 +3743,9 @@
         const renderVideos = () => {
             // Render all videos
             allVideosContainer.innerHTML = allVideos.map(video => `
-                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer relative group" onclick="openVideoFeed(${video.id})">
+                <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer relative group">
                     ${video.isLive ? '<div class="live-badge">LIVE</div>' : ''}
-                    <div class="bg-gray-700 video-thumbnail relative overflow-hidden">
+                    <div class="bg-gray-700 video-thumbnail relative overflow-hidden" onclick="openVideoFeed(${video.id})">
                         <video class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" muted>
                             <source src="${video.video_file}" type="video/mp4">
                         </video>
@@ -3607,8 +3760,14 @@
                                 <p class="text-gray-300 text-sm mt-1 line-clamp-2">${video.caption}</p>
                             </div>
                             <div class="flex items-center space-x-2 text-gray-400 text-sm">
-                                <span><i class="fas fa-heart mr-1"></i> ${video.likes}</span>
-                                <span><i class="fas fa-comment mr-1"></i> ${video.comments}</span>
+                                <button onclick="toggleVideoLike(${video.id})" class="flex items-center space-x-1 ${video.likedByUser ? 'text-red-500' : ''}">
+                                    <i class="fas fa-heart ${video.likedByUser ? 'text-red-500' : ''}"></i>
+                                    <span>${video.likes}</span>
+                                </button>
+                                <button onclick="openVideoComments(${video.id})" class="flex items-center space-x-1">
+                                    <i class="fas fa-comment"></i>
+                                    <span>${video.comments}</span>
+                                </button>
                             </div>
                         </div>
                         <p class="text-gray-500 text-xs mt-2">${video.timestamp} • ${video.location}</p>
@@ -3685,7 +3844,8 @@
                         location: location,
                         isLive: false,
                         likes: 0,
-                        comments: 0
+                        comments: 0,
+                        likedByUser: false
                     };
                     
                     myVideos.unshift(newVideo);
@@ -3730,6 +3890,132 @@
             }
         };
 
+        const toggleVideoLike = (videoId) => {
+            const video = allVideos.find(v => v.id === videoId);
+            if (video) {
+                if (video.likedByUser) {
+                    video.likes--;
+                    video.likedByUser = false;
+                } else {
+                    video.likes++;
+                    video.likedByUser = true;
+                }
+                
+                // Update localStorage
+                localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                
+                // Update myVideos if it's the user's video
+                const myVideo = myVideos.find(v => v.id === videoId);
+                if (myVideo) {
+                    myVideo.likes = video.likes;
+                    myVideo.likedByUser = video.likedByUser;
+                    localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
+                }
+                
+                renderVideos();
+                
+                // If video is in the video feed, update it there too
+                if (videoFeedContainer && !videoFeedContainer.classList.contains('hidden')) {
+                    const videoItem = videoFeedList.querySelector(`[data-video-id="${videoId}"]`);
+                    if (videoItem) {
+                        const likeButton = videoItem.querySelector('.video-action-button:first-child');
+                        const likeCount = likeButton.querySelector('span');
+                        
+                        likeButton.classList.toggle('text-red-500', video.likedByUser);
+                        likeCount.textContent = video.likes;
+                    }
+                }
+            }
+        };
+
+        const openVideoComments = (videoId) => {
+            currentVideoForComments = videoId;
+            const video = allVideos.find(v => v.id === videoId);
+            
+            if (video) {
+                // Load comments for this video
+                const savedComments = localStorage.getItem(`vibez_video_comments_${videoId}`);
+                currentVideoComments = savedComments ? JSON.parse(savedComments) : [];
+                
+                // Render comments
+                videoCommentsList.innerHTML = currentVideoComments.map(comment => `
+                    <div class="comment-item">
+                        <span class="comment-author">${comment.username}:</span>
+                        <span class="comment-text">${comment.text}</span>
+                        <div class="text-gray-400 text-xs">${comment.timestamp}</div>
+                    </div>
+                `).join('');
+                
+                // Show comments container
+                videoCommentsContainer.classList.add('open');
+            }
+        };
+
+        const submitVideoComment = () => {
+            const commentText = commentInput.value.trim();
+            
+            if (!commentText) {
+                showNotification('Please enter a comment', 'error');
+                return;
+            }
+            
+            if (!currentVideoForComments) {
+                showNotification('No video selected for commenting', 'error');
+                return;
+            }
+            
+            const newComment = {
+                id: Date.now(),
+                username: currentUser.username,
+                text: commentText,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentVideoComments.push(newComment);
+            
+            // Save comments to localStorage
+            localStorage.setItem(`vibez_video_comments_${currentVideoForComments}`, JSON.stringify(currentVideoComments));
+            
+            // Update video comment count
+            const video = allVideos.find(v => v.id === currentVideoForComments);
+            if (video) {
+                video.comments++;
+                localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                
+                // Update myVideos if it's the user's video
+                const myVideo = myVideos.find(v => v.id === currentVideoForComments);
+                if (myVideo) {
+                    myVideo.comments = video.comments;
+                    localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
+                }
+            }
+            
+            // Re-render comments
+            videoCommentsList.innerHTML = currentVideoComments.map(comment => `
+                <div class="comment-item">
+                    <span class="comment-author">${comment.username}:</span>
+                    <span class="comment-text">${comment.text}</span>
+                    <div class="text-gray-400 text-xs">${comment.timestamp}</div>
+                </div>
+            `).join('');
+            
+            // Clear input
+            commentInput.value = '';
+            
+            // Update video display
+            renderVideos();
+            
+            // If video is in the video feed, update it there too
+            if (videoFeedContainer && !videoFeedContainer.classList.contains('hidden')) {
+                const videoItem = videoFeedList.querySelector(`[data-video-id="${currentVideoForComments}"]`);
+                if (videoItem) {
+                    const commentButton = videoItem.querySelector('.video-action-button:nth-child(2)');
+                    const commentCount = commentButton.querySelector('span');
+                    commentCount.textContent = video.comments;
+                }
+            }
+        };
+
         // CHAT FUNCTIONS - COMPLETELY REWRITTEN
         let chatMessagesData = [];
         let chatUsers = [];
@@ -3749,20 +4035,6 @@
                         user: { username: 'PartyBot', avatar: null },
                         message: 'Welcome to Vibez Chat! Start a conversation about parties and events.',
                         timestamp: new Date(Date.now() - 60000).toISOString(),
-                        isOwn: false
-                    },
-                    {
-                        id: 2,
-                        user: { username: 'PartyLover', avatar: null },
-                        message: 'Anyone at Club XYZ tonight? The vibes are amazing!',
-                        timestamp: new Date(Date.now() - 30000).toISOString(),
-                        isOwn: false
-                    },
-                    {
-                        id: 3,
-                        user: { username: 'DanceKing', avatar: null },
-                        message: 'Yeah! The DJ is killing it right now 🔥',
-                        timestamp: new Date(Date.now() - 20000).toISOString(),
                         isOwn: false
                     }
                 ];
@@ -3987,13 +4259,13 @@
                         </div>
                     </div>
                     <div class="video-feed-actions">
-                        <div class="video-action-button">
-                            <div class="video-action-icon">
-                                <i class="fas fa-heart"></i>
+                        <div class="video-action-button" onclick="toggleVideoLike(${video.id})">
+                            <div class="video-action-icon ${video.likedByUser ? 'text-red-500' : ''}">
+                                <i class="fas fa-heart ${video.likedByUser ? 'text-red-500' : ''}"></i>
                             </div>
                             <span class="text-sm">${video.likes}</span>
                         </div>
-                        <div class="video-action-button" onclick="toggleVideoComments(${video.id})">
+                        <div class="video-action-button" onclick="openVideoComments(${video.id})">
                             <div class="video-action-icon">
                                 <i class="fas fa-comment"></i>
                             </div>
@@ -4080,11 +4352,7 @@
             
             // Hide the video feed
             videoFeedContainer.classList.add('hidden');
-        };
-
-        const toggleVideoComments = (videoId) => {
-            // This would open a comments modal in a real app
-            showNotification('Comments feature coming soon!', 'info');
+            videoCommentsContainer.classList.remove('open');
         };
 
         // Start real-time updates
@@ -4152,35 +4420,6 @@
             allEvents = allEvents.filter(event => event.endDate >= now);
             filteredEvents = [...allEvents];
             renderEvents();
-            
-            // Only add new events occasionally for realism
-            if (Math.random() > 0.9) {
-                const newEvent = {
-                    id: Date.now(),
-                    name: "Spontaneous Party",
-                    category: "club",
-                    startDate: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
-                    endDate: new Date(Date.now() + 5 * 60 * 60 * 1000),
-                    time: "10:00 PM",
-                    location: "Random Venue",
-                    address: "Sample City",
-                    lat: userLocation ? userLocation.lat + (Math.random() - 0.5) * 0.02 : 0.3476,
-                    lng: userLocation ? userLocation.lng + (Math.random() - 0.5) * 0.02 : 32.5825,
-                    description: "Last minute party announcement! Come join the fun!",
-                    price: "$",
-                    attendees: Math.floor(Math.random() * 100) + 50,
-                    isPopular: false,
-                    isTrending: true,
-                    isLiveNow: false,
-                    source: 'sample'
-                };
-                
-                allEvents.unshift(newEvent);
-                addEventMarkerToMap(newEvent);
-                renderEvents();
-                
-                showNotification(`🎉 New event: ${newEvent.name}`, 'info');
-            }
         };
 
         const updateLiveVideos = () => {
@@ -4207,7 +4446,8 @@
                         location: randomLocation.name,
                         isLive: Math.random() > 0.8,
                         likes: Math.floor(Math.random() * 50),
-                        comments: Math.floor(Math.random() * 10)
+                        comments: Math.floor(Math.random() * 10),
+                        likedByUser: false
                     };
                     
                     allVideos.unshift(newVideo);
@@ -4794,6 +5034,21 @@
         mobileFiltersBtn.addEventListener('click', toggleFiltersVisibility);
         mobileLocationBtn.addEventListener('click', centerMapOnUser);
         mobileFullscreenBtn.addEventListener('click', toggleMapFullscreen);
+        mobileDirectionsBtn.addEventListener('click', () => {
+            showNotification('Tap on a location to get directions', 'info');
+        });
+
+        // Directions
+        getDirectionsBtn.addEventListener('click', () => {
+            showNotification('Click on any location to get directions', 'info');
+        });
+        closeDirectionsButton.addEventListener('click', () => {
+            directionsPanel.classList.add('hidden');
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+        });
 
         // Events filters
         eventsSearchBtn.addEventListener('click', renderEvents);
@@ -4940,6 +5195,15 @@
 
         // Video feed
         closeFeedButton.addEventListener('click', closeVideoFeed);
+        closeCommentsButton.addEventListener('click', () => {
+            videoCommentsContainer.classList.remove('open');
+        });
+        submitCommentButton.addEventListener('click', submitVideoComment);
+        commentInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitVideoComment();
+            }
+        });
 
         // Handle page visibility changes
         document.addEventListener('visibilitychange', () => {
@@ -4971,13 +5235,14 @@
         // Make functions globally available for onclick handlers
         window.rateLocation = rateLocation;
         window.checkInToLocation = checkInToLocation;
-        window.joinLocationChat = joinLocationChat;
+        window.getDirectionsToLocation = getDirectionsToLocation;
         window.viewLocationDetails = viewLocationDetails;
         window.viewEventDetails = viewEventDetails;
         window.rsvpToEvent = rsvpToEvent;
         window.removeVideo = removeVideo;
         window.openVideoFeed = openVideoFeed;
-        window.toggleVideoComments = toggleVideoComments;
+        window.toggleVideoLike = toggleVideoLike;
+        window.openVideoComments = openVideoComments;
         window.openInviteFriendsModal = openInviteFriendsModal;
         window.respondToInvite = respondToInvite;
         window.sendFriendRequest = sendFriendRequest;
