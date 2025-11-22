@@ -55,6 +55,11 @@
         }
         
         #map-container {
+        height: 85vh !important;
+        min-height: 600px !important;
+        border-radius: 0;
+        margin: 0 -16px;
+        width: calc(100% + 32px);
             width: 100%;
             height: 600px;
             border-radius: 0.5rem;
@@ -172,49 +177,104 @@
         
         /* Mobile-specific styles */
         @media (max-width: 768px) {
-            /* Header improvements */
-            #main-header {
-                padding: 12px 16px;
-            }
-            
-            #main-header .flex {
-                gap: 8px;
-            }
-            
-            #main-header button {
-                padding: 8px;
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            #main-header .text-2xl {
-                font-size: 1.5rem;
-            }
-            
-            /* Tab navigation improvements */
+    .mobile-tab-container {
+        padding: 12px 0 !important;
+        background: rgba(31, 41, 55, 0.95) !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    .mobile-tab-button {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+    }
+    
+    .mobile-tab-button i {
+        font-size: 22px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    /* Map controls positioning */
+    .leaflet-control-zoom {
+        margin-bottom: 120px !important;
+        margin-left: 16px !important;
+    }
+    
+    .leaflet-control-zoom a {
+        width: 44px !important;
+        height: 44px !important;
+        line-height: 44px !important;
+        font-size: 20px !important;
+    }
+    
+    /* Improved popups for mobile */
+    .leaflet-popup-content-wrapper {
+        max-width: 85vw !important;
+        border-radius: 12px !important;
+    }
+    
+    .leaflet-popup-content {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Better spacing for map content */
+    #map-content {
+        padding-bottom: 0 !important;
+    }
+    
+    /* Fullscreen map improvements */
+    .map-fullscreen {
+        height: 100vh !important;
+        width: 100vw !important;
+        z-index: 10000 !important;
+    }
+    
+    .map-fullscreen-controls {
+        top: 80px !important;
+        right: 16px !important;
+    }
+    
+    .fullscreen-btn {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 20px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    /* Filter sidebar improvements */
+    #filters-sidebar {
+        max-height: 85vh !important;
+        padding-bottom: 100px !important;
+    }
+    
+    /* Better touch targets */
+    .leaflet-marker-icon {
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+    
+    /* Improved map attribution for mobile */
+    .leaflet-control-attribution {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+    }
             .tab-button {
-                padding: 14px 12px;
+                padding: 12px 16px;
                 font-size: 14px;
                 flex: 1;
                 text-align: center;
-                min-height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                flex-direction: column;
-                gap: 4px;
             }
             
-            .tab-button i {
-                font-size: 16px;
-            }
-            
-            /* Map improvements */
             #map-container {
-                height: 400px;
+        height: 85vh !important;
+        min-height: 600px !important;
+        border-radius: 0;
+        margin: 0 -16px;
+        width: calc(100% + 32px);
+                height: 70vh;
+                min-height: 500px;
             }
             
-            /* Filters sidebar */
             #filters-sidebar {
                 position: fixed;
                 bottom: 0;
@@ -234,7 +294,6 @@
                 transform: translateY(0);
             }
             
-            /* Mobile bottom navigation */
             .mobile-bottom-nav {
                 position: fixed;
                 bottom: 0;
@@ -248,110 +307,290 @@
                 border-top: 1px solid #374151;
             }
             
-            .mobile-nav-item {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                color: #9ca3af;
-                font-size: 12px;
-                gap: 4px;
-                padding: 8px;
-                flex: 1;
+            /* Improved mobile map controls */
+            .leaflet-control-zoom {
+                margin-bottom: 80px !important;
             }
             
-            .mobile-nav-item.active {
-                color: #a855f7;
+            .leaflet-popup-content-wrapper {
+                max-width: 90vw;
             }
             
-            .mobile-nav-item i {
-                font-size: 20px;
+            .leaflet-popup-content {
+                width: auto !important;
             }
             
-            /* Map action buttons */
-            .map-action-buttons {
+            /* Mobile map action buttons */
+            .mobile-map-actions {
+        bottom: 100px !important;
+        right: 16px !important;
                 position: absolute;
-                top: 70px;
+                bottom: 80px;
                 right: 10px;
-                z-index: 10;
+                z-index: 1000;
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
+                gap: 10px;
             }
             
-            .map-action-button {
-                background: rgba(31, 41, 55, 0.9);
-                color: white;
-                padding: 12px;
-                border-radius: 50%;
+            .mobile-map-action-btn {
+        width: 56px !important;
+        height: 56px !important;
+        font-size: 24px !important;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
                 width: 50px;
                 height: 50px;
+                border-radius: 50%;
+                background: #4f46e5;
+                color: white;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                font-size: 20px;
             }
             
-            /* Events grid improvements */
-            #events-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
+            /* Mobile tab navigation improvements */
+            .mobile-tab-container {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #1f2937;
+                z-index: 50;
+                padding: 8px 0;
+                border-top: 1px solid #374151;
             }
             
-            .event-card {
-                margin-bottom: 16px;
+            .mobile-tab-buttons {
+                display: flex;
+                justify-content: space-around;
             }
             
-            /* Video grid improvements */
-            #all-videos {
-                grid-template-columns: 1fr;
-                gap: 16px;
+            .mobile-tab-button {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 8px 12px;
+                color: #9ca3af;
+                font-size: 12px;
+                flex: 1;
             }
             
-            /* Chat improvements */
-            .chat-message {
-                max-width: 85%;
+            .mobile-tab-button.active {
+                color: #a855f7;
             }
             
-            #chat-input {
-                min-height: 44px;
-                font-size: 16px;
+            .mobile-tab-button i {
+                font-size: 20px;
+                margin-bottom: 4px;
             }
             
-            /* Profile improvements */
-            .profile-avatar {
-                width: 100px;
-                height: 100px;
+            /* Adjust main content padding for mobile */
+            #tab-content {
+                padding-bottom: 80px;
             }
             
-            /* Prevent zoom on input focus */
+            /* Mobile header adjustments */
+            #main-header {
+                padding: 12px 16px;
+            }
+            
+            #main-header h1 {
+                font-size: 20px;
+            }
+            
+            /* Mobile map fullscreen mode */
+            .map-fullscreen {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 100vh !important;
+                width: 100vw !important;
+                z-index: 1000;
+                border-radius: 0;
+            }
+            
+            .map-fullscreen-controls {
+                position: fixed;
+                top: 70px;
+                right: 10px;
+                z-index: 1001;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .fullscreen-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+            }
+            
+            /* Mobile popup improvements */
+            .mobile-popup-content {
+                max-width: 85vw;
+            }
+            
+            .mobile-popup-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 12px;
+            }
+            
+            .mobile-popup-action {
+                padding: 10px;
+                border-radius: 8px;
+                text-align: center;
+                font-size: 14px;
+            }
+        }
+        
+        /* Touch-friendly buttons */
+        .tab-button, .auth-button {
+            min-height: 44px;
+        }
+        
+        /* Prevent zoom on input focus */
+        @media (max-width: 768px) {
+    .mobile-tab-container {
+        padding: 12px 0 !important;
+        background: rgba(31, 41, 55, 0.95) !important;
+        backdrop-filter: blur(10px);
+    }
+    
+    .mobile-tab-button {
+        padding: 10px 12px !important;
+        font-size: 13px !important;
+    }
+    
+    .mobile-tab-button i {
+        font-size: 22px !important;
+        margin-bottom: 6px !important;
+    }
+    
+    /* Map controls positioning */
+    .leaflet-control-zoom {
+        margin-bottom: 120px !important;
+        margin-left: 16px !important;
+    }
+    
+    .leaflet-control-zoom a {
+        width: 44px !important;
+        height: 44px !important;
+        line-height: 44px !important;
+        font-size: 20px !important;
+    }
+    
+    /* Improved popups for mobile */
+    .leaflet-popup-content-wrapper {
+        max-width: 85vw !important;
+        border-radius: 12px !important;
+    }
+    
+    .leaflet-popup-content {
+        font-size: 14px !important;
+        line-height: 1.4 !important;
+    }
+    
+    /* Better spacing for map content */
+    #map-content {
+        padding-bottom: 0 !important;
+    }
+    
+    /* Fullscreen map improvements */
+    .map-fullscreen {
+        height: 100vh !important;
+        width: 100vw !important;
+        z-index: 10000 !important;
+    }
+    
+    .map-fullscreen-controls {
+        top: 80px !important;
+        right: 16px !important;
+    }
+    
+    .fullscreen-btn {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 20px !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+    }
+    
+    /* Filter sidebar improvements */
+    #filters-sidebar {
+        max-height: 85vh !important;
+        padding-bottom: 100px !important;
+    }
+    
+    /* Better touch targets */
+    .leaflet-marker-icon {
+        min-width: 24px !important;
+        min-height: 24px !important;
+    }
+    
+    /* Improved map attribution for mobile */
+    .leaflet-control-attribution {
+        font-size: 10px !important;
+        padding: 4px 8px !important;
+    }
             input, select, textarea {
                 font-size: 16px;
             }
         }
         
-        /* Small phones */
-        @media (max-width: 480px) {
-            .tab-button {
-                font-size: 12px;
-                padding: 12px 8px;
-            }
-            
-            .tab-button i {
-                font-size: 14px;
-            }
-            
-            #map-container {
-                height: 350px;
-            }
-            
-            .modal-content {
-                padding: 1rem;
-                width: 95%;
-            }
-        }
-        
         /* Leaflet map customizations */
+/* Enhanced map controls for better mobile UX */
+.leaflet-touch .leaflet-control-layers, 
+.leaflet-touch .leaflet-bar {
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.leaflet-touch .leaflet-bar a:first-child {
+    border-top-left-radius: 8px !important;
+    border-top-right-radius: 8px !important;
+}
+
+.leaflet-touch .leaflet-bar a:last-child {
+    border-bottom-left-radius: 8px !important;
+    border-bottom-right-radius: 8px !important;
+}
+
+/* Improved marker visibility */
+.party-marker {
+    width: 24px !important;
+    height: 24px !important;
+    box-shadow: 0 0 12px rgba(236, 72, 153, 0.8) !important;
+}
+
+.event-marker {
+    width: 28px !important;
+    height: 28px !important;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.9) !important;
+}
+
+.event-marker i {
+    font-size: 14px !important;
+}
+
+/* Better popup action buttons for mobile */
+.mobile-popup-action {
+    padding: 12px 16px !important;
+    font-size: 15px !important;
+    margin-bottom: 8px !important;
+    border-radius: 10px !important;
+    text-align: center !important;
+    font-weight: 600 !important;
+}
         .leaflet-container {
             background: #1f2937;
         }
@@ -370,10 +609,6 @@
             background: #374151;
             color: #f9fafb;
             border: none;
-            width: 40px;
-            height: 40px;
-            line-height: 40px;
-            font-size: 18px;
         }
         
         .leaflet-control-zoom a:hover {
@@ -1124,7 +1359,7 @@
         <!-- Main App Content (Dashboard) -->
         <div id="main-app-content" class="min-h-screen hidden">
             <!-- Tab Navigation - ADJUSTED MARGIN TOP -->
-            <div class="flex justify-center space-x-8 mb-8 border-b border-gray-700 pt-20">
+            <div class="flex justify-center space-x-8 mb-8 border-b border-gray-700 pt-20 desktop-tabs">
                 <button id="map-tab" class="tab-button active px-4 py-2 font-semibold text-lg transition duration-300">
                     <span class="live-indicator"></span>Live Map
                 </button>
@@ -1142,21 +1377,63 @@
                 </button>
             </div>
 
+            <!-- Mobile Tab Navigation -->
+            <div class="mobile-tab-container hidden">
+                <div class="mobile-tab-buttons">
+                    <button id="mobile-map-tab" class="mobile-tab-button active">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Map</span>
+                    </button>
+                    <button id="mobile-events-tab" class="mobile-tab-button">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Events</span>
+                    </button>
+                    <button id="mobile-videos-tab" class="mobile-tab-button">
+                        <i class="fas fa-video"></i>
+                        <span>Videos</span>
+                    </button>
+                    <button id="mobile-chat-tab" class="mobile-tab-button">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                    </button>
+                    <button id="mobile-profile-tab" class="mobile-tab-button">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Tab Content -->
             <div id="tab-content" class="pb-8 px-4 md:px-8">
                 <!-- Interactive Map Section -->
                 <div id="map-content" class="tab-pane">
                     <div class="max-w-7xl mx-auto">
                         <!-- Location Action Buttons -->
-                        <div class="map-action-buttons">
-                            <button id="share-location-btn" class="map-action-button" title="Share My Location">
-                                <i class="fas fa-share-location"></i>
+                        <div class="absolute top-4 right-4 z-10 space-y-2 desktop-map-actions">
+                            <button id="share-location-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center">
+                                <i class="fas fa-share-location mr-2"></i>
+                                Share My Location
                             </button>
-                            <button id="check-in-btn" class="map-action-button" title="Check In">
-                                <i class="fas fa-map-marker-alt"></i>
+                            <button id="check-in-btn" class="bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-green-700 transition-colors flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                Check In
                             </button>
-                            <button id="create-location-btn" class="map-action-button" title="Add Location">
-                                <i class="fas fa-plus"></i>
+                            <button id="create-location-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-purple-700 transition-colors flex items-center">
+                                <i class="fas fa-plus mr-2"></i>
+                                Add Location
+                            </button>
+                        </div>
+
+                        <!-- Mobile Map Action Buttons -->
+                        <div class="mobile-map-actions hidden">
+                            <button id="mobile-filters-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                            <button id="mobile-location-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </button>
+                            <button id="mobile-fullscreen-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-expand"></i>
                             </button>
                         </div>
 
@@ -1505,30 +1782,6 @@
             </div>
         </div>
 
-        <!-- Mobile Bottom Navigation -->
-        <div class="mobile-bottom-nav hidden">
-            <div class="mobile-nav-item active" data-tab="map">
-                <i class="fas fa-map"></i>
-                <span>Map</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="events">
-                <i class="fas fa-calendar-alt"></i>
-                <span>Events</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="videos">
-                <i class="fas fa-video"></i>
-                <span>Videos</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="chat">
-                <i class="fas fa-comments"></i>
-                <span>Chat</span>
-            </div>
-            <div class="mobile-nav-item" data-tab="profile">
-                <i class="fas fa-user"></i>
-                <span>Profile</span>
-            </div>
-        </div>
-
         <!-- Marketing/Landing Page Content -->
         <div id="landing-page" class="min-h-screen">
             <!-- App Title at the very top -->
@@ -1691,8 +1944,6 @@
         const userInfo = document.getElementById('user-info');
         const getStartedButton = document.getElementById('get-started-button');
         const joinNowButton = document.getElementById('join-now-button');
-        const mobileBottomNav = document.querySelector('.mobile-bottom-nav');
-        const mobileNavItems = document.querySelectorAll('.mobile-nav-item');
 
         // Authentication elements
         const loginForm = document.getElementById('login-form');
@@ -1710,6 +1961,16 @@
         const videosTab = document.getElementById('videos-tab');
         const chatTab = document.getElementById('chat-tab');
         const profileTab = document.getElementById('profile-tab');
+
+        // Mobile tab elements
+        const mobileTabButtons = document.querySelectorAll('.mobile-tab-button');
+        const mobileMapTab = document.getElementById('mobile-map-tab');
+        const mobileEventsTab = document.getElementById('mobile-events-tab');
+        const mobileVideosTab = document.getElementById('mobile-videos-tab');
+        const mobileChatTab = document.getElementById('mobile-chat-tab');
+        const mobileProfileTab = document.getElementById('mobile-profile-tab');
+        const mobileTabContainer = document.querySelector('.mobile-tab-container');
+        const desktopTabs = document.querySelector('.desktop-tabs');
 
         // Map and filter elements
         const mapContainer = document.getElementById('map-container');
@@ -1732,6 +1993,13 @@
         const userLocationsAdded = document.getElementById('user-locations-added');
         const userRatingsCount = document.getElementById('user-ratings-count');
         const userVideosCount = document.getElementById('user-videos-count');
+
+        // Mobile map action elements
+        const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
+        const mobileLocationBtn = document.getElementById('mobile-location-btn');
+        const mobileFullscreenBtn = document.getElementById('mobile-fullscreen-btn');
+        const mobileMapActions = document.querySelector('.mobile-map-actions');
+        const desktopMapActions = document.querySelector('.desktop-map-actions');
 
         // Video elements
         const uploadForm = document.getElementById('upload-form');
@@ -1849,6 +2117,364 @@
             location: null
         };
         let currentChatRoom = 'general';
+// Enhanced mobile map initialization
+const initMobileMap = () => {
+    if (!map) return;
+    
+    // Set a higher zoom level for mobile by default
+    if (isMobile) {
+        map.setZoom(14);
+    }
+    
+    // Add touch-friendly controls
+    if (map.tap) {
+        map.tap.disable();
+    }
+    
+    // Improve marker clustering for mobile
+    if (markerCluster) {
+        markerCluster.options.maxClusterRadius = 80; // Smaller clusters on mobile
+        markerCluster.options.disableClusteringAtZoom = 16; // Disable clustering at higher zoom
+    }
+};
+
+// Enhanced mobile detection with orientation support
+const checkMobileView = () => {
+    const wasMobile = isMobile;
+    isMobile = window.innerWidth <= 768;
+    
+    // Handle orientation changes
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    if (isMobile) {
+        if (mobileTabContainer) mobileTabContainer.classList.remove('hidden');
+        if (mobileMapActions) mobileMapActions.classList.remove('hidden');
+        if (desktopTabs) desktopTabs.classList.add('hidden');
+        if (desktopMapActions) desktopMapActions.classList.add('hidden');
+        
+        // Adjust map height based on orientation
+        if (!isMapFullscreen && mapContainer) {
+            if (isPortrait) {
+                mapContainer.style.height = '85vh';
+                mapContainer.style.minHeight = '600px';
+            } else {
+                mapContainer.style.height = '80vh';
+                mapContainer.style.minHeight = '500px';
+            }
+        }
+        
+        // Initialize mobile-specific map settings
+        if (map && !wasMobile) {
+            initMobileMap();
+        }
+    } else {
+        if (mobileTabContainer) mobileTabContainer.classList.add('hidden');
+        if (mobileMapActions) mobileMapActions.classList.add('hidden');
+        if (desktopTabs) desktopTabs.classList.remove('hidden');
+        if (desktopMapActions) desktopMapActions.classList.remove('hidden');
+        
+        if (mapContainer && !isMapFullscreen) {
+            mapContainer.style.height = '600px';
+        }
+    }
+    
+    // Refresh map if it exists
+    if (map) {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 300);
+    }
+};
+
+// Enhanced location function for mobile
+const locateUser = () => {
+    if (!map) return;
+    
+    if (userLocation) {
+        map.setView([userLocation.lat, userLocation.lng], 16); // Higher zoom when locating
+        showNotification('Centered on your location', 'success');
+    } else {
+        showNotification('Location not available. Please enable location services.', 'error');
+        // Request location permission
+        if (locationPermissionModal) {
+            locationPermissionModal.classList.remove('hidden');
+        }
+    }
+};
+
+// Enhanced fullscreen function for mobile
+const toggleMapFullscreen = () => {
+    if (!map) return;
+    
+    isMapFullscreen = !isMapFullscreen;
+    
+    if (isMapFullscreen) {
+        mapContainer.classList.add('map-fullscreen');
+        if (mobileFullscreenBtn) {
+            mobileFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        }
+        
+        // Hide other UI elements
+        if (mobileTabContainer) mobileTabContainer.style.display = 'none';
+        const mainHeader = document.getElementById('main-header');
+        if (mainHeader) mainHeader.style.display = 'none';
+        
+        // Create enhanced fullscreen controls
+        const fullscreenControls = document.createElement('div');
+        fullscreenControls.className = 'map-fullscreen-controls';
+        fullscreenControls.innerHTML = `
+            <button class="fullscreen-btn" id="exit-fullscreen">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="fullscreen-btn" id="center-map">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+            <button class="fullscreen-btn" id="toggle-filters-fullscreen">
+                <i class="fas fa-filter"></i>
+            </button>
+            <button class="fullscreen-btn" id="current-location">
+                <i class="fas fa-crosshairs"></i>
+            </button>
+        `;
+        mapContainer.appendChild(fullscreenControls);
+        
+        // Add event listeners for fullscreen controls
+        document.getElementById('exit-fullscreen').addEventListener('click', toggleMapFullscreen);
+        document.getElementById('center-map').addEventListener('click', centerMapOnUser);
+        document.getElementById('toggle-filters-fullscreen').addEventListener('click', toggleFiltersVisibility);
+        document.getElementById('current-location').addEventListener('click', locateUser);
+        
+        showNotification('Map is now in fullscreen mode. Tap the X to exit.', 'info');
+        
+        // Lock orientation if supported
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {
+                // Orientation lock not supported or failed
+            });
+        }
+    } else {
+        mapContainer.classList.remove('map-fullscreen');
+        if (mobileFullscreenBtn) {
+            mobileFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+        }
+        
+        // Show UI elements again
+        if (mobileTabContainer) mobileTabContainer.style.display = 'flex';
+        const mainHeader = document.getElementById('main-header');
+        if (mainHeader) mainHeader.style.display = 'flex';
+        
+        // Remove fullscreen controls
+        const fullscreenControls = document.querySelector('.map-fullscreen-controls');
+        if (fullscreenControls) {
+            fullscreenControls.remove();
+        }
+        
+        // Reset map height based on device
+        if (isMobile) {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            if (isPortrait) {
+                mapContainer.style.height = '85vh';
+                mapContainer.style.minHeight = '600px';
+            } else {
+                mapContainer.style.height = '80vh';
+                mapContainer.style.minHeight = '500px';
+            }
+        } else {
+            mapContainer.style.height = '600px';
+        }
+        
+        // Unlock orientation
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+        
+        showNotification('Exited fullscreen mode', 'info');
+    }
+    
+    // Refresh map size
+    setTimeout(() => {
+        map.invalidateSize();
+        if (isMapFullscreen) {
+            // Re-center map in fullscreen
+            if (userLocation) {
+                map.setView([userLocation.lat, userLocation.lng], map.getZoom());
+            }
+        }
+    }, 300);
+};
+
+
+// Enhanced mobile map initialization
+const initMobileMap = () => {
+    
+    // Set a higher zoom level for mobile by default
+    if (isMobile) {
+        map.setZoom(14);
+    }
+    
+    // Add touch-friendly controls
+    map.tap?.disable();
+    
+    // Improve marker clustering for mobile
+    if (markerCluster) {
+        markerCluster.options.maxClusterRadius = 80; // Smaller clusters on mobile
+        markerCluster.options.disableClusteringAtZoom = 16; // Disable clustering at higher zoom
+    }
+};
+
+// Enhanced mobile detection with orientation support
+const checkMobileView = () => {
+    const wasMobile = isMobile;
+    isMobile = window.innerWidth <= 768;
+    
+    // Handle orientation changes
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    if (isMobile) {
+        mobileTabContainer.classList.remove('hidden');
+        mobileMapActions.classList.remove('hidden');
+        desktopTabs.classList.add('hidden');
+        desktopMapActions.classList.add('hidden');
+        
+        // Adjust map height based on orientation
+            if (isPortrait) {
+                mapContainer.style.height = '85vh';
+                mapContainer.style.minHeight = '600px';
+            } else {
+                mapContainer.style.height = '80vh';
+                mapContainer.style.minHeight = '500px';
+            }
+        }
+        
+        // Initialize mobile-specific map settings
+            initMobileMap();
+        }
+    } else {
+        mobileTabContainer.classList.add('hidden');
+        mobileMapActions.classList.add('hidden');
+        desktopTabs.classList.remove('hidden');
+        desktopMapActions.classList.remove('hidden');
+        
+            mapContainer.style.height = '600px';
+        }
+    }
+    
+    // Refresh map if it exists
+    if (map) {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 300);
+    }
+};
+
+// Enhanced fullscreen function for mobile
+const toggleMapFullscreen = () => {
+    
+    
+    if (isMapFullscreen) {
+        mapContainer.classList.add('map-fullscreen');
+        mobileFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        
+        // Hide other UI elements
+        mobileTabContainer.style.display = 'none';
+        document.getElementById('main-header').style.display = 'none';
+        
+        // Create enhanced fullscreen controls
+        const fullscreenControls = document.createElement('div');
+        fullscreenControls.className = 'map-fullscreen-controls';
+        fullscreenControls.innerHTML = `
+            <button class="fullscreen-btn" id="exit-fullscreen">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="fullscreen-btn" id="center-map">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+            <button class="fullscreen-btn" id="toggle-filters-fullscreen">
+                <i class="fas fa-filter"></i>
+            </button>
+            <button class="fullscreen-btn" id="current-location">
+                <i class="fas fa-crosshairs"></i>
+            </button>
+        `;
+        mapContainer.appendChild(fullscreenControls);
+        
+        // Add event listeners for fullscreen controls
+        document.getElementById('exit-fullscreen').addEventListener('click', toggleMapFullscreen);
+        document.getElementById('center-map').addEventListener('click', centerMapOnUser);
+        document.getElementById('toggle-filters-fullscreen').addEventListener('click', toggleFiltersVisibility);
+        document.getElementById('current-location').addEventListener('click', locateUser);
+        
+        showNotification('Map is now in fullscreen mode. Tap the X to exit.', 'info');
+        
+        // Lock orientation if supported
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {
+                // Orientation lock not supported or failed
+            });
+        }
+    } else {
+        mapContainer.classList.remove('map-fullscreen');
+        mobileFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+        
+        // Show UI elements again
+        mobileTabContainer.style.display = 'flex';
+        document.getElementById('main-header').style.display = 'flex';
+        
+        // Remove fullscreen controls
+        const fullscreenControls = document.querySelector('.map-fullscreen-controls');
+        if (fullscreenControls) {
+            fullscreenControls.remove();
+        }
+        
+        // Reset map height based on device
+        if (isMobile) {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            if (isPortrait) {
+                mapContainer.style.height = '85vh';
+                mapContainer.style.minHeight = '600px';
+            } else {
+                mapContainer.style.height = '80vh';
+                mapContainer.style.minHeight = '500px';
+            }
+        } else {
+            mapContainer.style.height = '600px';
+        }
+        
+        // Unlock orientation
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+        
+        showNotification('Exited fullscreen mode', 'info');
+    }
+    
+    // Refresh map size
+    setTimeout(() => {
+        map.invalidateSize();
+        if (isMapFullscreen) {
+            // Re-center map in fullscreen
+            if (userLocation) {
+                map.setView([userLocation.lat, userLocation.lng], map.getZoom());
+            }
+        }
+    }, 300);
+};
+
+// Enhanced location function for mobile
+const locateUser = () => {
+    
+    if (userLocation) {
+        map.setView([userLocation.lat, userLocation.lng], 16); // Higher zoom when locating
+        showNotification('Centered on your location', 'success');
+    } else {
+        showNotification('Location not available. Please enable location services.', 'error');
+        // Request location permission
+        locationPermissionModal.classList.remove('hidden');
+    }
+};
+
+        let isMobile = window.innerWidth <= 768;
+        let isMapFullscreen = false;
         
         // Default coordinates (Kampala)
         const defaultLocation = [0.3476, 32.5825];
@@ -1884,21 +2510,109 @@
             }, 5000);
         };
 
-        // Check if device is mobile
-        const isMobile = () => {
-            return window.innerWidth <= 768;
+        // Mobile detection and UI adjustment
+        const checkMobileView = () => {
+            isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Show mobile UI elements
+                mobileTabContainer.classList.remove('hidden');
+                mobileMapActions.classList.remove('hidden');
+                desktopTabs.classList.add('hidden');
+                desktopMapActions.classList.add('hidden');
+                
+                // Adjust map height for mobile
+                if (mapContainer && !isMapFullscreen) {
+                    mapContainer.style.height = '70vh';
+                    mapContainer.style.minHeight = '500px';
+                }
+            } else {
+                // Show desktop UI elements
+                mobileTabContainer.classList.add('hidden');
+                mobileMapActions.classList.add('hidden');
+                desktopTabs.classList.remove('hidden');
+                desktopMapActions.classList.remove('hidden');
+                
+                // Reset map height for desktop
+                if (mapContainer && !isMapFullscreen) {
+                    mapContainer.style.height = '600px';
+                }
+            }
+            
+            // Refresh map if it exists
+            if (map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 300);
+            }
         };
 
-        // Initialize mobile navigation
-        const initMobileNavigation = () => {
-            if (isMobile()) {
-                mobileBottomNav.classList.remove('hidden');
-                // Hide desktop tab navigation
-                document.querySelector('.flex.justify-center.space-x-8.mb-8').classList.add('hidden');
+        // Toggle map fullscreen mode
+        const toggleMapFullscreen = () => {
+            if (!map) return;
+            
+            isMapFullscreen = !isMapFullscreen;
+            
+            if (isMapFullscreen) {
+                mapContainer.classList.add('map-fullscreen');
+                mobileFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                
+                // Create fullscreen controls
+                const fullscreenControls = document.createElement('div');
+                fullscreenControls.className = 'map-fullscreen-controls';
+                fullscreenControls.innerHTML = `
+                    <button class="fullscreen-btn" id="exit-fullscreen">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="fullscreen-btn" id="center-map">
+                        <i class="fas fa-location-arrow"></i>
+                    </button>
+                    <button class="fullscreen-btn" id="toggle-filters-fullscreen">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                `;
+                mapContainer.appendChild(fullscreenControls);
+                
+                // Add event listeners for fullscreen controls
+                document.getElementById('exit-fullscreen').addEventListener('click', toggleMapFullscreen);
+                document.getElementById('center-map').addEventListener('click', centerMapOnUser);
+                document.getElementById('toggle-filters-fullscreen').addEventListener('click', toggleFiltersVisibility);
+                
+                showNotification('Map is now in fullscreen mode', 'info');
             } else {
-                mobileBottomNav.classList.add('hidden');
-                // Show desktop tab navigation
-                document.querySelector('.flex.justify-center.space-x-8.mb-8').classList.remove('hidden');
+                mapContainer.classList.remove('map-fullscreen');
+                mobileFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                
+                // Remove fullscreen controls
+                const fullscreenControls = document.querySelector('.map-fullscreen-controls');
+                if (fullscreenControls) {
+                    fullscreenControls.remove();
+                }
+                
+                // Reset map height based on device
+                if (isMobile) {
+                    mapContainer.style.height = '70vh';
+                    mapContainer.style.minHeight = '500px';
+                } else {
+                    mapContainer.style.height = '600px';
+                }
+                
+                showNotification('Exited fullscreen mode', 'info');
+            }
+            
+            // Refresh map size
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        };
+
+        // Center map on user location
+        const centerMapOnUser = () => {
+            if (map && userLocation) {
+                map.setView([userLocation.lat, userLocation.lng], 14);
+                showNotification('Map centered on your location', 'info');
+            } else {
+                showNotification('Location not available', 'error');
             }
         };
 
@@ -2178,8 +2892,12 @@
             localStorage.setItem('userId', userId);
             localStorage.setItem('authToken', 'demo-token-' + Date.now());
             
-            // Initialize mobile navigation
-            initMobileNavigation();
+            // Check mobile view
+            checkMobileView();
+    // Add orientation change listener
+    window.addEventListener("orientationchange", () => {
+        setTimeout(checkMobileView, 300);
+    });
             
             // Initialize map immediately with default coordinates
             initMap();
@@ -2217,17 +2935,10 @@
         const showTab = (tabId) => {
             tabPanes.forEach(pane => pane.classList.add('hidden'));
             tabButtons.forEach(button => button.classList.remove('active'));
+            mobileTabButtons.forEach(button => button.classList.remove('active'));
             document.getElementById(`${tabId}-content`).classList.remove('hidden');
             document.getElementById(`${tabId}-tab`).classList.add('active');
-            
-            // Update mobile navigation
-            mobileNavItems.forEach(item => {
-                if (item.dataset.tab === tabId) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
+            document.getElementById(`mobile-${tabId}-tab`).classList.add('active');
             
             if (tabId === 'map') {
                 if (!map) {
@@ -2350,6 +3061,20 @@
                 contextMenu.style.display = 'none';
             });
             
+            // Improve mobile popups
+            map.on('popupopen', function(e) {
+                if (isMobile) {
+                    const popup = e.popup;
+                    const content = popup.getContent();
+                    
+                    // Add mobile-specific styling to popup content
+                    if (content && !content.includes('mobile-popup-content')) {
+                        const newContent = content.replace('<div class="text-white">', '<div class="text-white mobile-popup-content">');
+                        popup.setContent(newContent);
+                    }
+                }
+            });
+            
             mapInitialized = true;
         };
 
@@ -2443,17 +3168,17 @@
                         <p class="text-sm">Vibe: ${location.vibe}</p>
                         <p class="text-sm">Crowd: ${location.crowd}% full</p>
                         <p class="text-sm">Check-ins: ${location.checkIns || 0}</p>
-                        <div class="mt-2 flex flex-col space-y-2">
-                            <button onclick="rateLocation('${location.id}', '${location.name}')" class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors">
+                        <div class="${isMobile ? 'mobile-popup-actions' : 'mt-2 flex flex-col space-y-2'}">
+                            <button onclick="rateLocation('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-yellow-600' : 'px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors'}">
                                 Rate This Place
                             </button>
-                            <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                            <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                 Check In
                             </button>
-                            <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                            <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
                                 Join Chat
                             </button>
-                            <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                            <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
                                 View Details
                             </button>
                         </div>
@@ -2484,11 +3209,11 @@
                         <p class="text-sm">🎵 ${event.category.toUpperCase()}</p>
                         <p class="text-sm">👥 ${event.attendees.toLocaleString()} attendees</p>
                         <p class="text-sm">💰 ${event.price}</p>
-                        <div class="mt-2 flex space-x-2">
-                            <button onclick="viewEventDetails('${event.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                        <div class="${isMobile ? 'mobile-popup-actions' : 'mt-2 flex space-x-2'}">
+                            <button onclick="viewEventDetails('${event.id}')" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
                                 View Details
                             </button>
-                            <button onclick="rsvpToEvent('${event.id}')" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                            <button onclick="rsvpToEvent('${event.id}')" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                 RSVP
                             </button>
                         </div>
@@ -2626,17 +3351,17 @@
                             <p class="text-sm">👥 ${location.checkIns} check-ins</p>
                             <p class="text-sm">🎯 ${location.crowd}% crowd level</p>
                             <p class="text-sm">💫 Vibe: ${location.vibe}</p>
-                            <div class="mt-2 flex flex-col space-y-2">
-                                <button onclick="rateLocation('${location.id}', '${location.name}')" class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors">
+                            <div class="${isMobile ? 'mobile-popup-actions' : 'mt-2 flex flex-col space-y-2'}">
+                                <button onclick="rateLocation('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-yellow-600' : 'px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors'}">
                                     Rate This Place
                                 </button>
-                                <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                                <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                     Check In
                                 </button>
-                                <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                                <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
                                     Join Chat
                                 </button>
-                                <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                                <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
                                     View Details
                                 </button>
                             </div>
@@ -3728,7 +4453,7 @@
                             <span class="px-2 py-1 rounded text-xs ${
                                 invite.status === 'PENDING' ? 'bg-yellow-600 text-white' : 
                                 invite.status === 'ACCEPTED' ? 'bg-green-600 text-white' : 
-                                'bg-red-600 text white'
+                                'bg-red-600 text-white'
                             }">
                                 ${invite.status}
                             </span>
@@ -4008,12 +4733,16 @@
                 showLandingPage();
             }
             
-            // Initialize mobile navigation
-            initMobileNavigation();
-            
-            // Listen for window resize to update mobile navigation
-            window.addEventListener('resize', initMobileNavigation);
+            // Check for mobile view on load
+            checkMobileView();
+    // Add orientation change listener
+    window.addEventListener("orientationchange", () => {
+        setTimeout(checkMobileView, 300);
+    });
         });
+
+        // Window resize listener for responsive design
+        window.addEventListener('resize', checkMobileView);
 
         // Landing page buttons
         getStartedButton.addEventListener('click', showAuthForm);
@@ -4048,12 +4777,12 @@
         chatTab.addEventListener('click', () => showTab('chat'));
         profileTab.addEventListener('click', () => showTab('profile'));
 
-        // Mobile navigation
-        mobileNavItems.forEach(item => {
-            item.addEventListener('click', () => {
-                showTab(item.dataset.tab);
-            });
-        });
+        // Mobile tab navigation
+        mobileMapTab.addEventListener('click', () => showTab('map'));
+        mobileEventsTab.addEventListener('click', () => showTab('events'));
+        mobileVideosTab.addEventListener('click', () => showTab('videos'));
+        mobileChatTab.addEventListener('click', () => showTab('chat'));
+        mobileProfileTab.addEventListener('click', () => showTab('profile'));
 
         // Map filters
         applyFiltersButton.addEventListener('click', applyMapFilters);
@@ -4062,6 +4791,11 @@
         if (toggleFilters) {
             toggleFilters.addEventListener('click', toggleFiltersVisibility);
         }
+
+        // Mobile map actions
+        mobileFiltersBtn.addEventListener('click', toggleFiltersVisibility);
+        mobileLocationBtn.addEventListener("click", locateUser);
+        mobileFullscreenBtn.addEventListener("click", toggleMapFullscreen);
 
         // Events filters
         eventsSearchBtn.addEventListener('click', renderEvents);

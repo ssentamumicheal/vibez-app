@@ -9,8 +9,8 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- Leaflet Marker Cluster -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
         
@@ -180,7 +180,8 @@
             }
             
             #map-container {
-                height: 400px;
+                height: 70vh;
+                min-height: 500px;
             }
             
             #filters-sidebar {
@@ -194,6 +195,8 @@
                 transform: translateY(100%);
                 transition: transform 0.3s ease;
                 z-index: 1000;
+                max-height: 80vh;
+                overflow-y: auto;
             }
             
             #filters-sidebar.open {
@@ -210,6 +213,148 @@
                 display: flex;
                 justify-content: space-around;
                 z-index: 40;
+                border-top: 1px solid #374151;
+            }
+            
+            /* Improved mobile map controls */
+            .leaflet-control-zoom {
+                margin-bottom: 80px !important;
+            }
+            
+            .leaflet-popup-content-wrapper {
+                max-width: 90vw;
+            }
+            
+            .leaflet-popup-content {
+                width: auto !important;
+            }
+            
+            /* Mobile map action buttons */
+            .mobile-map-actions {
+                position: absolute;
+                bottom: 80px;
+                right: 10px;
+                z-index: 1000;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mobile-map-action-btn {
+                width: 50px;
+                height: 50px;
+                border-radius: 50%;
+                background: #4f46e5;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+                font-size: 20px;
+            }
+            
+            /* Mobile tab navigation improvements */
+            .mobile-tab-container {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #1f2937;
+                z-index: 50;
+                padding: 8px 0;
+                border-top: 1px solid #374151;
+            }
+            
+            .mobile-tab-buttons {
+                display: flex;
+                justify-content: space-around;
+            }
+            
+            .mobile-tab-button {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 8px 12px;
+                color: #9ca3af;
+                font-size: 12px;
+                flex: 1;
+            }
+            
+            .mobile-tab-button.active {
+                color: #a855f7;
+            }
+            
+            .mobile-tab-button i {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+            
+            /* Adjust main content padding for mobile */
+            #tab-content {
+                padding-bottom: 80px;
+            }
+            
+            /* Mobile header adjustments */
+            #main-header {
+                padding: 12px 16px;
+            }
+            
+            #main-header h1 {
+                font-size: 20px;
+            }
+            
+            /* Mobile map fullscreen mode */
+            .map-fullscreen {
+                position: fixed !important;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 100vh !important;
+                width: 100vw !important;
+                z-index: 1000;
+                border-radius: 0;
+            }
+            
+            .map-fullscreen-controls {
+                position: fixed;
+                top: 70px;
+                right: 10px;
+                z-index: 1001;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .fullscreen-btn {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 18px;
+            }
+            
+            /* Mobile popup improvements */
+            .mobile-popup-content {
+                max-width: 85vw;
+            }
+            
+            .mobile-popup-actions {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                margin-top: 12px;
+            }
+            
+            .mobile-popup-action {
+                padding: 10px;
+                border-radius: 8px;
+                text-align: center;
+                font-size: 14px;
             }
         }
         
@@ -297,6 +442,11 @@
             font-size: 12px;
         }
         
+        .event-marker.live-now {
+            background: #ef4444;
+            animation: pulse 2s infinite;
+        }
+        
         /* Map and filters layout */
         .map-filters-container {
             display: flex;
@@ -340,6 +490,57 @@
             border-radius: 12px;
             font-size: 12px;
             animation: pulse 2s infinite;
+        }
+        
+        /* Achievement badges */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 2px;
+        }
+        
+        .achievement-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 1000;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+            animation: achievementBounce 0.6s ease-out;
+        }
+        
+        @keyframes achievementBounce {
+            0%, 20%, 50%, 80%, 100% {transform: translate(-50%, -50%);}
+            40% {transform: translate(-50%, -60%);}
+            60% {transform: translate(-50%, -55%);}
+        }
+        
+        .achievement-card {
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        
+        .achievement-card.locked {
+            opacity: 0.5;
+        }
+        
+        .achievement-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
         }
         
         /* Chat styles */
@@ -405,6 +606,26 @@
             border-radius: 8px;
             padding: 12px;
             margin-top: 16px;
+        }
+        
+        /* Friendship styles */
+        .friend-card {
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .friend-card:hover {
+            transform: translateY(-2px);
+            background: #374151;
+        }
+        
+        .friend-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
         }
         
         /* Events styles */
@@ -532,6 +753,53 @@
             object-fit: cover;
             border-radius: 0.25rem;
         }
+        
+        /* Activity feed styles */
+        .activity-item {
+            padding: 12px;
+            border-left: 3px solid #a855f7;
+            margin-bottom: 8px;
+            background: #1f2937;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+        
+        .activity-checkin { border-left-color: #10b981; }
+        .activity-video { border-left-color: #ef4444; }
+        .activity-event { border-left-color: #8b5cf6; }
+        .activity-review { border-left-color: #f59e0b; }
+        
+        /* Context menu for map */
+        .context-menu {
+            position: absolute;
+            background: #1f2937;
+            border-radius: 8px;
+            padding: 8px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .context-menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        
+        .context-menu-item:hover {
+            background: #374151;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white">
@@ -563,103 +831,6 @@
         </div>
     </div>
 
-    <!-- Rating Modal -->
-    <div id="rating-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4 text-white">Rate This Location</h3>
-            <div id="rating-location-name" class="text-lg font-semibold mb-4 text-purple-300"></div>
-            <div class="rating-stars mb-4" id="rating-stars">
-                <span class="rating-star" data-rating="1">★</span>
-                <span class="rating-star" data-rating="2">★</span>
-                <span class="rating-star" data-rating="3">★</span>
-                <span class="rating-star" data-rating="4">★</span>
-                <span class="rating-star" data-rating="5">★</span>
-            </div>
-            <div class="flex space-x-4">
-                <button id="submit-rating" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
-                    Submit Rating
-                </button>
-                <button id="cancel-rating" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
-                    Cancel
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Create Location Modal -->
-    <div id="create-location-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <h3 class="text-xl font-bold mb-4 text-white">Add New Party Location</h3>
-            <form id="create-location-form" class="space-y-4">
-                <div>
-                    <label for="location-name" class="block text-sm font-medium text-gray-300 mb-2">Location Name</label>
-                    <input type="text" id="location-name" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" required>
-                </div>
-                <div>
-                    <label for="location-description" class="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                    <textarea id="location-description" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" rows="3"></textarea>
-                </div>
-                <div>
-                    <label for="location-type" class="block text-sm font-medium text-gray-300 mb-2">Type</label>
-                    <select id="location-type" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                        <option value="club">Club</option>
-                        <option value="bar">Bar</option>
-                        <option value="lounge">Lounge</option>
-                        <option value="concert">Concert Venue</option>
-                        <option value="beach">Beach Party</option>
-                    </select>
-                </div>
-                <div class="flex space-x-4">
-                    <button type="submit" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
-                        Create Location
-                    </button>
-                    <button type="button" id="cancel-create-location" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
-                        Cancel
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Profile Modal -->
-    <div id="profile-modal" class="modal-overlay hidden">
-        <div class="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white">Your Profile</h3>
-                <button id="close-profile" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="space-y-6">
-                <div class="text-center">
-                    <img id="profile-avatar" src="https://via.placeholder.com/120" alt="Profile Avatar" class="profile-avatar mx-auto mb-4">
-                    <input type="file" id="avatar-upload" class="hidden" accept="image/*">
-                    <button id="change-avatar" class="text-purple-400 hover:text-purple-300 text-sm">Change Avatar</button>
-                </div>
-                <div>
-                    <label for="profile-username" class="block text-sm font-medium text-gray-300 mb-2">Username</label>
-                    <input type="text" id="profile-username" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" readonly>
-                </div>
-                <div>
-                    <label for="profile-email" class="block text-sm font-medium text-gray-300 mb-2">Email</label>
-                    <input type="email" id="profile-email" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" readonly>
-                </div>
-                <div>
-                    <label for="profile-bio" class="block text-sm font-medium text-gray-300 mb-2">Bio</label>
-                    <textarea id="profile-bio" class="w-full px-3 py-2 bg-gray-700 text-white rounded-md border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500" rows="3"></textarea>
-                </div>
-                <div class="flex space-x-4">
-                    <button id="save-profile" class="flex-1 bg-green-600 text-white py-2 rounded hover:bg-green-700 transition-colors">
-                        Save Changes
-                    </button>
-                    <button id="close-profile-modal" class="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors">
-                        Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Video Feed Container -->
     <div id="video-feed-container" class="hidden fixed inset-0 z-50 bg-black">
         <button id="close-video-feed" class="absolute top-4 left-4 text-white z-50 p-3 rounded-full bg-gray-900/50 hover:bg-gray-700">
@@ -670,12 +841,288 @@
         <div id="video-feed-list" class="h-full overflow-y-scroll snap-y snap-mandatory"></div>
     </div>
 
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Your Profile</h2>
+                <button id="close-profile-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex flex-col items-center mb-6">
+                <img id="profile-avatar" src="" alt="Profile Avatar" class="profile-avatar mb-4">
+                <input type="file" id="avatar-upload" accept="image/*" class="hidden">
+                <button id="change-avatar-btn" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                    Change Avatar
+                </button>
+            </div>
+            
+            <form id="profile-form" class="space-y-4">
+                <div>
+                    <label for="profile-username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                    <input type="text" id="profile-username" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label for="profile-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                    <input type="email" id="profile-email" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label for="profile-bio" class="block text-sm font-medium text-gray-300 mb-1">Bio</label>
+                    <textarea id="profile-bio" rows="4" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="cancel-profile" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Friendship Modal -->
+    <div id="friends-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Friends</h2>
+                <button id="close-friends-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex space-x-4 mb-6">
+                <button id="friends-tab" class="px-4 py-2 bg-purple-600 text-white rounded-lg">My Friends</button>
+                <button id="find-friends-tab" class="px-4 py-2 bg-gray-600 text-white rounded-lg">Find Friends</button>
+                <button id="requests-tab" class="px-4 py-2 bg-gray-600 text-white rounded-lg">Friend Requests</button>
+            </div>
+            
+            <div id="friends-content">
+                <div id="my-friends-list" class="space-y-3 max-h-96 overflow-y-auto">
+                    <!-- Friends will be loaded here -->
+                </div>
+                
+                <div id="find-friends-list" class="space-y-3 max-h-96 overflow-y-auto hidden">
+                    <!-- Users to add will be loaded here -->
+                </div>
+                
+                <div id="friend-requests-list" class="space-y-3 max-h-96 overflow-y-auto hidden">
+                    <!-- Friend requests will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="rating-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Rate Location</h2>
+                <button id="close-rating-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="rating-location-name" class="text-xl font-semibold text-center mb-4"></div>
+            
+            <form id="rating-form" class="space-y-6">
+                <input type="hidden" id="rating-location-id">
+                
+                <div class="text-center">
+                    <div class="star-rating mb-4 justify-center">
+                        <input type="radio" id="star5" name="rating" value="5">
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4">
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3">
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2">
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1">
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancel-rating" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                        Submit Rating
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Activity Feed Modal -->
+    <div id="activity-feed-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Recent Activity</h2>
+                <button id="close-activity-feed-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="activity-feed-list" class="space-y-3 max-h-96 overflow-y-auto">
+                <!-- Activity items will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div id="achievements-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Your Achievements</h2>
+                <button id="close-achievements-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg p-4 mb-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-white" id="reputation-points">0</div>
+                    <div class="text-purple-200">Reputation Points</div>
+                </div>
+            </div>
+            
+            <h3 class="text-xl font-semibold text-white mb-4">Badges & Achievements</h3>
+            <div id="achievements-list" class="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+                <!-- Achievements will be loaded here -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Event Invites Modal -->
+    <div id="event-invites-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Event Invites</h2>
+                <button id="close-event-invites-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div id="event-invites-list" class="space-y-4 max-h-96 overflow-y-auto">
+                <!-- Event invites will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite Friends to Event Modal -->
+    <div id="invite-friends-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Invite Friends</h2>
+                <button id="close-invite-friends-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <input type="hidden" id="invite-event-id">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-300 mb-2">Message (optional)</label>
+                <textarea id="invite-message" class="w-full px-3 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500" 
+                         placeholder="Hey! Want to join me at this event?"></textarea>
+            </div>
+            
+            <div id="invite-friends-list" class="space-y-2 max-h-64 overflow-y-auto mb-4">
+                <!-- Friends list for inviting -->
+            </div>
+            
+            <button id="send-invites" class="w-full py-2 bg-purple-600 text-white rounded hover:bg-purple-700">
+                Send Invites
+            </button>
+        </div>
+    </div>
+
+    <!-- Create Location Modal -->
+    <div id="create-location-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-white">Add New Party Spot</h2>
+                <button id="close-create-location-modal" class="text-gray-400 hover:text-white">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="create-location-form" class="space-y-4">
+                <input type="hidden" id="location-lat">
+                <input type="hidden" id="location-lng">
+                
+                <div>
+                    <label for="location-name" class="block text-sm font-medium text-gray-300 mb-1">Location Name</label>
+                    <input type="text" id="location-name" required class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div>
+                    <label for="location-description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                    <textarea id="location-description" rows="3" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500"></textarea>
+                </div>
+                
+                <div>
+                    <label for="location-type" class="block text-sm font-medium text-gray-300 mb-1">Type</label>
+                    <select id="location-type" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="club">Club</option>
+                        <option value="bar">Bar</option>
+                        <option value="lounge">Lounge</option>
+                        <option value="concert">Concert Venue</option>
+                        <option value="beach">Beach Party</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="location-address" class="block text-sm font-medium text-gray-300 mb-1">Address</label>
+                    <input type="text" id="location-address" class="w-full px-4 py-2 bg-gray-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="cancel-create-location" class="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700 transition-colors">
+                        Create Location
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="context-menu" class="context-menu">
+        <div id="create-location-context" class="context-menu-item">
+            <i class="fas fa-plus mr-2"></i> Add Party Spot Here
+        </div>
+    </div>
+
     <div id="app-container">
         <!-- Header for the logged-in view - FIXED POSITIONING -->
         <header id="main-header" class="fixed top-0 left-0 right-0 p-4 flex justify-between items-center z-40 bg-gray-900 bg-opacity-90 backdrop-filter backdrop-blur-lg border-b border-gray-700 hidden">
             <h1 class="text-2xl font-extrabold tracking-widest text-gradient gradient-purple-pink">VIBEZ</h1>
             <div class="flex items-center space-x-4">
-                <button id="profile-button" class="text-white hover:text-purple-300 transition-colors">
+                <!-- Feature buttons -->
+                <button id="activity-feed-button" class="text-white hover:text-purple-300 transition-colors" title="Activity Feed">
+                    <i class="fas fa-bell"></i>
+                </button>
+                <button id="friends-button" class="text-white hover:text-purple-300 transition-colors" title="Friends">
+                    <i class="fas fa-users"></i>
+                </button>
+                <button id="achievements-button" class="text-white hover:text-purple-300 transition-colors" title="Achievements">
+                    <i class="fas fa-trophy"></i>
+                </button>
+                <button id="event-invites-button" class="text-white hover:text-purple-300 transition-colors" title="Event Invites">
+                    <i class="fas fa-calendar-check"></i>
+                </button>
+                
+                <button id="profile-button" class="text-white font-semibold hover:text-purple-300 transition-colors">
                     <i class="fas fa-user-circle text-xl"></i>
                 </button>
                 <span id="user-info" class="text-white font-semibold"></span>
@@ -692,7 +1139,7 @@
         <!-- Main App Content (Dashboard) -->
         <div id="main-app-content" class="min-h-screen hidden">
             <!-- Tab Navigation - ADJUSTED MARGIN TOP -->
-            <div class="flex justify-center space-x-8 mb-8 border-b border-gray-700 pt-20">
+            <div class="flex justify-center space-x-8 mb-8 border-b border-gray-700 pt-20 desktop-tabs">
                 <button id="map-tab" class="tab-button active px-4 py-2 font-semibold text-lg transition duration-300">
                     <span class="live-indicator"></span>Live Map
                 </button>
@@ -710,13 +1157,39 @@
                 </button>
             </div>
 
+            <!-- Mobile Tab Navigation -->
+            <div class="mobile-tab-container hidden">
+                <div class="mobile-tab-buttons">
+                    <button id="mobile-map-tab" class="mobile-tab-button active">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>Map</span>
+                    </button>
+                    <button id="mobile-events-tab" class="mobile-tab-button">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Events</span>
+                    </button>
+                    <button id="mobile-videos-tab" class="mobile-tab-button">
+                        <i class="fas fa-video"></i>
+                        <span>Videos</span>
+                    </button>
+                    <button id="mobile-chat-tab" class="mobile-tab-button">
+                        <i class="fas fa-comments"></i>
+                        <span>Chat</span>
+                    </button>
+                    <button id="mobile-profile-tab" class="mobile-tab-button">
+                        <i class="fas fa-user"></i>
+                        <span>Profile</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Tab Content -->
             <div id="tab-content" class="pb-8 px-4 md:px-8">
                 <!-- Interactive Map Section -->
                 <div id="map-content" class="tab-pane">
                     <div class="max-w-7xl mx-auto">
                         <!-- Location Action Buttons -->
-                        <div class="absolute top-4 right-4 z-10 space-y-2">
+                        <div class="absolute top-4 right-4 z-10 space-y-2 desktop-map-actions">
                             <button id="share-location-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-blue-700 transition-colors flex items-center">
                                 <i class="fas fa-share-location mr-2"></i>
                                 Share My Location
@@ -728,6 +1201,19 @@
                             <button id="create-location-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-lg hover:bg-purple-700 transition-colors flex items-center">
                                 <i class="fas fa-plus mr-2"></i>
                                 Add Location
+                            </button>
+                        </div>
+
+                        <!-- Mobile Map Action Buttons -->
+                        <div class="mobile-map-actions hidden">
+                            <button id="mobile-filters-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                            <button id="mobile-location-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-location-arrow"></i>
+                            </button>
+                            <button id="mobile-fullscreen-btn" class="mobile-map-action-btn">
+                                <i class="fas fa-expand"></i>
                             </button>
                         </div>
 
@@ -1205,7 +1691,7 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Leaflet Marker Cluster -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     
     <script>
         // API Configuration
@@ -1213,9 +1699,10 @@
             TICKETMASTER_API_KEY: '7IxmuowYQAzGbY84Qwj0lCGjGHbxVQxv',
             OPENSTREETMAP_NOMINATIM_URL: 'https://nominatim.openstreetmap.org/search',
             TICKETMASTER_BASE_URL: 'https://app.ticketmaster.com/discovery/v2/events.json',
-            OVERPASS_API_URL: 'https://overpass-api.de/api/interpreter'
+            OVERPASS_API_URL: 'https://overpass-api.de/api/interpreter',
+            API_BASE_URL: '/api'
         };
-
+        
         // Real-time configuration
         const REAL_TIME_CONFIG = {
             MAP_UPDATE_INTERVAL: 30000, // 30 seconds
@@ -1233,6 +1720,7 @@
         const mainAppContent = document.getElementById('main-app-content');
         const mainHeader = document.getElementById('main-header');
         const logoutButton = document.getElementById('logout-button');
+        const profileButton = document.getElementById('profile-button');
         const userInfo = document.getElementById('user-info');
         const getStartedButton = document.getElementById('get-started-button');
         const joinNowButton = document.getElementById('join-now-button');
@@ -1253,6 +1741,16 @@
         const videosTab = document.getElementById('videos-tab');
         const chatTab = document.getElementById('chat-tab');
         const profileTab = document.getElementById('profile-tab');
+
+        // Mobile tab elements
+        const mobileTabButtons = document.querySelectorAll('.mobile-tab-button');
+        const mobileMapTab = document.getElementById('mobile-map-tab');
+        const mobileEventsTab = document.getElementById('mobile-events-tab');
+        const mobileVideosTab = document.getElementById('mobile-videos-tab');
+        const mobileChatTab = document.getElementById('mobile-chat-tab');
+        const mobileProfileTab = document.getElementById('mobile-profile-tab');
+        const mobileTabContainer = document.querySelector('.mobile-tab-container');
+        const desktopTabs = document.querySelector('.desktop-tabs');
 
         // Map and filter elements
         const mapContainer = document.getElementById('map-container');
@@ -1276,44 +1774,12 @@
         const userRatingsCount = document.getElementById('user-ratings-count');
         const userVideosCount = document.getElementById('user-videos-count');
 
-        // Rating elements
-        const ratingModal = document.getElementById('rating-modal');
-        const ratingLocationName = document.getElementById('rating-location-name');
-        const ratingStars = document.getElementById('rating-stars');
-        const submitRatingButton = document.getElementById('submit-rating');
-        const cancelRatingButton = document.getElementById('cancel-rating');
-
-        // Create location elements
-        const createLocationModal = document.getElementById('create-location-modal');
-        const createLocationForm = document.getElementById('create-location-form');
-        const cancelCreateLocationButton = document.getElementById('cancel-create-location');
-
-        // Profile elements
-        const profileModal = document.getElementById('profile-modal');
-        const profileButton = document.getElementById('profile-button');
-        const editProfileButton = document.getElementById('edit-profile');
-        const closeProfileButton = document.getElementById('close-profile');
-        const closeProfileModalButton = document.getElementById('close-profile-modal');
-        const saveProfileButton = document.getElementById('save-profile');
-        const profileAvatar = document.getElementById('profile-avatar');
-        const profileUsername = document.getElementById('profile-username');
-        const profileEmail = document.getElementById('profile-email');
-        const profileBio = document.getElementById('profile-bio');
-        const changeAvatarButton = document.getElementById('change-avatar');
-        const avatarUpload = document.getElementById('avatar-upload');
-
-        // Display profile elements
-        const profileDisplayAvatar = document.getElementById('profile-display-avatar');
-        const profileDisplayUsername = document.getElementById('profile-display-username');
-        const profileDisplayEmail = document.getElementById('profile-display-email');
-        const profileDisplayBio = document.getElementById('profile-display-bio');
-        const profileReputation = document.getElementById('profile-reputation');
-        const profileCheckins = document.getElementById('profile-checkins');
-        const profileLocations = document.getElementById('profile-locations');
-        const profileRatings = document.getElementById('profile-ratings');
-        const profileVideos = document.getElementById('profile-videos');
-        const profileBadges = document.getElementById('profile-badges');
-        const profileVideoManagement = document.getElementById('profile-video-management');
+        // Mobile map action elements
+        const mobileFiltersBtn = document.getElementById('mobile-filters-btn');
+        const mobileLocationBtn = document.getElementById('mobile-location-btn');
+        const mobileFullscreenBtn = document.getElementById('mobile-fullscreen-btn');
+        const mobileMapActions = document.querySelector('.mobile-map-actions');
+        const desktopMapActions = document.querySelector('.desktop-map-actions');
 
         // Video elements
         const uploadForm = document.getElementById('upload-form');
@@ -1344,6 +1810,65 @@
         const videoFeedList = document.getElementById('video-feed-list');
         const closeFeedButton = document.getElementById('close-video-feed');
 
+        // Profile elements
+        const profileModal = document.getElementById('profile-modal');
+        const closeProfileModal = document.getElementById('close-profile-modal');
+        const profileForm = document.getElementById('profile-form');
+        const profileAvatar = document.getElementById('profile-avatar');
+        const changeAvatarBtn = document.getElementById('change-avatar-btn');
+        const avatarUpload = document.getElementById('avatar-upload');
+        const cancelProfile = document.getElementById('cancel-profile');
+        const profileUsername = document.getElementById('profile-username');
+        const profileEmail = document.getElementById('profile-email');
+        const profileBio = document.getElementById('profile-bio');
+
+        // Display profile elements
+        const profileDisplayAvatar = document.getElementById('profile-display-avatar');
+        const profileDisplayUsername = document.getElementById('profile-display-username');
+        const profileDisplayEmail = document.getElementById('profile-display-email');
+        const profileDisplayBio = document.getElementById('profile-display-bio');
+        const profileReputation = document.getElementById('profile-reputation');
+        const profileCheckins = document.getElementById('profile-checkins');
+        const profileLocations = document.getElementById('profile-locations');
+        const profileRatings = document.getElementById('profile-ratings');
+        const profileVideos = document.getElementById('profile-videos');
+        const profileBadges = document.getElementById('profile-badges');
+        const profileVideoManagement = document.getElementById('profile-video-management');
+        const editProfileButton = document.getElementById('edit-profile');
+
+        // Rating elements
+        const ratingModal = document.getElementById('rating-modal');
+        const closeRatingModal = document.getElementById('close-rating-modal');
+        const ratingForm = document.getElementById('rating-form');
+        const ratingLocationName = document.getElementById('rating-location-name');
+        const ratingLocationId = document.getElementById('rating-location-id');
+        const cancelRating = document.getElementById('cancel-rating');
+
+        // Create location elements
+        const createLocationModal = document.getElementById('create-location-modal');
+        const closeCreateLocationModal = document.getElementById('close-create-location-modal');
+        const createLocationForm = document.getElementById('create-location-form');
+        const cancelCreateLocation = document.getElementById('cancel-create-location');
+        const locationLat = document.getElementById('location-lat');
+        const locationLng = document.getElementById('location-lng');
+        const locationName = document.getElementById('location-name');
+        const locationDescription = document.getElementById('location-description');
+        const locationType = document.getElementById('location-type');
+        const locationAddress = document.getElementById('location-address');
+
+        // Context menu elements
+        const contextMenu = document.getElementById('context-menu');
+        const createLocationContext = document.getElementById('create-location-context');
+
+        // Feature modals
+        const friendsModal = document.getElementById('friends-modal');
+        const eventInvitesModal = document.getElementById('event-invites-modal');
+        const inviteFriendsModal = document.getElementById('invite-friends-modal');
+        const achievementsModal = document.getElementById('achievements-modal');
+        const activityFeedModal = document.getElementById('activity-feed-modal');
+        const inviteEventId = document.getElementById('invite-event-id');
+        const inviteMessage = document.getElementById('invite-message');
+
         // State variables
         let isLogin = true;
         let map = null;
@@ -1362,6 +1887,7 @@
         let selectedLocationForRating = null;
         let selectedRating = 0;
         let markerCluster = null;
+        let contextMenuLocation = null;
         let updateIntervals = {
             map: null,
             events: null,
@@ -1370,6 +1896,184 @@
             users: null,
             location: null
         };
+        let currentChatRoom = 'general';
+
+// Enhanced mobile map initialization
+const initMobileMap = () => {
+    
+    // Set a higher zoom level for mobile by default
+    if (isMobile) {
+        map.setZoom(14);
+    }
+    
+    // Add touch-friendly controls
+    map.tap?.disable();
+    
+    // Improve marker clustering for mobile
+    if (markerCluster) {
+        markerCluster.options.maxClusterRadius = 80; // Smaller clusters on mobile
+        markerCluster.options.disableClusteringAtZoom = 16; // Disable clustering at higher zoom
+    }
+};
+
+// Enhanced mobile detection with orientation support
+const checkMobileView = () => {
+    const wasMobile = isMobile;
+    isMobile = window.innerWidth <= 768;
+    
+    // Handle orientation changes
+    const isPortrait = window.innerHeight > window.innerWidth;
+    
+    if (isMobile) {
+        mobileTabContainer.classList.remove('hidden');
+        mobileMapActions.classList.remove('hidden');
+        desktopTabs.classList.add('hidden');
+        desktopMapActions.classList.add('hidden');
+        
+        // Adjust map height based on orientation
+            if (isPortrait) {
+                mapContainer.style.height = '85vh';
+                mapContainer.style.minHeight = '600px';
+            } else {
+                mapContainer.style.height = '80vh';
+                mapContainer.style.minHeight = '500px';
+            }
+        }
+        
+        // Initialize mobile-specific map settings
+            initMobileMap();
+        }
+    } else {
+        mobileTabContainer.classList.add('hidden');
+        mobileMapActions.classList.add('hidden');
+        desktopTabs.classList.remove('hidden');
+        desktopMapActions.classList.remove('hidden');
+        
+            mapContainer.style.height = '600px';
+        }
+    }
+    
+    // Refresh map if it exists
+    if (map) {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 300);
+    }
+};
+
+// Enhanced fullscreen function for mobile
+const toggleMapFullscreen = () => {
+    
+    
+    if (isMapFullscreen) {
+        mapContainer.classList.add('map-fullscreen');
+        mobileFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+        
+        // Hide other UI elements
+        mobileTabContainer.style.display = 'none';
+        document.getElementById('main-header').style.display = 'none';
+        
+        // Create enhanced fullscreen controls
+        const fullscreenControls = document.createElement('div');
+        fullscreenControls.className = 'map-fullscreen-controls';
+        fullscreenControls.innerHTML = `
+            <button class="fullscreen-btn" id="exit-fullscreen">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="fullscreen-btn" id="center-map">
+                <i class="fas fa-location-arrow"></i>
+            </button>
+            <button class="fullscreen-btn" id="toggle-filters-fullscreen">
+                <i class="fas fa-filter"></i>
+            </button>
+            <button class="fullscreen-btn" id="current-location">
+                <i class="fas fa-crosshairs"></i>
+            </button>
+        `;
+        mapContainer.appendChild(fullscreenControls);
+        
+        // Add event listeners for fullscreen controls
+        document.getElementById('exit-fullscreen').addEventListener('click', toggleMapFullscreen);
+        document.getElementById('center-map').addEventListener('click', centerMapOnUser);
+        document.getElementById('toggle-filters-fullscreen').addEventListener('click', toggleFiltersVisibility);
+        document.getElementById('current-location').addEventListener('click', locateUser);
+        
+        showNotification('Map is now in fullscreen mode. Tap the X to exit.', 'info');
+        
+        // Lock orientation if supported
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {
+                // Orientation lock not supported or failed
+            });
+        }
+    } else {
+        mapContainer.classList.remove('map-fullscreen');
+        mobileFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+        
+        // Show UI elements again
+        mobileTabContainer.style.display = 'flex';
+        document.getElementById('main-header').style.display = 'flex';
+        
+        // Remove fullscreen controls
+        const fullscreenControls = document.querySelector('.map-fullscreen-controls');
+        if (fullscreenControls) {
+            fullscreenControls.remove();
+        }
+        
+        // Reset map height based on device
+        if (isMobile) {
+            const isPortrait = window.innerHeight > window.innerWidth;
+            if (isPortrait) {
+                mapContainer.style.height = '85vh';
+                mapContainer.style.minHeight = '600px';
+            } else {
+                mapContainer.style.height = '80vh';
+                mapContainer.style.minHeight = '500px';
+            }
+        } else {
+            mapContainer.style.height = '600px';
+        }
+        
+        // Unlock orientation
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+        
+        showNotification('Exited fullscreen mode', 'info');
+    }
+    
+    // Refresh map size
+    setTimeout(() => {
+        map.invalidateSize();
+        if (isMapFullscreen) {
+            // Re-center map in fullscreen
+            if (userLocation) {
+                map.setView([userLocation.lat, userLocation.lng], map.getZoom());
+            }
+        }
+    }, 300);
+};
+
+// Enhanced location function for mobile
+const locateUser = () => {
+    
+    if (userLocation) {
+        map.setView([userLocation.lat, userLocation.lng], 16); // Higher zoom when locating
+        showNotification('Centered on your location', 'success');
+    } else {
+        showNotification('Location not available. Please enable location services.', 'error');
+        // Request location permission
+        locationPermissionModal.classList.remove('hidden');
+    }
+};
+
+        let isMobile = window.innerWidth <= 768;
+        let isMapFullscreen = false;
+        
+        // Default coordinates (Kampala)
+        const defaultLocation = [0.3476, 32.5825];
+        let mapInitialized = false;
+        let dataLoaded = false;
 
         // Utility functions
         const showLoading = (show = true) => {
@@ -1400,7 +2104,145 @@
             }, 5000);
         };
 
+        // Mobile detection and UI adjustment
+        const checkMobileView = () => {
+            isMobile = window.innerWidth <= 768;
+            
+            if (isMobile) {
+                // Show mobile UI elements
+                mobileTabContainer.classList.remove('hidden');
+                mobileMapActions.classList.remove('hidden');
+                desktopTabs.classList.add('hidden');
+                desktopMapActions.classList.add('hidden');
+                
+                // Adjust map height for mobile
+                if (mapContainer && !isMapFullscreen) {
+                    mapContainer.style.height = '70vh';
+                    mapContainer.style.minHeight = '500px';
+                }
+            } else {
+                // Show desktop UI elements
+                mobileTabContainer.classList.add('hidden');
+                mobileMapActions.classList.add('hidden');
+                desktopTabs.classList.remove('hidden');
+                desktopMapActions.classList.remove('hidden');
+                
+                // Reset map height for desktop
+                if (mapContainer && !isMapFullscreen) {
+                    mapContainer.style.height = '600px';
+                }
+            }
+            
+            // Refresh map if it exists
+            if (map) {
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 300);
+            }
+        };
+
+        // Toggle map fullscreen mode
+        const toggleMapFullscreen = () => {
+            if (!map) return;
+            
+            isMapFullscreen = !isMapFullscreen;
+            
+            if (isMapFullscreen) {
+                mapContainer.classList.add('map-fullscreen');
+                mobileFullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                
+                // Create fullscreen controls
+                const fullscreenControls = document.createElement('div');
+                fullscreenControls.className = 'map-fullscreen-controls';
+                fullscreenControls.innerHTML = `
+                    <button class="fullscreen-btn" id="exit-fullscreen">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <button class="fullscreen-btn" id="center-map">
+                        <i class="fas fa-location-arrow"></i>
+                    </button>
+                    <button class="fullscreen-btn" id="toggle-filters-fullscreen">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                `;
+                mapContainer.appendChild(fullscreenControls);
+                
+                // Add event listeners for fullscreen controls
+                document.getElementById('exit-fullscreen').addEventListener('click', toggleMapFullscreen);
+                document.getElementById('center-map').addEventListener('click', centerMapOnUser);
+                document.getElementById('toggle-filters-fullscreen').addEventListener('click', toggleFiltersVisibility);
+                
+                showNotification('Map is now in fullscreen mode', 'info');
+            } else {
+                mapContainer.classList.remove('map-fullscreen');
+                mobileFullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+                
+                // Remove fullscreen controls
+                const fullscreenControls = document.querySelector('.map-fullscreen-controls');
+                if (fullscreenControls) {
+                    fullscreenControls.remove();
+                }
+                
+                // Reset map height based on device
+                if (isMobile) {
+                    mapContainer.style.height = '70vh';
+                    mapContainer.style.minHeight = '500px';
+                } else {
+                    mapContainer.style.height = '600px';
+                }
+                
+                showNotification('Exited fullscreen mode', 'info');
+            }
+            
+            // Refresh map size
+            setTimeout(() => {
+                map.invalidateSize();
+            }, 300);
+        };
+
+        // Center map on user location
+        const centerMapOnUser = () => {
+            if (map && userLocation) {
+                map.setView([userLocation.lat, userLocation.lng], 14);
+                showNotification('Map centered on your location', 'info');
+            } else {
+                showNotification('Location not available', 'error');
+            }
+        };
+
         // API Functions
+        const apiRequest = async (endpoint, options = {}) => {
+            const authToken = localStorage.getItem('authToken');
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(authToken && { 'Authorization': `Token ${authToken}` })
+                }
+            };
+
+            const config = {
+                ...defaultOptions,
+                ...options,
+                headers: {
+                    ...defaultOptions.headers,
+                    ...options.headers
+                }
+            };
+
+            try {
+                const response = await fetch(`${API_CONFIG.API_BASE_URL}${endpoint}`, config);
+                
+                if (!response.ok) {
+                    throw new Error(`API error: ${response.status}`);
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API request failed:', error);
+                throw error;
+            }
+        };
+
         const fetchVenuesFromOpenStreetMap = async (lat, lon, radius = 5000) => {
             try {
                 // Overpass API query to find entertainment venues
@@ -1498,14 +2340,19 @@
             try {
                 console.log("Fetching events with YOUR API key...");
                 
+                // Get current time in ISO format for Ticketmaster
+                const now = new Date();
+                const startDateTime = now.toISOString().split('.')[0] + 'Z';
+                
                 const params = new URLSearchParams({
-                    apikey: API_CONFIG.TICKETMASTER_API_KEY, // This should be YOUR key
+                    apikey: API_CONFIG.TICKETMASTER_API_KEY,
                     latlong: `${lat},${lon}`,
                     radius: radius,
                     unit: 'miles',
                     size: '20',
                     sort: 'date,asc',
-                    classificationName: 'music'
+                    classificationName: 'music',
+                    startDateTime: startDateTime // Only get events from now onwards
                 });
 
                 const response = await fetch(`${API_CONFIG.TICKETMASTER_BASE_URL}?${params}`);
@@ -1521,14 +2368,30 @@
                 if (data._embedded && data._embedded.events) {
                     return data._embedded.events.map(event => {
                         const venue = event._embedded.venues[0];
+                        const startDate = new Date(event.dates.start.dateTime);
+                        const endDate = event.dates.end ? new Date(event.dates.end.dateTime) : new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
+                        
+                        // Check if event is happening now
+                        const now = new Date();
+                        const isLiveNow = startDate <= now && endDate >= now;
+                        
                         return {
                             id: event.id,
                             name: event.name,
                             description: event.info || 'Live event',
-                            startDate: new Date(event.dates.start.dateTime),
+                            startDate: startDate,
+                            endDate: endDate,
+                            time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                             location: venue.name,
+                            address: `${venue.address?.line1 || ''}, ${venue.city?.name || ''}`,
+                            lat: venue.location?.latitude || lat + (Math.random() - 0.5) * 0.05,
+                            lng: venue.location?.longitude || lon + (Math.random() - 0.5) * 0.05,
                             price: event.priceRanges ? `$${event.priceRanges[0].min}` : 'Varies',
-                            // ... other properties
+                            attendees: Math.floor(Math.random() * 1000) + 100,
+                            isPopular: Math.random() > 0.7,
+                            isTrending: Math.random() > 0.8,
+                            isLiveNow: isLiveNow,
+                            source: 'ticketmaster'
                         };
                     });
                 } else {
@@ -1541,6 +2404,31 @@
             }
         };
 
+        const fetchUserEvents = async () => {
+            try {
+                // Fetch events from your own database
+                const response = await apiRequest('/events/');
+                return response.map(event => {
+                    const startDate = new Date(event.start_date);
+                    const endDate = new Date(event.end_date);
+                    const now = new Date();
+                    const isLiveNow = startDate <= now && endDate >= now;
+                    
+                    return {
+                        ...event,
+                        startDate: startDate,
+                        endDate: endDate,
+                        time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+                        isLiveNow: isLiveNow,
+                        source: 'user'
+                    };
+                });
+            } catch (error) {
+                console.error('Error fetching user events:', error);
+                return [];
+            }
+        };
+
         const getSampleEvents = (lat, lon) => {
             const events = [];
             const categories = ['music', 'festival', 'club', 'cultural', 'sports'];
@@ -1549,6 +2437,9 @@
                 const offsetLat = (Math.random() - 0.5) * 0.05;
                 const offsetLon = (Math.random() - 0.5) * 0.05;
                 const startDate = new Date(Date.now() + Math.random() * 7 * 24 * 60 * 60 * 1000);
+                const endDate = new Date(startDate.getTime() + 3 * 60 * 60 * 1000);
+                const now = new Date();
+                const isLiveNow = startDate <= now && endDate >= now;
                 
                 events.push({
                     id: i + 2000,
@@ -1556,7 +2447,7 @@
                     description: 'An exciting event happening soon',
                     category: categories[Math.floor(Math.random() * categories.length)],
                     startDate: startDate,
-                    endDate: new Date(startDate.getTime() + 3 * 60 * 60 * 1000),
+                    endDate: endDate,
                     time: startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
                     location: 'Sample Venue',
                     address: 'Sample City',
@@ -1565,7 +2456,9 @@
                     price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
                     attendees: Math.floor(Math.random() * 1000) + 100,
                     isPopular: Math.random() > 0.7,
-                    isTrending: Math.random() > 0.8
+                    isTrending: Math.random() > 0.8,
+                    isLiveNow: isLiveNow,
+                    source: 'sample'
                 });
             }
             return events;
@@ -1593,8 +2486,11 @@
             localStorage.setItem('userId', userId);
             localStorage.setItem('authToken', 'demo-token-' + Date.now());
             
-            // Start real-time updates
-            startRealTimeUpdates();
+            // Check mobile view
+            checkMobileView();
+            
+            // Initialize map immediately with default coordinates
+            initMap();
             
             // Show location permission modal after a short delay
             setTimeout(() => {
@@ -1629,8 +2525,10 @@
         const showTab = (tabId) => {
             tabPanes.forEach(pane => pane.classList.add('hidden'));
             tabButtons.forEach(button => button.classList.remove('active'));
+            mobileTabButtons.forEach(button => button.classList.remove('active'));
             document.getElementById(`${tabId}-content`).classList.remove('hidden');
             document.getElementById(`${tabId}-tab`).classList.add('active');
+            document.getElementById(`mobile-${tabId}-tab`).classList.add('active');
             
             if (tabId === 'map') {
                 if (!map) {
@@ -1724,10 +2622,7 @@
 
         // MAP FUNCTIONS - USING LEAFLET.JS
         const initMap = () => {
-            // Default to a central location if user location not available
-            const defaultLocation = [0.3476, 32.5825]; // Default to Kampala
-            
-            // Initialize the map
+            // Initialize the map with default coordinates
             map = L.map('map-container').setView(defaultLocation, 12);
             
             // Add OpenStreetMap tiles
@@ -1735,24 +2630,47 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             
-            // Initialize marker cluster group
+            // Initialize marker cluster
             markerCluster = L.markerClusterGroup();
             map.addLayer(markerCluster);
-            
-            // Add context menu for creating locations
-            map.on('contextmenu', function(e) {
-                showCreateLocationModal(e.latlng.lat, e.latlng.lng);
-            });
-            
-            // Load real venues and events
-            loadRealData(defaultLocation[0], defaultLocation[1]);
             
             // Initialize filter counts
             updateFilterCounts();
             updateUserStats();
+            
+            // Add context menu for creating locations
+            map.on('contextmenu', function(e) {
+                contextMenuLocation = e.latlng;
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${e.containerPoint.x}px`;
+                contextMenu.style.top = `${e.containerPoint.y}px`;
+            });
+            
+            // Hide context menu on click
+            map.on('click', function() {
+                contextMenu.style.display = 'none';
+            });
+            
+            // Improve mobile popups
+            map.on('popupopen', function(e) {
+                if (isMobile) {
+                    const popup = e.popup;
+                    const content = popup.getContent();
+                    
+                    // Add mobile-specific styling to popup content
+                    if (content && !content.includes('mobile-popup-content')) {
+                        const newContent = content.replace('<div class="text-white">', '<div class="text-white mobile-popup-content">');
+                        popup.setContent(newContent);
+                    }
+                }
+            });
+            
+            mapInitialized = true;
         };
 
         const loadRealData = async (lat, lon) => {
+            if (dataLoaded) return; // Prevent multiple data loads
+            
             showLoading(true);
             try {
                 // Fetch venues from OpenStreetMap
@@ -1761,8 +2679,13 @@
                 filteredLocations = [...allLocations];
                 
                 // Fetch events from Ticketmaster
-                const events = await fetchEventsFromTicketmaster(lat, lon);
-                allEvents = events;
+                const ticketmasterEvents = await fetchEventsFromTicketmaster(lat, lon);
+                
+                // Fetch events from user database
+                const userEvents = await fetchUserEvents();
+                
+                // Combine all events
+                allEvents = [...ticketmasterEvents, ...userEvents];
                 filteredEvents = [...allEvents];
                 
                 // Add markers to map
@@ -1773,6 +2696,7 @@
                 updateFilterCounts();
                 renderEvents();
                 
+                dataLoaded = true;
                 showNotification('Real-time data loaded successfully!', 'success');
             } catch (error) {
                 console.error('Error loading real data:', error);
@@ -1834,18 +2758,18 @@
                         <p class="text-sm">Vibe: ${location.vibe}</p>
                         <p class="text-sm">Crowd: ${location.crowd}% full</p>
                         <p class="text-sm">Check-ins: ${location.checkIns || 0}</p>
-                        <div class="mt-2 flex space-x-2">
-                            <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
-                                View Details
+                        <div class="${isMobile ? 'mobile-popup-actions' : 'mt-2 flex flex-col space-y-2'}">
+                            <button onclick="rateLocation('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-yellow-600' : 'px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors'}">
+                                Rate This Place
                             </button>
-                            <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                            <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                 Check In
                             </button>
-                            <button onclick="rateLocation(${location.lat}, ${location.lng})" class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors">
-                                Rate
-                            </button>
-                            <button onclick="joinLocationChat(${location.lat}, ${location.lng})" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors">
+                            <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
                                 Join Chat
+                            </button>
+                            <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
+                                View Details
                             </button>
                         </div>
                     </div>
@@ -1856,10 +2780,12 @@
         };
 
         const addEventMarkerToMap = (event) => {
+            const eventIconClass = event.isLiveNow ? 'event-marker live-now' : 'event-marker';
+            
             const eventIcon = L.divIcon({
-                className: 'event-marker',
+                className: eventIconClass,
                 iconSize: [24, 24],
-                html: '<i class="fas fa-calendar-alt"></i>'
+                html: event.isLiveNow ? '<i class="fas fa-broadcast-tower"></i>' : '<i class="fas fa-calendar-alt"></i>'
             });
 
             const marker = L.marker([event.lat, event.lng], { icon: eventIcon })
@@ -1867,16 +2793,17 @@
                 .bindPopup(`
                     <div class="text-white">
                         <h3 class="font-bold text-lg">${event.name}</h3>
+                        ${event.isLiveNow ? '<p class="text-sm text-red-400 font-bold">🔴 LIVE NOW</p>' : ''}
                         <p class="text-sm">📅 ${formatEventDate(event.startDate)} at ${event.time}</p>
                         <p class="text-sm">📍 ${event.location}</p>
                         <p class="text-sm">🎵 ${event.category.toUpperCase()}</p>
                         <p class="text-sm">👥 ${event.attendees.toLocaleString()} attendees</p>
                         <p class="text-sm">💰 ${event.price}</p>
-                        <div class="mt-2 flex space-x-2">
-                            <button onclick="viewEventDetails('${event.id}')" class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors">
+                        <div class="${isMobile ? 'mobile-popup-actions' : 'mt-2 flex space-x-2'}">
+                            <button onclick="viewEventDetails('${event.id}')" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
                                 View Details
                             </button>
-                            <button onclick="rsvpToEvent('${event.id}')" class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                            <button onclick="rsvpToEvent('${event.id}')" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                 RSVP
                             </button>
                         </div>
@@ -1980,47 +2907,6 @@
             });
         };
 
-        // Rating functions
-        function rateLocation(lat, lng) {
-            const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
-            if (location) {
-                selectedLocationForRating = location;
-                ratingLocationName.textContent = location.name;
-                ratingModal.classList.remove('hidden');
-                
-                // Reset stars
-                const stars = ratingStars.querySelectorAll('.rating-star');
-                stars.forEach(star => star.classList.remove('active'));
-                selectedRating = 0;
-            }
-        }
-
-        function submitRating() {
-            if (selectedRating === 0) {
-                showNotification('Please select a rating', 'error');
-                return;
-            }
-            
-            if (selectedLocationForRating) {
-                // Update location rating
-                if (!selectedLocationForRating.rating) {
-                    selectedLocationForRating.rating = selectedRating;
-                } else {
-                    // Simple average calculation for demo
-                    selectedLocationForRating.rating = (selectedLocationForRating.rating + selectedRating) / 2;
-                }
-                
-                // Update marker popup
-                updateMarkerPopup(selectedLocationForRating);
-                
-                // Update user stats
-                updateUserStats();
-                
-                showNotification(`✅ Rated ${selectedLocationForRating.name} ${selectedRating} stars!`, 'success');
-                ratingModal.classList.add('hidden');
-            }
-        }
-
         // Location functions
         function checkInToLocation(lat, lng) {
             const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
@@ -2038,11 +2924,11 @@
                 
                 showNotification(`✅ Checked in at ${locationName}!`, 'success');
             } else {
-                showCreateLocationModal(lat, lng);
+                // If location doesn't exist, open create location modal
+                locationLat.value = lat;
+                locationLng.value = lng;
+                createLocationModal.classList.remove('hidden');
             }
-            
-            updateLocationSelect();
-            updateFilterCounts();
         }
 
         function updateMarkerPopup(location) {
@@ -2055,14 +2941,18 @@
                             <p class="text-sm">👥 ${location.checkIns} check-ins</p>
                             <p class="text-sm">🎯 ${location.crowd}% crowd level</p>
                             <p class="text-sm">💫 Vibe: ${location.vibe}</p>
-                            <div class="mt-2 flex space-x-2">
-                                <button onclick="checkInToLocation(${location.lat}, ${location.lng})" 
-                                        class="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors">
+                            <div class="${isMobile ? 'mobile-popup-actions' : 'mt-2 flex flex-col space-y-2'}">
+                                <button onclick="rateLocation('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-yellow-600' : 'px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors'}">
+                                    Rate This Place
+                                </button>
+                                <button onclick="checkInToLocation(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-green-600' : 'px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 transition-colors'}">
                                     Check In
                                 </button>
-                                <button onclick="rateLocation(${location.lat}, ${location.lng})" 
-                                        class="px-3 py-1 bg-yellow-600 text-white rounded text-sm hover:bg-yellow-700 transition-colors">
-                                    Rate
+                                <button onclick="joinLocationChat('${location.id}', '${location.name}')" class="${isMobile ? 'mobile-popup-action bg-blue-600' : 'px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors'}">
+                                    Join Chat
+                                </button>
+                                <button onclick="viewLocationDetails(${location.lat}, ${location.lng})" class="${isMobile ? 'mobile-popup-action bg-purple-600' : 'px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700 transition-colors'}">
+                                    View Details
                                 </button>
                             </div>
                         </div>
@@ -2079,12 +2969,21 @@
             }
         }
 
-        function joinLocationChat(lat, lng) {
-            const location = allLocations.find(loc => loc.lat === lat && loc.lng === lng);
-            if (location) {
-                showTab('chat');
-                showNotification(`Joined chat for ${location.name}`, 'success');
-            }
+        function joinLocationChat(locationId, locationName) {
+            // In a real app, you would connect to a WebSocket for this specific location
+            currentChatRoom = `location_${locationId}`;
+            showNotification(`Joined chat for ${locationName}`, 'success');
+            
+            // Clear current messages and show a welcome message
+            chatMessages.innerHTML = `
+                <div class="chat-message other">
+                    <p class="text-white">You joined the chat for ${locationName}. Say hi to other partygoers!</p>
+                    <p class="chat-message-time">System • Just now</p>
+                </div>
+            `;
+            
+            // Switch to chat tab
+            showTab('chat');
         }
 
         function updateUserStats() {
@@ -2108,45 +3007,120 @@
             }
         }
 
-        // Create location functions
-        function showCreateLocationModal(lat, lng) {
-            createLocationModal.classList.remove('hidden');
-            // Store the coordinates for creating the location
-            createLocationForm.dataset.lat = lat;
-            createLocationForm.dataset.lng = lng;
+        // Rating functions
+        function rateLocation(locationId, locationName) {
+            ratingLocationId.value = locationId;
+            ratingLocationName.textContent = locationName;
+            ratingModal.classList.remove('hidden');
         }
 
-        function createNewLocation(name, description, type, lat, lng) {
-            const newLocation = {
-                id: Date.now(),
-                name: name,
-                description: description,
-                type: type,
-                lat: lat,
-                lng: lng,
-                address: 'User-added location',
-                city: 'Unknown',
-                rating: null,
-                vibe: getRandomVibe(),
-                crowd: 10,
-                checkIns: 1,
-                userGenerated: true,
-                lastUpdated: new Date()
-            };
+        const submitRating = async (e) => {
+            e.preventDefault();
             
-            allLocations.push(newLocation);
-            addMarkerToMap(newLocation);
+            const locationId = ratingLocationId.value;
+            const ratingValue = document.querySelector('input[name="rating"]:checked');
             
-            showNotification(`🎊 New location added: ${name}`, 'info');
+            if (!ratingValue) {
+                showNotification('Please select a rating', 'error');
+                return;
+            }
             
-            // Update user stats
-            updateUserStats();
-            updateLocationSelect();
-            updateFilterCounts();
+            const rating = parseInt(ratingValue.value);
             
-            createLocationModal.classList.add('hidden');
-            createLocationForm.reset();
-        }
+            try {
+                // In a real app, you would send this to your API
+                // await apiRequest('/rankings/', {
+                //     method: 'POST',
+                //     body: JSON.stringify({
+                //         party_location: locationId,
+                //         score: rating
+                //     })
+                // });
+                
+                // For demo purposes
+                const location = allLocations.find(loc => loc.id == locationId);
+                if (location) {
+                    // Update the location's average rating
+                    const newRating = (location.rating + rating) / 2;
+                    location.rating = parseFloat(newRating.toFixed(1));
+                    updateMarkerPopup(location);
+                }
+                
+                ratingModal.classList.add('hidden');
+                showNotification(`Thanks for rating ${ratingLocationName.textContent}!`, 'success');
+                
+                // Reset form
+                ratingForm.reset();
+            } catch (error) {
+                console.error('Error submitting rating:', error);
+                showNotification('Failed to submit rating', 'error');
+            }
+        };
+
+        // Create location functions
+        const createNewLocation = async (e) => {
+            e.preventDefault();
+            
+            const name = locationName.value;
+            const description = locationDescription.value;
+            const type = locationType.value;
+            const address = locationAddress.value;
+            const lat = locationLat.value;
+            const lng = locationLng.value;
+            
+            if (!name) {
+                showNotification('Please enter a location name', 'error');
+                return;
+            }
+            
+            try {
+                // In a real app, you would send this to your API
+                // const newLocation = await apiRequest('/partylocations/', {
+                //     method: 'POST',
+                //     body: JSON.stringify({
+                //         name,
+                //         description,
+                //         latitude: lat,
+                //         longitude: lng,
+                //         address,
+                //         genre: type.toUpperCase(),
+                //         vibe_level: 'MEDIUM',
+                //         price_tier: '$'
+                //     })
+                // });
+                
+                // For demo purposes
+                const newLocation = {
+                    id: Date.now(),
+                    name,
+                    description,
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng),
+                    address,
+                    type,
+                    rating: 4.0,
+                    vibe: 'medium',
+                    crowd: 20,
+                    checkIns: 1,
+                    userGenerated: true
+                };
+                
+                allLocations.push(newLocation);
+                addMarkerToMap(newLocation);
+                
+                createLocationModal.classList.add('hidden');
+                showNotification(`New location "${name}" created!`, 'success');
+                
+                // Reset form
+                createLocationForm.reset();
+                updateLocationSelect();
+                updateFilterCounts();
+                updateUserStats();
+            } catch (error) {
+                console.error('Error creating location:', error);
+                showNotification('Failed to create location', 'error');
+            }
+        };
 
         // Profile functions
         function loadProfileData() {
@@ -2200,19 +3174,76 @@
             }
         }
 
-        function openProfileModal() {
-            profileUsername.value = currentUser.username;
-            profileEmail.value = `${currentUser.username}@example.com`;
-            profileBio.value = 'No bio yet. Click "Edit Profile" to add one.';
+        const openProfileModal = () => {
+            // Populate form with current user data
+            profileUsername.value = currentUser?.username || '';
+            profileEmail.value = currentUser?.email || '';
+            profileBio.value = currentUser?.bio || '';
+            
+            // Set avatar if available
+            if (currentUser?.avatar) {
+                profileAvatar.src = currentUser.avatar;
+                profileDisplayAvatar.src = currentUser.avatar;
+            } else {
+                profileAvatar.src = 'https://via.placeholder.com/120x120?text=Avatar';
+                profileDisplayAvatar.src = 'https://via.placeholder.com/120x120?text=Avatar';
+            }
+            
             profileModal.classList.remove('hidden');
-        }
+        };
 
-        function saveProfile() {
-            const newBio = profileBio.value;
-            profileDisplayBio.textContent = newBio || 'No bio yet. Click "Edit Profile" to add one.';
-            showNotification('Profile updated successfully', 'success');
-            profileModal.classList.add('hidden');
-        }
+        const updateProfile = async (e) => {
+            e.preventDefault();
+            
+            const username = profileUsername.value;
+            const email = profileEmail.value;
+            const bio = profileBio.value;
+            
+            try {
+                // In a real app, you would send this to your API
+                // await apiRequest('/profile/', {
+                //     method: 'PUT',
+                //     body: JSON.stringify({
+                //         username,
+                //         email,
+                //         bio
+                //     })
+                // });
+                
+                // Update current user data
+                currentUser.username = username;
+                currentUser.email = email;
+                currentUser.bio = bio;
+                
+                userInfo.textContent = `Hello, ${username}`;
+                profileDisplayUsername.textContent = username;
+                profileDisplayEmail.textContent = email;
+                profileDisplayBio.textContent = bio;
+                
+                profileModal.classList.add('hidden');
+                showNotification('Profile updated successfully!', 'success');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showNotification('Failed to update profile', 'error');
+            }
+        };
+
+        const changeAvatar = () => {
+            avatarUpload.click();
+        };
+
+        const handleAvatarUpload = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // In a real app, you would upload the file to your server
+                // For demo purposes, we'll just create a local URL
+                const avatarUrl = URL.createObjectURL(file);
+                profileAvatar.src = avatarUrl;
+                profileDisplayAvatar.src = avatarUrl;
+                currentUser.avatar = avatarUrl;
+                showNotification('Avatar updated!', 'success');
+            }
+        };
 
         // EVENTS FUNCTIONS
         const fetchEvents = async () => {
@@ -2220,8 +3251,9 @@
             try {
                 // If we have user location, use it to fetch events
                 if (userLocation) {
-                    const events = await fetchEventsFromTicketmaster(userLocation.lat, userLocation.lng);
-                    allEvents = events;
+                    const ticketmasterEvents = await fetchEventsFromTicketmaster(userLocation.lat, userLocation.lng);
+                    const userEvents = await fetchUserEvents();
+                    allEvents = [...ticketmasterEvents, ...userEvents];
                     filteredEvents = [...allEvents];
                 }
                 
@@ -2250,6 +3282,7 @@
                             <div class="flex justify-between items-start mb-2">
                                 <h3 class="font-bold text-white text-lg">${event.name}</h3>
                                 <div class="flex space-x-1">
+                                    ${event.isLiveNow ? '<span class="event-category" style="background: #ef4444;">LIVE NOW</span>' : ''}
                                     ${event.isPopular ? '<span class="event-category event-popular">POPULAR</span>' : ''}
                                     ${event.isTrending ? '<span class="event-category event-trending">TRENDING</span>' : ''}
                                 </div>
@@ -2353,7 +3386,7 @@
         function viewEventDetails(eventId) {
             const event = allEvents.find(e => e.id === eventId);
             if (event) {
-                alert(`Event: ${event.name}\nDate: ${event.startDate.toLocaleDateString()}\nTime: ${event.time}\nLocation: ${event.location}\nDescription: ${event.description}\nAttendees: ${event.attendees.toLocaleString()}\nPrice: ${event.price}`);
+                alert(`Event: ${event.name}\nDate: ${event.startDate.toLocaleDateString()}\nTime: ${event.time}\nLocation: ${event.location}\nDescription: ${event.description}\nAttendees: ${event.attendees.toLocaleString()}\nPrice: ${event.price}\nSource: ${event.source}`);
             }
         }
 
@@ -2361,6 +3394,12 @@
             const event = allEvents.find(e => e.id === eventId);
             if (event) {
                 showNotification(`✅ RSVP'd to ${event.name}!`, 'success');
+                // Add option to invite friends after RSVP
+                setTimeout(() => {
+                    if (confirm('Want to invite friends to this event?')) {
+                        openInviteFriendsModal(eventId);
+                    }
+                }, 1000);
             }
         }
 
@@ -2410,14 +3449,14 @@
 
             // Render user's videos
             myVideosContainer.innerHTML = myVideos.map(video => `
-                <div class="bg-gray-700 rounded-lg p-3">
-                    <div class="flex justify-between items-center">
+                <div class="bg-gray-700 rounded-lg p-3 flex justify-between items-center">
+                    <div>
                         <span class="text-white text-sm">${video.caption}</span>
-                        <button class="text-red-400 hover:text-red-300" onclick="removeVideo(${video.id})">
-                            <i class="fas fa-trash"></i>
-                        </button>
+                        <p class="text-gray-400 text-xs mt-1">${video.timestamp} • ${video.location}</p>
                     </div>
-                    <p class="text-gray-400 text-xs mt-1">${video.timestamp} • ${video.location}</p>
+                    <button class="text-red-400 hover:text-red-300" onclick="removeVideo(${video.id})">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             `).join('');
         };
@@ -2727,7 +3766,9 @@
                     price: "$",
                     attendees: Math.floor(Math.random() * 100) + 50,
                     isPopular: false,
-                    isTrending: true
+                    isTrending: true,
+                    isLiveNow: false,
+                    source: 'sample'
                 };
                 
                 allEvents.unshift(newEvent);
@@ -2814,6 +3855,462 @@
             });
         };
 
+        // Feature Functions
+        // Activity Feed Functions
+        const openActivityFeedModal = () => {
+            activityFeedModal.classList.remove('hidden');
+            loadActivityFeed();
+        };
+
+        const loadActivityFeed = async () => {
+            try {
+                // const activities = await apiRequest('/activity-feed/');
+                // For demo
+                const activities = [
+                    {
+                        id: 1,
+                        activity_type: 'CHECKIN',
+                        user: { username: 'PartyLover' },
+                        party_location: { name: 'Club XYZ' },
+                        message: 'checked in at Club XYZ',
+                        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 2,
+                        activity_type: 'VIDEO',
+                        user: { username: 'DanceKing' },
+                        party_location: { name: 'Beach Party' },
+                        message: 'uploaded a video at Beach Party',
+                        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        activity_type: 'REVIEW',
+                        user: { username: 'MusicFan' },
+                        party_location: { name: 'Rooftop Lounge' },
+                        message: 'rated Rooftop Lounge 5 stars',
+                        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                
+                const activityList = document.getElementById('activity-feed-list');
+                activityList.innerHTML = activities.map(activity => {
+                    const icon = getActivityIcon(activity.activity_type);
+                    const timeAgo = getTimeAgo(new Date(activity.timestamp));
+                    
+                    return `
+                        <div class="activity-item activity-${activity.activity_type.toLowerCase()} flex items-start">
+                            <div class="activity-icon bg-gray-600">
+                                ${icon}
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-white">
+                                    <span class="font-semibold">${activity.user.username}</span> 
+                                    ${activity.message}
+                                </p>
+                                <p class="text-gray-400 text-sm">${timeAgo}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading activity feed:', error);
+            }
+        };
+
+        const getActivityIcon = (activityType) => {
+            const icons = {
+                'CHECKIN': '📍',
+                'VIDEO': '🎥',
+                'EVENT': '🎉',
+                'REVIEW': '⭐',
+                'RSVP': '✅'
+            };
+            return icons[activityType] || '🔔';
+        };
+
+        const getTimeAgo = (date) => {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        };
+        
+        // Reputation & Gamification Functions
+        const openAchievementsModal = () => {
+            achievementsModal.classList.remove('hidden');
+            loadReputationData();
+        };
+
+        const loadReputationData = async () => {
+            try {
+                // const reputation = await apiRequest('/profile/reputation/');
+                // const achievements = await apiRequest('/achievements/');
+                
+                // For demo
+                const reputationData = {
+                    points: 245,
+                    current_tier: 'Party Enthusiast'
+                };
+                
+                const achievementsData = [
+                    { id: 1, name: 'First Check-in', description: 'Checked in to your first location', icon: '🏁', points: 10, unlocked: true },
+                    { id: 2, name: 'Social Butterfly', description: 'Added 5 friends', icon: '🦋', points: 25, unlocked: true },
+                    { id: 3, name: 'Party Explorer', description: 'Visited 10 different locations', icon: '🧭', points: 50, unlocked: false },
+                    { id: 4, name: 'Video Star', description: 'Uploaded 5 videos', icon: '🎥', points: 30, unlocked: false },
+                    { id: 5, name: 'Rating Guru', description: 'Rated 10 locations', icon: '⭐', points: 40, unlocked: true },
+                    { id: 6, name: 'Night Owl', description: 'Checked in after midnight 10 times', icon: '🦉', points: 35, unlocked: false }
+                ];
+                
+                document.getElementById('reputation-points').textContent = reputationData.points;
+                
+                const achievementsList = document.getElementById('achievements-list');
+                achievementsList.innerHTML = achievementsData.map(achievement => `
+                    <div class="achievement-card ${achievement.unlocked ? '' : 'locked'}">
+                        <div class="achievement-icon">${achievement.icon}</div>
+                        <h4 class="font-semibold text-white">${achievement.name}</h4>
+                        <p class="text-gray-400 text-sm mt-1">${achievement.description}</p>
+                        <div class="badge mt-2">${achievement.points} pts</div>
+                        ${achievement.unlocked ? 
+                            '<div class="text-green-400 text-sm mt-2">✓ Unlocked</div>' : 
+                            '<div class="text-gray-500 text-sm mt-2">🔒 Locked</div>'
+                        }
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading reputation data:', error);
+            }
+        };
+
+        const showAchievementPopup = (achievement) => {
+            const popup = document.createElement('div');
+            popup.className = 'achievement-popup';
+            popup.innerHTML = `
+                <div class="text-4xl mb-2">${achievement.icon}</div>
+                <h3 class="text-xl font-bold mb-2">Achievement Unlocked!</h3>
+                <h4 class="text-lg font-semibold mb-2">${achievement.name}</h4>
+                <p class="text-sm">${achievement.description}</p>
+                <div class="badge mt-2">+${achievement.points} points</div>
+            `;
+            
+            document.body.appendChild(popup);
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 3000);
+        };
+        
+        // Event Invites Functions
+        const openEventInvitesModal = () => {
+            eventInvitesModal.classList.remove('hidden');
+            loadEventInvites();
+        };
+
+        const loadEventInvites = async () => {
+            try {
+                // const invites = await apiRequest('/invites/');
+                // For demo
+                const invites = [
+                    { 
+                        id: 1, 
+                        event: { 
+                            name: 'Weekend Beach Party', 
+                            start_date: '2024-01-27T20:00:00Z',
+                            party_location: { name: 'Sunset Beach' }
+                        },
+                        from_user: { username: 'PartyLover' },
+                        message: 'This is going to be epic!',
+                        status: 'PENDING'
+                    }
+                ];
+                
+                const invitesList = document.getElementById('event-invites-list');
+                invitesList.innerHTML = invites.map(invite => `
+                    <div class="bg-gray-800 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="font-bold text-white text-lg">${invite.event.name}</h3>
+                                <p class="text-gray-300">Invited by ${invite.from_user.username}</p>
+                                <p class="text-gray-400 text-sm">${invite.event.party_location.name} • ${new Date(invite.event.start_date).toLocaleDateString()}</p>
+                                ${invite.message ? `<p class="text-gray-300 mt-2">"${invite.message}"</p>` : ''}
+                            </div>
+                            <span class="px-2 py-1 rounded text-xs ${
+                                invite.status === 'PENDING' ? 'bg-yellow-600 text-white' : 
+                                invite.status === 'ACCEPTED' ? 'bg-green-600 text-white' : 
+                                'bg-red-600 text-white'
+                            }">
+                                ${invite.status}
+                            </span>
+                        </div>
+                        ${invite.status === 'PENDING' ? `
+                        <div class="flex space-x-2">
+                            <button onclick="respondToInvite(${invite.id}, 'ACCEPTED')" class="flex-1 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                                Accept
+                            </button>
+                            <button onclick="respondToInvite(${invite.id}, 'DECLINED')" class="flex-1 py-2 bg-red-600 text-white rounded hover:bg-red-700">
+                                Decline
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading event invites:', error);
+            }
+        };
+
+        const openInviteFriendsModal = (eventId) => {
+            inviteEventId.value = eventId;
+            inviteFriendsModal.classList.remove('hidden');
+            loadFriendsForInvite();
+        };
+
+        const loadFriendsForInvite = async () => {
+            try {
+                // const friends = await apiRequest('/friendships/');
+                // For demo - use same friends as before
+                const friendsList = document.getElementById('invite-friends-list');
+                friendsList.innerHTML = `
+                    <div class="flex items-center p-2 bg-gray-700 rounded">
+                        <input type="checkbox" id="select-all-friends" class="mr-3">
+                        <label for="select-all-friends" class="text-white">Select All Friends</label>
+                    </div>
+                    <div class="flex items-center p-2 bg-gray-700 rounded">
+                        <input type="checkbox" id="friend-1" class="mr-3" value="1">
+                        <label for="friend-1" class="text-white">PartyLover</label>
+                    </div>
+                    <div class="flex items-center p-2 bg-gray-700 rounded">
+                        <input type="checkbox" id="friend-2" class="mr-3" value="2">
+                        <label for="friend-2" class="text-white">DanceKing</label>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading friends for invite:', error);
+            }
+        };
+
+        const sendEventInvites = async () => {
+            const eventId = inviteEventId.value;
+            const message = inviteMessage.value;
+            const selectedFriends = Array.from(document.querySelectorAll('#invite-friends-list input[type="checkbox"]:checked:not(#select-all-friends)'))
+                                        .map(checkbox => checkbox.value);
+            
+            if (selectedFriends.length === 0) {
+                showNotification('Please select at least one friend', 'error');
+                return;
+            }
+            
+            try {
+                for (const friendId of selectedFriends) {
+                    // await apiRequest('/invites/', {
+                    //     method: 'POST',
+                    //     body: JSON.stringify({
+                    //         event: eventId,
+                    //         to_user: friendId,
+                    //         message: message
+                    //     })
+                    // });
+                }
+                
+                inviteFriendsModal.classList.add('hidden');
+                showNotification('Invites sent successfully!', 'success');
+            } catch (error) {
+                console.error('Error sending invites:', error);
+                showNotification('Failed to send invites', 'error');
+            }
+        };
+
+        const respondToInvite = async (inviteId, response) => {
+            try {
+                // await apiRequest(`/invites/${inviteId}/`, {
+                //     method: 'PATCH',
+                //     body: JSON.stringify({ status: response })
+                // });
+                
+                showNotification(`Invite ${response.toLowerCase()}!`, 'success');
+                loadEventInvites();
+                
+                // If accepted, also RSVP to the event
+                if (response === 'ACCEPTED') {
+                    // await apiRequest('/events/rsvp/', {
+                    //     method: 'POST',
+                    //     body: JSON.stringify({ event: inviteId, status: 'GOING' })
+                    // });
+                }
+            } catch (error) {
+                console.error('Error responding to invite:', error);
+                showNotification('Failed to respond to invite', 'error');
+            }
+        };
+        
+        // Friendship Functions
+        const openFriendsModal = () => {
+            friendsModal.classList.remove('hidden');
+            showFriendsTab('friends');
+            loadFriends();
+        };
+
+        const showFriendsTab = (tab) => {
+            // Reset all tabs
+            document.querySelectorAll('#friends-content > div').forEach(div => div.classList.add('hidden'));
+            document.querySelectorAll('#friends-modal button').forEach(btn => btn.classList.replace('bg-purple-600', 'bg-gray-600'));
+            
+            // Activate selected tab
+            if (tab === 'friends') {
+                document.getElementById('my-friends-list').classList.remove('hidden');
+                document.getElementById('friends-tab').classList.replace('bg-gray-600', 'bg-purple-600');
+                loadFriends();
+            } else if (tab === 'find') {
+                document.getElementById('find-friends-list').classList.remove('hidden');
+                document.getElementById('find-friends-tab').classList.replace('bg-gray-600', 'bg-purple-600');
+                findFriends();
+            } else if (tab === 'requests') {
+                document.getElementById('friend-requests-list').classList.remove('hidden');
+                document.getElementById('requests-tab').classList.replace('bg-gray-600', 'bg-purple-600');
+                loadFriendRequests();
+            }
+        };
+
+        const loadFriends = async () => {
+            try {
+                // const friends = await apiRequest('/friendships/');
+                // For demo - simulate API call
+                const friends = [
+                    { id: 1, to_user: { username: 'PartyLover', avatar: null }, created_at: '2024-01-15' },
+                    { id: 2, to_user: { username: 'DanceKing', avatar: null }, created_at: '2024-01-10' }
+                ];
+                
+                const friendsList = document.getElementById('my-friends-list');
+                friendsList.innerHTML = friends.map(friend => `
+                    <div class="friend-card flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <img src="${friend.to_user.avatar || 'https://via.placeholder.com/50x50?text=U'}" 
+                                 class="friend-avatar" alt="${friend.to_user.username}">
+                            <div>
+                                <h4 class="font-semibold text-white">${friend.to_user.username}</h4>
+                                <p class="text-gray-400 text-sm">Friends since ${new Date(friend.created_at).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <button onclick="removeFriend(${friend.id})" class="text-red-400 hover:text-red-300">
+                            <i class="fas fa-user-times"></i>
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading friends:', error);
+            }
+        };
+
+        const findFriends = async () => {
+            try {
+                // const users = await apiRequest('/users/');
+                // For demo
+                const users = [
+                    { id: 3, username: 'MusicFan', avatar: null },
+                    { id: 4, username: 'NightOwl', avatar: null },
+                    { id: 5, username: 'SocialButterfly', avatar: null }
+                ];
+                
+                const findList = document.getElementById('find-friends-list');
+                findList.innerHTML = users.map(user => `
+                    <div class="friend-card flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <img src="${user.avatar || 'https://via.placeholder.com/50x50?text=U'}" 
+                                 class="friend-avatar" alt="${user.username}">
+                            <div>
+                                <h4 class="font-semibold text-white">${user.username}</h4>
+                                <p class="text-gray-400 text-sm">Suggested friend</p>
+                            </div>
+                        </div>
+                        <button onclick="sendFriendRequest(${user.id})" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+                            Add Friend
+                        </button>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error finding friends:', error);
+            }
+        };
+
+        const loadFriendRequests = async () => {
+            try {
+                // const requests = await apiRequest('/friendships/requests/');
+                // For demo
+                const requests = [
+                    { id: 6, from_user: { username: 'NewUser', avatar: null }, created_at: '2024-01-20' }
+                ];
+                
+                const requestsList = document.getElementById('friend-requests-list');
+                requestsList.innerHTML = requests.map(request => `
+                    <div class="friend-card flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <img src="${request.from_user.avatar || 'https://via.placeholder.com/50x50?text=U'}" 
+                                 class="friend-avatar" alt="${request.from_user.username}">
+                            <div>
+                                <h4 class="font-semibold text-white">${request.from_user.username}</h4>
+                                <p class="text-gray-400 text-sm">Wants to be friends</p>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button onclick="acceptFriendRequest(${request.id})" class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700">
+                                Accept
+                            </button>
+                            <button onclick="declineFriendRequest(${request.id})" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700">
+                                Decline
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Error loading friend requests:', error);
+            }
+        };
+
+        const sendFriendRequest = async (userId) => {
+            try {
+                // await apiRequest('/friendships/', {
+                //     method: 'POST',
+                //     body: JSON.stringify({ to_user: userId })
+                // });
+                showNotification('Friend request sent!', 'success');
+                findFriends(); // Refresh the list
+            } catch (error) {
+                console.error('Error sending friend request:', error);
+                showNotification('Failed to send friend request', 'error');
+            }
+        };
+
+        const acceptFriendRequest = async (requestId) => {
+            try {
+                // await apiRequest(`/friendships/${requestId}/accept/`, { method: 'POST' });
+                showNotification('Friend request accepted!', 'success');
+                loadFriendRequests();
+                loadFriends();
+            } catch (error) {
+                console.error('Error accepting friend request:', error);
+                showNotification('Failed to accept friend request', 'error');
+            }
+        };
+
+        const removeFriend = async (friendshipId) => {
+            if (confirm('Are you sure you want to remove this friend?')) {
+                try {
+                    // await apiRequest(`/friendships/${friendshipId}/`, { method: 'DELETE' });
+                    showNotification('Friend removed', 'success');
+                    loadFriends();
+                } catch (error) {
+                    console.error('Error removing friend:', error);
+                    showNotification('Failed to remove friend', 'error');
+                }
+            }
+        };
+
         // EVENT LISTENERS
         document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('authToken');
@@ -2825,7 +4322,13 @@
             } else {
                 showLandingPage();
             }
+            
+            // Check for mobile view on load
+            checkMobileView();
         });
+
+        // Window resize listener for responsive design
+        window.addEventListener('resize', checkMobileView);
 
         // Landing page buttons
         getStartedButton.addEventListener('click', showAuthForm);
@@ -2851,6 +4354,7 @@
 
         // Dashboard
         logoutButton.addEventListener('click', logout);
+        profileButton.addEventListener('click', openProfileModal);
 
         // Tab navigation
         mapTab.addEventListener('click', () => showTab('map'));
@@ -2859,6 +4363,13 @@
         chatTab.addEventListener('click', () => showTab('chat'));
         profileTab.addEventListener('click', () => showTab('profile'));
 
+        // Mobile tab navigation
+        mobileMapTab.addEventListener('click', () => showTab('map'));
+        mobileEventsTab.addEventListener('click', () => showTab('events'));
+        mobileVideosTab.addEventListener('click', () => showTab('videos'));
+        mobileChatTab.addEventListener('click', () => showTab('chat'));
+        mobileProfileTab.addEventListener('click', () => showTab('profile'));
+
         // Map filters
         applyFiltersButton.addEventListener('click', applyMapFilters);
         resetFiltersButton.addEventListener('click', resetMapFilters);
@@ -2866,6 +4377,11 @@
         if (toggleFilters) {
             toggleFilters.addEventListener('click', toggleFiltersVisibility);
         }
+
+        // Mobile map actions
+        mobileFiltersBtn.addEventListener('click', toggleFiltersVisibility);
+        mobileLocationBtn.addEventListener('click', centerMapOnUser);
+        mobileFullscreenBtn.addEventListener('click', toggleMapFullscreen);
 
         // Events filters
         eventsSearchBtn.addEventListener('click', renderEvents);
@@ -2878,78 +4394,29 @@
         eventsCategory.addEventListener('change', renderEvents);
         eventsSort.addEventListener('change', renderEvents);
 
-        // Rating system
-        ratingStars.addEventListener('click', (e) => {
-            if (e.target.classList.contains('rating-star')) {
-                const rating = parseInt(e.target.getAttribute('data-rating'));
-                selectedRating = rating;
-                
-                // Update star display
-                const stars = ratingStars.querySelectorAll('.rating-star');
-                stars.forEach((star, index) => {
-                    if (index < rating) {
-                        star.classList.add('active');
-                    } else {
-                        star.classList.remove('active');
-                    }
-                });
-            }
-        });
+        // New feature buttons
+        document.getElementById('friends-button').addEventListener('click', openFriendsModal);
+        document.getElementById('event-invites-button').addEventListener('click', openEventInvitesModal);
+        document.getElementById('achievements-button').addEventListener('click', openAchievementsModal);
+        document.getElementById('activity-feed-button').addEventListener('click', openActivityFeedModal);
 
-        submitRatingButton.addEventListener('click', submitRating);
-        cancelRatingButton.addEventListener('click', () => {
-            ratingModal.classList.add('hidden');
-        });
+        // Modal close buttons
+        document.getElementById('close-friends-modal').addEventListener('click', () => friendsModal.classList.add('hidden'));
+        document.getElementById('close-event-invites-modal').addEventListener('click', () => eventInvitesModal.classList.add('hidden'));
+        document.getElementById('close-achievements-modal').addEventListener('click', () => achievementsModal.classList.add('hidden'));
+        document.getElementById('close-activity-feed-modal').addEventListener('click', () => activityFeedModal.classList.add('hidden'));
+        document.getElementById('close-invite-friends-modal').addEventListener('click', () => inviteFriendsModal.classList.add('hidden'));
 
-        // Create location
-        createLocationBtn.addEventListener('click', () => {
-            if (userLocation) {
-                showCreateLocationModal(userLocation.lat, userLocation.lng);
-            } else {
-                showNotification('Please enable location services to add a location', 'error');
-            }
-        });
+        // Friendship tab buttons
+        document.getElementById('friends-tab').addEventListener('click', () => showFriendsTab('friends'));
+        document.getElementById('find-friends-tab').addEventListener('click', () => showFriendsTab('find'));
+        document.getElementById('requests-tab').addEventListener('click', () => showFriendsTab('requests'));
 
-        createLocationForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('location-name').value;
-            const description = document.getElementById('location-description').value;
-            const type = document.getElementById('location-type').value;
-            const lat = parseFloat(createLocationForm.dataset.lat);
-            const lng = parseFloat(createLocationForm.dataset.lng);
-            
-            createNewLocation(name, description, type, lat, lng);
-        });
+        // Invite friends
+        document.getElementById('send-invites').addEventListener('click', sendEventInvites);
 
-        cancelCreateLocationButton.addEventListener('click', () => {
-            createLocationModal.classList.add('hidden');
-            createLocationForm.reset();
-        });
-
-        // Profile management
-        profileButton.addEventListener('click', openProfileModal);
+        // Profile edit button
         editProfileButton.addEventListener('click', openProfileModal);
-        closeProfileButton.addEventListener('click', () => {
-            profileModal.classList.add('hidden');
-        });
-        closeProfileModalButton.addEventListener('click', () => {
-            profileModal.classList.add('hidden');
-        });
-        saveProfileButton.addEventListener('click', saveProfile);
-        changeAvatarButton.addEventListener('click', () => {
-            avatarUpload.click();
-        });
-        avatarUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    profileAvatar.src = event.target.result;
-                    profileDisplayAvatar.src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
 
         // Location services
         shareLocationBtn.addEventListener('click', () => {
@@ -2983,37 +4450,23 @@
                                 </div>
                             `);
                         
-                        // Reload data with user's location
+                        // Load real data with user's location
                         loadRealData(location.lat, location.lng);
                     }
                 })
                 .catch(error => {
                     showNotification('Location access denied. You can still use the app, but location features will be limited.', 'error');
                     locationPermissionModal.classList.add('hidden');
+                    // Fall back to default location
+                    loadRealData(defaultLocation[0], defaultLocation[1]);
                 });
         });
-
+         
         denyLocationBtn.addEventListener('click', () => {
             locationPermissionModal.classList.add('hidden');
             showNotification('You can enable location sharing later in settings.', 'info');
-        });
-
-        checkInBtn.addEventListener('click', () => {
-            // Get user's current location for check-in
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const lat = position.coords.latitude;
-                        const lng = position.coords.longitude;
-                        checkInToLocation(lat, lng);
-                    },
-                    (error) => {
-                        showNotification('Unable to get your location. Please enable location services.', 'error');
-                    }
-                );
-            } else {
-                showNotification('Geolocation is not supported by your browser', 'error');
-            }
+            // Fall back to default location
+            loadRealData(defaultLocation[0], defaultLocation[1]);
         });
 
         // Video upload
@@ -3037,6 +4490,31 @@
             }
         });
 
+        // Profile
+        closeProfileModal.addEventListener('click', () => profileModal.classList.add('hidden'));
+        cancelProfile.addEventListener('click', () => profileModal.classList.add('hidden'));
+        profileForm.addEventListener('submit', updateProfile);
+        changeAvatarBtn.addEventListener('click', changeAvatar);
+        avatarUpload.addEventListener('change', handleAvatarUpload);
+
+        // Rating
+        closeRatingModal.addEventListener('click', () => ratingModal.classList.add('hidden'));
+        cancelRating.addEventListener('click', () => ratingModal.classList.add('hidden'));
+        ratingForm.addEventListener('submit', submitRating);
+
+        // Create location
+        closeCreateLocationModal.addEventListener('click', () => createLocationModal.classList.add('hidden'));
+        cancelCreateLocation.addEventListener('click', () => createLocationModal.classList.add('hidden'));
+        createLocationForm.addEventListener('submit', createNewLocation);
+        createLocationContext.addEventListener('click', () => {
+            if (contextMenuLocation) {
+                locationLat.value = contextMenuLocation.lat;
+                locationLng.value = contextMenuLocation.lng;
+                createLocationModal.classList.remove('hidden');
+                contextMenu.style.display = 'none';
+            }
+        });
+
         // Handle page visibility changes
         document.addEventListener('visibilitychange', () => {
             if (document.hidden) {
@@ -3051,6 +4529,61 @@
                 }
             }
         });
+        const requestAccurateLocation = () => {
+    return new Promise((resolve, reject) => {
+        if (!navigator.geolocation) {
+            reject(new Error('Geolocation not supported'));
+            return;
+        }
+
+        let bestLocation = null;
+        let attempts = 0;
+        const maxAttempts = 3;
+
+        const watchId = navigator.geolocation.watchPosition(
+            (position) => {
+                attempts++;
+                const newLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude,
+                    accuracy: position.coords.accuracy,
+                    timestamp: position.timestamp
+                };
+
+                // Keep the most accurate location
+                if (!bestLocation || newLocation.accuracy < bestLocation.accuracy) {
+                    bestLocation = newLocation;
+                }
+
+                // Stop after max attempts or if we have high accuracy
+                if (attempts >= maxAttempts || bestLocation.accuracy < 100) {
+                    navigator.geolocation.clearWatch(watchId);
+                    resolve(bestLocation);
+                }
+            },
+            (error) => {
+                navigator.geolocation.clearWatch(watchId);
+                reject(error);
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 0 // Don't use cached position
+            }
+        );
+
+        // Fallback timeout
+        setTimeout(() => {
+            navigator.geolocation.clearWatch(watchId);
+            if (bestLocation) {
+                resolve(bestLocation);
+            } else {
+                reject(new Error('Location timeout'));
+            }
+        }, 20000);
+    });
+};
+
     </script>
 </body>
 </html>
