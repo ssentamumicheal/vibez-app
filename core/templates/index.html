@@ -2315,7 +2315,7 @@
                             price: event.priceRanges ? `$${event.priceRanges[0].min}` : 'Varies',
                             attendees: Math.floor(Math.random() * 1000) + 100,
                             isPopular: Math.random() > 0.7,
-                            isTrending: Math.random() > 0.8,
+                            isTrending: false,
                             isLiveNow: isLiveNow,
                             source: 'ticketmaster'
                         };
@@ -2382,7 +2382,7 @@
                     price: ['$', '$$', '$$$'][Math.floor(Math.random() * 3)],
                     attendees: Math.floor(Math.random() * 1000) + 100,
                     isPopular: Math.random() > 0.7,
-                    isTrending: Math.random() > 0.8,
+                    isTrending: false,
                     isLiveNow: isLiveNow,
                     source: 'sample'
                 });
@@ -3424,7 +3424,7 @@
             
             showLoading(true);
             try {
-                // For now, we'll use sample videos
+                const saved = localStorage.getItem('vibez_videos'); if(saved){allVideos=JSON.parse(saved);renderVideos();showLoading(false);return;} // For now, we'll use sample videos
                 setTimeout(() => {
                     // Sample videos for demo
                     allVideos = [
@@ -3525,7 +3525,7 @@
                     };
                     
                     myVideos.unshift(newVideo);
-                    allVideos.unshift(newVideo);
+                    allVideos.unshift(newVideo); localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
                     renderVideos();
                     
                     videoFile.value = '';
@@ -3608,7 +3608,7 @@
 
         // VIDEO FEED FUNCTIONS
         closeFeedButton.addEventListener('click', () => {
-            videoFeedContainer.classList.add('hidden');
+            document.querySelectorAll('video').forEach(v => v.pause()); videoFeedContainer.classList.add('hidden');
             // Stop the currently playing video when closing
             const activeVideo = videoFeedList.querySelector('.snap-center video:not([muted])');
             if (activeVideo) activeVideo.pause();
@@ -3801,7 +3801,7 @@
 
         const updateLiveVideos = () => {
             // Only add new videos occasionally for realism
-            if (Math.random() > 0.8) {
+            if (false) {
                 const locations = allLocations.filter(loc => loc.crowd > 50);
                 if (locations.length > 0) {
                     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
@@ -3821,10 +3821,10 @@
                         timestamp: 'Just now',
                         video_file: 'https://www.w3schools.com/html/mov_bbb.mp4',
                         location: randomLocation.name,
-                        isLive: Math.random() > 0.8
+                        isLive: false
                     };
                     
-                    allVideos.unshift(newVideo);
+                    allVideos.unshift(newVideo); localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
                     if (allVideos.length > 20) allVideos.pop();
                     
                     renderVideos();
