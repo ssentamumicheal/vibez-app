@@ -2013,10 +2013,12 @@
         const REAL_TIME_CONFIG = {
             MAP_UPDATE_INTERVAL: 30000, // 30 seconds
             VIDEO_UPDATE_INTERVAL: 20000, // 20 seconds
-            CHAT_UPDATE_INTERVAL: 8000, // 8 seconds
-            USER_PRESENCE_INTERVAL: 30000, // 30 seconds
+            CHAT_UPDATE_INTERVAL: 5000, // 5 seconds (more frequent for real-time chat)
+            USER_PRESENCE_INTERVAL: 15000, // 15 seconds (more frequent for real-time status)
             LOCATION_TRACKING_INTERVAL: 60000, // 1 minute
             EVENTS_UPDATE_INTERVAL: 60000, // 1 minute
+            CHAT_MESSAGE_LIFETIME: 2 * 60 * 60 * 1000, // 2 hours in milliseconds
+            VIDEO_LIFETIME: 24 * 60 * 60 * 1000 // 24 hours in milliseconds
         };
 
         // DOM Elements
@@ -3658,7 +3660,7 @@
             }
         }
 
-        // VIDEO FUNCTIONS - COMPLETELY REWRITTEN
+        // VIDEO FUNCTIONS - COMPLETELY REWRITTEN WITH 24-HOUR PERSISTENCE
         const fetchVideos = async () => {
             const authToken = localStorage.getItem('authToken');
             const userId = localStorage.getItem('userId');
@@ -3672,6 +3674,22 @@
                 if (savedVideos && savedMyVideos) {
                     allVideos = JSON.parse(savedVideos);
                     myVideos = JSON.parse(savedMyVideos);
+                    
+                    // Filter out expired videos (older than 24 hours)
+                    const now = Date.now();
+                    allVideos = allVideos.filter(video => {
+                        const videoAge = now - video.createdAt;
+                        return videoAge < REAL_TIME_CONFIG.VIDEO_LIFETIME;
+                    });
+                    
+                    myVideos = myVideos.filter(video => {
+                        const videoAge = now - video.createdAt;
+                        return videoAge < REAL_TIME_CONFIG.VIDEO_LIFETIME;
+                    });
+                    
+                    // Save filtered videos back to localStorage
+                    localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+                    localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
                 } else {
                     // Start with empty arrays - no sample videos
                     allVideos = [];
@@ -3814,7 +3832,8 @@
                         isLive: false,
                         likes: 0,
                         comments: 0,
-                        likedByUser: false
+                        likedByUser: false,
+                        createdAt: Date.now() // Add timestamp for 24-hour expiration
                     };
                     
                     myVideos.unshift(newVideo);
@@ -3830,7 +3849,7 @@
                     videoCaption.value = '';
                     videoLocationInput.value = '';
                     showLoading(false);
-                    showNotification("Video uploaded successfully!", "success");
+                    showNotification("Video uploaded successfully! It will be visible for 24 hours.", "success");
                     
                     // Update user stats
                     updateUserStats();
@@ -4009,7 +4028,7 @@
             }
         };
 
-        // CHAT FUNCTIONS - COMPLETELY REWRITTEN
+        // CHAT FUNCTIONS - COMPLETELY REWRITTEN WITH REAL-TIME FEATURES
         let chatMessagesData = [];
         let chatUsers = [];
         
@@ -4020,6 +4039,16 @@
             
             if (savedChat) {
                 chatMessagesData = JSON.parse(savedChat);
+                
+                // Filter out expired messages (older than 2 hours)
+                const now = Date.now();
+                chatMessagesData = chatMessagesData.filter(msg => {
+                    const messageAge = now - new Date(msg.timestamp).getTime();
+                    return messageAge < REAL_TIME_CONFIG.CHAT_MESSAGE_LIFETIME;
+                });
+                
+                // Save filtered messages back to localStorage
+                localStorage.setItem('vibez_chat', JSON.stringify(chatMessagesData));
             } else {
                 // Welcome message only
                 chatMessagesData = [
@@ -4036,24 +4065,111 @@
             
             if (savedUsers) {
                 chatUsers = JSON.parse(savedUsers);
+                
+                // Update current user's status
+                const currentUserIndex = chatUsers.findIndex(u => u.username === currentUser?.username);
+                if (currentUserIndex !== -1) {
+                    chatUsers[currentUserIndex].isOnline = true;
+                    chatUsers[currentUserIndex].lastActive = new Date();
+                } else {
+                    // Add current user to chat users
+                    chatUsers.push({
+                        username: currentUser.username,
+                        isOnline: true,
+                        lastActive: new Date()
+                    });
+                }
             } else {
-                // Start with empty users array
-                chatUsers = [];
-                localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
-            }
-            
-            // Add current user to chat users if not already there
-            if (currentUser && !chatUsers.find(u => u.username === currentUser.username)) {
-                chatUsers.unshift({
+                // Start with current user
+                chatUsers = [{
                     username: currentUser.username,
                     isOnline: true,
                     lastActive: new Date()
-                });
-                localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+                }];
             }
+            
+            // Save updated users to localStorage
+            localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
             
             renderChatMessages();
             updateActiveUsersList();
+            
+            // Start real-time updates for chat
+            startChatUpdates();
+        };
+
+        const startChatUpdates = () => {
+            // Update chat every 5 seconds for real-time feel
+            if (updateIntervals.chat) {
+                clearInterval(updateIntervals.chat);
+            }
+            
+            updateIntervals.chat = setInterval(() => {
+                // Update user presence
+                updateUserPresence();
+                
+                // Check for new messages from other users
+                checkForNewMessages();
+            }, REAL_TIME_CONFIG.CHAT_UPDATE_INTERVAL);
+        };
+
+        const updateUserPresence = () => {
+            // Update current user's last active time
+            const currentUserIndex = chatUsers.findIndex(u => u.username === currentUser?.username);
+            if (currentUserIndex !== -1) {
+                chatUsers[currentUserIndex].lastActive = new Date();
+            }
+            
+            // Check for users who haven't been active in 30 seconds and mark them as offline
+            const now = new Date();
+            chatUsers.forEach(user => {
+                if (user.username !== currentUser?.username) {
+                    const timeSinceLastActive = now - new Date(user.lastActive);
+                    if (timeSinceLastActive > 30000) { // 30 seconds
+                        user.isOnline = false;
+                    }
+                }
+            });
+            
+            // Save updated users to localStorage
+            localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+            
+            // Update the UI
+            updateActiveUsersList();
+        };
+
+        const checkForNewMessages = () => {
+            // In a real app, this would check a server for new messages
+            // For demo purposes, we'll simulate occasional new messages from other users
+            if (Math.random() < 0.1 && chatUsers.length > 1) { // 10% chance
+                const onlineUsers = chatUsers.filter(u => u.isOnline && u.username !== currentUser?.username);
+                if (onlineUsers.length > 0) {
+                    const randomUser = onlineUsers[Math.floor(Math.random() * onlineUsers.length)];
+                    const messages = [
+                        "Anyone at Club XYZ tonight?",
+                        "The vibes at Beach Party are amazing!",
+                        "Who's going to the festival this weekend?",
+                        "Just checked in at Rooftop Lounge - great music!",
+                        "Any after-parties happening?",
+                        "The crowd at Downtown Club is lit! 🔥"
+                    ];
+                    
+                    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+                    
+                    // Only add if we don't already have this message
+                    const messageExists = chatMessagesData.some(msg => 
+                        msg.user.username === randomUser.username && msg.message === randomMessage
+                    );
+                    
+                    if (!messageExists) {
+                        addChatMessage(
+                            { username: randomUser.username, avatar: null },
+                            randomMessage,
+                            false
+                        );
+                    }
+                }
+            }
         };
 
         const renderChatMessages = () => {
@@ -4140,11 +4256,34 @@
                 addChatMessage(currentUser, message, true);
                 chatInput.value = '';
                 
-                // No automatic responses - only real user messages
+                // Simulate responses from other users occasionally
+                if (Math.random() < 0.3) { // 30% chance of response
+                    setTimeout(() => {
+                        const onlineUsers = chatUsers.filter(u => u.isOnline && u.username !== currentUser?.username);
+                        if (onlineUsers.length > 0) {
+                            const randomUser = onlineUsers[Math.floor(Math.random() * onlineUsers.length)];
+                            const responses = [
+                                "Sounds fun!",
+                                "I'm there too!",
+                                "Wish I could join!",
+                                "How's the vibe?",
+                                "See you there!",
+                                "Let's meet up!"
+                            ];
+                            
+                            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                            addChatMessage(
+                                { username: randomUser.username, avatar: null },
+                                randomResponse,
+                                false
+                            );
+                        }
+                    }, 1000 + Math.random() * 3000); // Random delay between 1-4 seconds
+                }
             }
         };
 
-        // VIDEO FEED FUNCTIONS - COMPLETELY REWRITTEN
+        // VIDEO FEED FUNCTIONS
         const openVideoFeed = (videoId) => {
             const videoIndex = allVideos.findIndex(v => v.id === videoId);
             if (videoIndex === -1) return;
@@ -4302,12 +4441,12 @@
                     }
                 }, REAL_TIME_CONFIG.VIDEO_UPDATE_INTERVAL);
                 
-                updateIntervals.chat = setInterval(() => {
+                updateIntervals.users = setInterval(() => {
                     if (document.getElementById('chat-content').classList.contains('hidden') === false) {
                         // Only update if user is on chat tab
-                        updateActiveUsers();
+                        updateUserPresence();
                     }
-                }, REAL_TIME_CONFIG.CHAT_UPDATE_INTERVAL);
+                }, REAL_TIME_CONFIG.USER_PRESENCE_INTERVAL);
             }
             
             showNotification('Real-time updates activated', 'success');
@@ -4342,6 +4481,22 @@
         };
 
         const updateLiveVideos = () => {
+            // Clean up expired videos (older than 24 hours)
+            const now = Date.now();
+            allVideos = allVideos.filter(video => {
+                const videoAge = now - video.createdAt;
+                return videoAge < REAL_TIME_CONFIG.VIDEO_LIFETIME;
+            });
+            
+            myVideos = myVideos.filter(video => {
+                const videoAge = now - video.createdAt;
+                return videoAge < REAL_TIME_CONFIG.VIDEO_LIFETIME;
+            });
+            
+            // Save filtered videos
+            localStorage.setItem('vibez_videos', JSON.stringify(allVideos));
+            localStorage.setItem('vibez_my_videos', JSON.stringify(myVideos));
+            
             // Only add new videos occasionally for realism
             if (Math.random() > 0.8) {
                 const locations = allLocations.filter(loc => loc.crowd > 50);
@@ -4369,7 +4524,8 @@
                             isLive: Math.random() > 0.8,
                             likes: Math.floor(Math.random() * 50),
                             comments: Math.floor(Math.random() * 10),
-                            likedByUser: false
+                            likedByUser: false,
+                            createdAt: Date.now()
                         };
                         
                         allVideos.unshift(newVideo);
@@ -4387,16 +4543,6 @@
                     }
                 }
             }
-        };
-
-        const updateActiveUsers = () => {
-            // Update user presence timestamps
-            chatUsers.forEach(user => {
-                if (user.username === currentUser?.username) {
-                    user.lastActive = new Date();
-                }
-            });
-            localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
         };
 
         // Location services
@@ -5168,10 +5314,29 @@
                 if (activeVideoElement) {
                     activeVideoElement.pause();
                 }
+                
+                // Mark user as offline in chat
+                if (currentUser) {
+                    const userIndex = chatUsers.findIndex(u => u.username === currentUser.username);
+                    if (userIndex !== -1) {
+                        chatUsers[userIndex].isOnline = false;
+                        localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+                    }
+                }
             } else {
                 // Page is visible, restart updates if enabled
                 if (liveUpdatesCheckbox.checked) {
                     startRealTimeUpdates();
+                }
+                
+                // Mark user as online in chat
+                if (currentUser) {
+                    const userIndex = chatUsers.findIndex(u => u.username === currentUser.username);
+                    if (userIndex !== -1) {
+                        chatUsers[userIndex].isOnline = true;
+                        chatUsers[userIndex].lastActive = new Date();
+                        localStorage.setItem('vibez_chat_users', JSON.stringify(chatUsers));
+                    }
                 }
                 
                 // Resume video if in video feed
